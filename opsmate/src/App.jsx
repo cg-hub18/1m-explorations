@@ -8,6 +8,7 @@ import StepsPanel from './components/StepsPanel'
 import ShareModal from './components/ShareModal'
 import Toast from './components/Toast'
 import LeftNav from './components/LeftNav'
+import TaskPanel from './components/TaskPanel'
 
 function App() {
   const [showSources, setShowSources] = useState(false)
@@ -27,6 +28,7 @@ function App() {
   const [isCreatingBranch, setIsCreatingBranch] = useState(false)
   const [activeBranchId, setActiveBranchId] = useState(null)
   const [hasNavNotification, setHasNavNotification] = useState(false)
+  const [isTaskPanelOpen, setIsTaskPanelOpen] = useState(false)
   const [analyses, setAnalyses] = useState([
     { id: 'analysis-1', title: 'Shared Investigation', isNew: false, branches: [] }
   ])
@@ -615,6 +617,23 @@ function App() {
         title={toast.title}
         message={toast.message}
       />
+      <TaskPanel 
+        isOpen={isTaskPanelOpen} 
+        onClose={() => setIsTaskPanelOpen(false)} 
+      />
+      
+      {/* Open Task Button - Bottom Left */}
+      {!isTaskPanelOpen && (
+        <button
+          onClick={() => setIsTaskPanelOpen(true)}
+          className="fixed bottom-6 left-6 px-4 py-2.5 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors shadow-lg flex items-center gap-2 z-40"
+        >
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+          </svg>
+          Open task...
+        </button>
+      )}
       
       {/* Read-only shared mode banner */}
       {isReadOnlySharedMode && (
