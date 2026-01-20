@@ -2942,7 +2942,7 @@ Cisco <span class="log-var">I2C</span> <span class="log-var">SMB</span> adapter 
       function openOpsmateOverlay() {
         const overlay = document.getElementById('opsmateOverlay');
         const iframe = document.getElementById('opsmateFrame');
-        iframe.src = 'http://localhost:5176/';
+        iframe.src = './opsmate-app/';
         overlay.classList.add('open');
         document.body.style.overflow = 'hidden';
       }
