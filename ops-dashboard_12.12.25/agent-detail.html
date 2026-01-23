@@ -11,26 +11,10 @@
   <link rel="preload" href="images/house_Outline_24.svg" as="image">
   <link rel="preload" href="images/i-circle_Outline_24.svg" as="image">
   <style>
-    /* Font Faces */
-    @font-face {
-      font-family: 'Optimistic';
-      src: local('Optimistic Display');
-      font-weight: 400;
-    }
-    @font-face {
-      font-family: 'Optimistic';
-      src: local('Optimistic Display Medium');
-      font-weight: 500;
-    }
-    @font-face {
-      font-family: 'Optimistic';
-      src: local('Optimistic Display Bold');
-      font-weight: 700;
-    }
-
     :root {
-      --font-header: 'Optimistic', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      --font-body: 'SF Pro', 'SF Pro Text', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --font-header: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      --font-body: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      --font-mono: ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, monospace;
       --sidebar-width: 260px;
       --text-dark: #1c1e21;
       --text-muted: #65676b;
@@ -990,7 +974,7 @@
     }
 
     .detail-value.mono {
-      font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
+      font-family: var(--font-mono);
       font-size: 13px;
       background: #F5F6F7;
       padding: 4px 8px;
@@ -1308,7 +1292,7 @@
     }
 
     .drawer-detail-value.mono {
-      font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
+      font-family: var(--font-mono);
       font-size: 13px;
       background: #F5F6F7;
       padding: 4px 8px;

@@ -6,7 +6,6 @@
   <title>Quality Home - OneMonitoring</title>
   <link rel="icon" type="image/svg+xml" href="favicon.svg?v=2">
   <link rel="stylesheet" href="styles.css?v=58">
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
   <!-- Left Nav Component -->
   <script src="components/left-nav.js"></script>
   <style>
@@ -488,6 +487,140 @@
       color: var(--color-primary);
     }
 
+    /* Split Button Group - matching feed.html style */
+    .summarize-wrapper {
+      position: relative;
+      display: inline-flex;
+    }
+
+    .split-btn-group {
+      display: inline-flex;
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    .start-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      font-size: 13px;
+      font-weight: 500;
+      color: #374151;
+      background: #E6EBEF;
+      border: none;
+      border-radius: 6px 0 0 6px;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .start-btn:hover {
+      background: #D8DEE4;
+    }
+
+    .start-btn .sparkle-icon {
+      width: 14px;
+      height: 14px;
+    }
+
+    .start-btn .loading-spinner {
+      display: none;
+      width: 14px;
+      height: 14px;
+      animation: spin 1s linear infinite;
+    }
+
+    .start-btn.loading .sparkle-icon {
+      display: none;
+    }
+
+    .start-btn.loading .loading-spinner {
+      display: block;
+    }
+
+    .split-btn-chevron {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 6px 8px;
+      font-size: 13px;
+      color: #374151;
+      background: #E6EBEF;
+      border: none;
+      border-left: 1px solid #D1D5DB;
+      border-radius: 0 6px 6px 0;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .split-btn-chevron:hover {
+      background: #D8DEE4;
+    }
+
+    .split-btn-chevron svg {
+      width: 12px;
+      height: 12px;
+    }
+
+    .summarize-dropdown {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      margin-top: 4px;
+      background: white;
+      border: 1px solid #E5E7EB;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      min-width: 200px;
+      z-index: 100;
+      display: none;
+    }
+
+    .summarize-dropdown.open {
+      display: block;
+    }
+
+    .summarize-dropdown-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 12px;
+      font-size: 13px;
+      color: #374151;
+      cursor: pointer;
+      transition: background 0.15s;
+      text-decoration: none;
+    }
+
+    .summarize-dropdown-item:first-child {
+      border-radius: 8px 8px 0 0;
+    }
+
+    .summarize-dropdown-item:last-child {
+      border-radius: 0 0 8px 8px;
+    }
+
+    .summarize-dropdown-item:hover {
+      background: #F3F4F6;
+    }
+
+    .summarize-dropdown-item svg {
+      width: 16px;
+      height: 16px;
+      color: #6B7280;
+    }
+
+    .start-btn:disabled,
+    .split-btn-chevron:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+    }
+
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
     /* Detection Metrics Section */
     .detection-metrics-grid {
       display: grid;
@@ -671,6 +804,7 @@
     <symbol id="icon-exclamation-arcs-outline" viewBox="0 0 24 24"><path fill="currentColor" d="M12 18.25c1.083 0 1.625.55 1.625 1.375S13.083 21 12 21s-1.625-.55-1.625-1.375.542-1.375 1.625-1.375M12 7a1 1 0 0 1 1 1v8a1 1 0 1 1-2 0V8a1 1 0 0 1 1-1m-3 8.973q-.061.042-.11.08a3 3 0 0 0-.155.129l-.008.008-.021.018a1 1 0 0 1-1.413-1.415l.014-.014.023-.022q.027-.027.073-.067.092-.084.254-.211A6.8 6.8 0 0 1 9 13.664zm6.416-2.101c.4.218.71.437.927.607a5 5 0 0 1 .327.278l.023.022.014.014a1 1 0 1 1-1.414 1.414l-.028-.025a3 3 0 0 0-.155-.13l-.11-.08v-2.308q.222.103.416.208M9 10.933a9.7 9.7 0 0 0-1.722.702 8.5 8.5 0 0 0-1.208.767 6 6 0 0 0-.355.297l-.009.009a1 1 0 0 1-1.413-1.415l.025-.025a2 2 0 0 1 .135-.123 8 8 0 0 1 .399-.329 10.4 10.4 0 0 1 1.495-.95A11.8 11.8 0 0 1 9 8.86zm6-2.072c1.056.261 1.944.631 2.653 1.004.651.343 1.152.687 1.495.951a8 8 0 0 1 .534.452l.025.025a1 1 0 1 1-1.414 1.414l-.009-.008-.006-.006-.057-.052a6 6 0 0 0-.291-.239 8.5 8.5 0 0 0-1.208-.767A9.7 9.7 0 0 0 15 10.933z"/></symbol>
     <symbol id="icon-dot-double-arcs-outline" viewBox="0 0 24 24"><path fill="currentColor" d="M4.929 4.929a1 1 0 0 1 1.414 1.414 8 8 0 0 0 0 11.314 1 1 0 0 1-1.414 1.414c-3.905-3.906-3.905-10.237 0-14.142m12.728 0a1 1 0 0 1 1.338-.068l.076.068.355.373c3.546 3.925 3.428 9.985-.355 13.769a1 1 0 0 1-1.414-1.415 8 8 0 0 0 .283-11.014l-.283-.299-.07-.076a1 1 0 0 1 .07-1.338m-9.9 2.83a1 1 0 0 1 1.415 1.413 4 4 0 0 0-.143 5.508l.143.15.068.075a1.001 1.001 0 0 1-1.407 1.407l-.075-.069-.213-.223a6 6 0 0 1 .213-8.262m7.071 0a1 1 0 0 1 1.414 0 6 6 0 0 1 0 8.484 1 1 0 0 1-1.414-1.414 4 4 0 0 0 0-5.657 1 1 0 0 1 0-1.414M12 10a2 2 0 1 1 0 4 2 2 0 0 1 0-4"/></symbol>
     <symbol id="icon-exclamation-square-outline" viewBox="0 0 24 24"><path fill="currentColor" d="M12.03 15c-.83 0-1.25.4-1.25 1s.42 1 1.25 1 1.25-.4 1.25-1-.42-1-1.25-1m0-1.27c.48 0 .88-.39.88-.88V7.88c0-.48-.39-.88-.88-.88s-.88.39-.88.88v4.97c0 .48.39.88.88.88"/><path fill="currentColor" d="M19.99 3.77a42.1 42.1 0 0 0-15.98 0C2.84 3.99 2 5.03 2 6.23v11.55c0 1.2.85 2.23 2.01 2.46 2.65.51 5.32.77 7.99.77s5.34-.26 7.99-.77c1.17-.22 2.01-1.26 2.01-2.46V6.23c0-1.2-.85-2.23-2.01-2.46m.01 14c0 .24-.17.45-.39.49-5.05.97-10.17.97-15.22 0a.496.496 0 0 1-.39-.49V6.22c0-.24.17-.45.39-.49C6.91 5.24 9.46 5 12 5s5.09.24 7.61.73c.22.04.39.25.39.49z"/></symbol>
+    <symbol id="icon-feed-rss-outline" viewBox="0 0 24 24"><path fill="currentColor" d="M6.18 15.64a2.18 2.18 0 1 1 0 4.36 2.18 2.18 0 0 1 0-4.36M4 4.44A15.56 15.56 0 0 1 19.56 20h-2.83A12.73 12.73 0 0 0 4 7.27V4.44m0 5.66a9.9 9.9 0 0 1 9.9 9.9h-2.83A7.07 7.07 0 0 0 4 12.93V10.1"/></symbol>
   </svg>
 
   <!-- Main Sidebar Container - Rendered by LeftNav component -->
@@ -868,7 +1002,26 @@
                     <span class="deadline-time">≈ 4 days, 7 hours</span>
                   </div>
                 </td>
-                <td><a class="action-link apply">Apply now</a></td>
+                <td>
+                  <div class="summarize-wrapper">
+                    <div class="split-btn-group">
+                      <button class="start-btn" onclick="event.stopPropagation(); handleSummarize(this)">
+                        <svg class="sparkle-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M19 9l-1.25-2.75L15 5l2.75-1.25L19 1l1.25 2.75L23 5l-2.75 1.25L19 9zm0 14l-1.25-2.75L15 19l2.75-1.25L19 15l1.25 2.75L23 19l-2.75 1.25L19 23zM9 18l-2.5-5.5L1 10l5.5-2.5L9 2l2.5 5.5L17 10l-5.5 2.5L9 18z"/></svg>
+                        <svg class="loading-spinner" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
+                        Summarize
+                      </button>
+                      <button class="split-btn-chevron" onclick="toggleSummarizeDropdown(this)">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                      </button>
+                    </div>
+                    <div class="summarize-dropdown">
+                      <a class="summarize-dropdown-item" href="#" onclick="event.stopPropagation(); openInvestigation('detection', 'Missing SLI detector for rb_app_responsiveness', 'High', 'auto-apply'); return false;">
+                        <svg viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" clip-rule="evenodd" d="M10.0206 15.0256C10.3164 15.8619 11.1136 16.4613 12.0513 16.4615C12.9891 16.4613 13.7863 15.8619 14.0821 15.0256H15.1493C14.8242 16.4359 13.5606 17.4872 12.0514 17.4872C10.5427 17.4872 9.27906 16.4359 8.95341 15.0256H10.0206Z"/><path fill-rule="evenodd" clip-rule="evenodd" d="M8.12879 7.38461C9.61545 7.38462 10.8211 8.59026 10.8211 10.0769C10.8211 11.5636 9.61545 12.7692 8.12879 12.7692C6.64213 12.7692 5.43649 11.5636 5.43649 10.0769C5.43649 8.59026 6.64213 7.38461 8.12879 7.38461ZM8.12879 8.41026C7.20828 8.41026 6.46213 9.15641 6.46213 10.0769C6.46213 10.9974 7.20828 11.7436 8.12879 11.7436C9.0493 11.7436 9.79546 10.9974 9.79546 10.0769C9.79546 9.15641 9.0493 8.41026 8.12879 8.41026Z"/><path fill-rule="evenodd" clip-rule="evenodd" d="M15.8724 7.38461C17.359 7.38462 18.5647 8.59026 18.5647 10.0769C18.5647 11.5636 17.359 12.7692 15.8724 12.7692C14.3857 12.7692 13.1801 11.5636 13.1801 10.0769C13.1801 8.59026 14.3857 7.38461 15.8724 7.38461ZM15.8724 8.41026C14.9519 8.41026 14.2057 9.15641 14.2057 10.0769C14.2057 10.9974 14.9519 11.7436 15.8724 11.7436C16.7929 11.7436 17.5391 10.9974 17.5391 10.0769C17.5391 9.15641 16.7929 8.41026 15.8724 8.41026Z"/></svg>
+                        View Investigation
+                      </a>
+                    </div>
+                  </div>
+                </td>
               </tr>
               <tr class="recommendation-row" onclick="openInvestigation('detection', 'Quality improvement for fb_api_latency detector', 'High', 'auto-apply')">
                 <td>
@@ -887,7 +1040,26 @@
                     <span class="deadline-time">≈ 5 days, 2 hours</span>
                   </div>
                 </td>
-                <td><a class="action-link apply">Apply now</a></td>
+                <td>
+                  <div class="summarize-wrapper">
+                    <div class="split-btn-group">
+                      <button class="start-btn" onclick="event.stopPropagation(); handleSummarize(this)">
+                        <svg class="sparkle-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M19 9l-1.25-2.75L15 5l2.75-1.25L19 1l1.25 2.75L23 5l-2.75 1.25L19 9zm0 14l-1.25-2.75L15 19l2.75-1.25L19 15l1.25 2.75L23 19l-2.75 1.25L19 23zM9 18l-2.5-5.5L1 10l5.5-2.5L9 2l2.5 5.5L17 10l-5.5 2.5L9 18z"/></svg>
+                        <svg class="loading-spinner" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
+                        Summarize
+                      </button>
+                      <button class="split-btn-chevron" onclick="toggleSummarizeDropdown(this)">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                      </button>
+                    </div>
+                    <div class="summarize-dropdown">
+                      <a class="summarize-dropdown-item" href="#" onclick="event.stopPropagation(); openInvestigation('detection', 'Quality improvement for fb_api_latency detector', 'High', 'auto-apply'); return false;">
+                        <svg viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" clip-rule="evenodd" d="M10.0206 15.0256C10.3164 15.8619 11.1136 16.4613 12.0513 16.4615C12.9891 16.4613 13.7863 15.8619 14.0821 15.0256H15.1493C14.8242 16.4359 13.5606 17.4872 12.0514 17.4872C10.5427 17.4872 9.27906 16.4359 8.95341 15.0256H10.0206Z"/><path fill-rule="evenodd" clip-rule="evenodd" d="M8.12879 7.38461C9.61545 7.38462 10.8211 8.59026 10.8211 10.0769C10.8211 11.5636 9.61545 12.7692 8.12879 12.7692C6.64213 12.7692 5.43649 11.5636 5.43649 10.0769C5.43649 8.59026 6.64213 7.38461 8.12879 7.38461ZM8.12879 8.41026C7.20828 8.41026 6.46213 9.15641 6.46213 10.0769C6.46213 10.9974 7.20828 11.7436 8.12879 11.7436C9.0493 11.7436 9.79546 10.9974 9.79546 10.0769C9.79546 9.15641 9.0493 8.41026 8.12879 8.41026Z"/><path fill-rule="evenodd" clip-rule="evenodd" d="M15.8724 7.38461C17.359 7.38462 18.5647 8.59026 18.5647 10.0769C18.5647 11.5636 17.359 12.7692 15.8724 12.7692C14.3857 12.7692 13.1801 11.5636 13.1801 10.0769C13.1801 8.59026 14.3857 7.38461 15.8724 7.38461ZM15.8724 8.41026C14.9519 8.41026 14.2057 9.15641 14.2057 10.0769C14.2057 10.9974 14.9519 11.7436 15.8724 11.7436C16.7929 11.7436 17.5391 10.9974 17.5391 10.0769C17.5391 9.15641 16.7929 8.41026 15.8724 8.41026Z"/></svg>
+                        View Investigation
+                      </a>
+                    </div>
+                  </div>
+                </td>
               </tr>
               <tr class="recommendation-row" onclick="openInvestigation('prevention', 'Add health check for payment service', 'High', 'manual-review')">
                 <td>
@@ -906,7 +1078,26 @@
                     <span class="deadline-time">≈ 3 days</span>
                   </div>
                 </td>
-                <td><a class="action-link review">Review</a></td>
+                <td>
+                  <div class="summarize-wrapper">
+                    <div class="split-btn-group">
+                      <button class="start-btn" onclick="event.stopPropagation(); handleSummarize(this)">
+                        <svg class="sparkle-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M19 9l-1.25-2.75L15 5l2.75-1.25L19 1l1.25 2.75L23 5l-2.75 1.25L19 9zm0 14l-1.25-2.75L15 19l2.75-1.25L19 15l1.25 2.75L23 19l-2.75 1.25L19 23zM9 18l-2.5-5.5L1 10l5.5-2.5L9 2l2.5 5.5L17 10l-5.5 2.5L9 18z"/></svg>
+                        <svg class="loading-spinner" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
+                        Summarize
+                      </button>
+                      <button class="split-btn-chevron" onclick="toggleSummarizeDropdown(this)">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                      </button>
+                    </div>
+                    <div class="summarize-dropdown">
+                      <a class="summarize-dropdown-item" href="#" onclick="event.stopPropagation(); openInvestigation('prevention', 'Add health check for payment service', 'High', 'manual-review'); return false;">
+                      <svg viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" clip-rule="evenodd" d="M10.0206 15.0256C10.3164 15.8619 11.1136 16.4613 12.0513 16.4615C12.9891 16.4613 13.7863 15.8619 14.0821 15.0256H15.1493C14.8242 16.4359 13.5606 17.4872 12.0514 17.4872C10.5427 17.4872 9.27906 16.4359 8.95341 15.0256H10.0206Z"/><path fill-rule="evenodd" clip-rule="evenodd" d="M8.12879 7.38461C9.61545 7.38462 10.8211 8.59026 10.8211 10.0769C10.8211 11.5636 9.61545 12.7692 8.12879 12.7692C6.64213 12.7692 5.43649 11.5636 5.43649 10.0769C5.43649 8.59026 6.64213 7.38461 8.12879 7.38461ZM8.12879 8.41026C7.20828 8.41026 6.46213 9.15641 6.46213 10.0769C6.46213 10.9974 7.20828 11.7436 8.12879 11.7436C9.0493 11.7436 9.79546 10.9974 9.79546 10.0769C9.79546 9.15641 9.0493 8.41026 8.12879 8.41026Z"/><path fill-rule="evenodd" clip-rule="evenodd" d="M15.8724 7.38461C17.359 7.38462 18.5647 8.59026 18.5647 10.0769C18.5647 11.5636 17.359 12.7692 15.8724 12.7692C14.3857 12.7692 13.1801 11.5636 13.1801 10.0769C13.1801 8.59026 14.3857 7.38461 15.8724 7.38461ZM15.8724 8.41026C14.9519 8.41026 14.2057 9.15641 14.2057 10.0769C14.2057 10.9974 14.9519 11.7436 15.8724 11.7436C16.7929 11.7436 17.5391 10.9974 17.5391 10.0769C17.5391 9.15641 16.7929 8.41026 15.8724 8.41026Z"/><path fill-rule="evenodd" clip-rule="evenodd" d="M14.6673 0C15.177 0 15.5903 0.413337 15.5903 0.923077V5.22922C15.9447 5.2087 16.2862 5.18513 16.616 5.16001V0.98152L18.7175 1.42874C20.2498 1.75489 21.3893 3.00361 21.6047 4.51848C21.6688 4.50617 21.7293 4.49385 21.7867 4.48257C22.019 4.43591 22.1944 4.39746 22.3103 4.37079C22.3683 4.35746 22.4114 4.34716 22.439 4.34049L22.4693 4.33333C22.8877 4.22614 23.3067 4.47435 23.4123 4.88562C23.517 5.29741 23.2688 5.71642 22.8575 5.82206L22.6534 5.87079C22.5247 5.90002 22.3354 5.94154 22.0888 5.99129C21.9442 6.02 21.7795 6.05179 21.5954 6.08564C21.6252 6.27487 21.6411 6.46923 21.6411 6.66667V17.7436C21.6411 19.7667 20.0139 21.4103 17.9965 21.4359H14.9744C14.7406 21.7472 14.3683 21.9487 13.9488 21.9487H10.0514C9.63189 21.9487 9.25958 21.7472 9.02573 21.4359H6.00364C3.98621 21.4108 2.35906 19.7672 2.35906 17.7441V6.66717C2.35906 6.46922 2.37494 6.27536 2.40469 6.08614C2.22058 6.05229 2.05596 6.02102 1.91135 5.99179C1.66469 5.94256 1.47597 5.90104 1.34674 5.87129L1.14262 5.82257C0.731345 5.71692 0.483149 5.29744 0.58878 4.88617C0.694421 4.47489 1.1139 4.2267 1.52518 4.33233L1.56214 4.34105C1.58983 4.34771 1.63291 4.35796 1.69084 4.37129C1.80623 4.39796 1.98213 4.43641 2.21443 4.48307C2.27187 4.49487 2.33237 4.50667 2.39647 4.51898C2.61186 3.00411 3.75134 1.75539 5.28364 1.42924L7.3852 0.982071V5.16051C7.71494 5.18563 8.05649 5.20925 8.41085 5.22977V0.923077C8.41085 0.413333 8.82418 0 9.33392 0H14.6673Z"/></svg>
+                        View Investigation
+                      </a>
+                    </div>
+                  </div>
+                </td>
               </tr>
               <tr class="recommendation-row" onclick="openInvestigation('detection', 'Missing detector for database_connection_pool', 'Medium', 'auto-apply')">
                 <td>
@@ -925,7 +1116,26 @@
                     <span class="deadline-time">≈ 6 days</span>
                   </div>
                 </td>
-                <td><a class="action-link">Apply now</a></td>
+                <td>
+                  <div class="summarize-wrapper">
+                    <div class="split-btn-group">
+                      <button class="start-btn" onclick="event.stopPropagation(); handleSummarize(this)">
+                        <svg class="sparkle-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M19 9l-1.25-2.75L15 5l2.75-1.25L19 1l1.25 2.75L23 5l-2.75 1.25L19 9zm0 14l-1.25-2.75L15 19l2.75-1.25L19 15l1.25 2.75L23 19l-2.75 1.25L19 23zM9 18l-2.5-5.5L1 10l5.5-2.5L9 2l2.5 5.5L17 10l-5.5 2.5L9 18z"/></svg>
+                        <svg class="loading-spinner" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
+                        Summarize
+                      </button>
+                      <button class="split-btn-chevron" onclick="toggleSummarizeDropdown(this)">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                      </button>
+                    </div>
+                    <div class="summarize-dropdown">
+                      <a class="summarize-dropdown-item" href="#" onclick="event.stopPropagation(); openInvestigation('detection', 'Missing detector for database_connection_pool', 'Medium', 'auto-apply'); return false;">
+                      <svg viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" clip-rule="evenodd" d="M10.0206 15.0256C10.3164 15.8619 11.1136 16.4613 12.0513 16.4615C12.9891 16.4613 13.7863 15.8619 14.0821 15.0256H15.1493C14.8242 16.4359 13.5606 17.4872 12.0514 17.4872C10.5427 17.4872 9.27906 16.4359 8.95341 15.0256H10.0206Z"/><path fill-rule="evenodd" clip-rule="evenodd" d="M8.12879 7.38461C9.61545 7.38462 10.8211 8.59026 10.8211 10.0769C10.8211 11.5636 9.61545 12.7692 8.12879 12.7692C6.64213 12.7692 5.43649 11.5636 5.43649 10.0769C5.43649 8.59026 6.64213 7.38461 8.12879 7.38461ZM8.12879 8.41026C7.20828 8.41026 6.46213 9.15641 6.46213 10.0769C6.46213 10.9974 7.20828 11.7436 8.12879 11.7436C9.0493 11.7436 9.79546 10.9974 9.79546 10.0769C9.79546 9.15641 9.0493 8.41026 8.12879 8.41026Z"/><path fill-rule="evenodd" clip-rule="evenodd" d="M15.8724 7.38461C17.359 7.38462 18.5647 8.59026 18.5647 10.0769C18.5647 11.5636 17.359 12.7692 15.8724 12.7692C14.3857 12.7692 13.1801 11.5636 13.1801 10.0769C13.1801 8.59026 14.3857 7.38461 15.8724 7.38461ZM15.8724 8.41026C14.9519 8.41026 14.2057 9.15641 14.2057 10.0769C14.2057 10.9974 14.9519 11.7436 15.8724 11.7436C16.7929 11.7436 17.5391 10.9974 17.5391 10.0769C17.5391 9.15641 16.7929 8.41026 15.8724 8.41026Z"/><path fill-rule="evenodd" clip-rule="evenodd" d="M14.6673 0C15.177 0 15.5903 0.413337 15.5903 0.923077V5.22922C15.9447 5.2087 16.2862 5.18513 16.616 5.16001V0.98152L18.7175 1.42874C20.2498 1.75489 21.3893 3.00361 21.6047 4.51848C21.6688 4.50617 21.7293 4.49385 21.7867 4.48257C22.019 4.43591 22.1944 4.39746 22.3103 4.37079C22.3683 4.35746 22.4114 4.34716 22.439 4.34049L22.4693 4.33333C22.8877 4.22614 23.3067 4.47435 23.4123 4.88562C23.517 5.29741 23.2688 5.71642 22.8575 5.82206L22.6534 5.87079C22.5247 5.90002 22.3354 5.94154 22.0888 5.99129C21.9442 6.02 21.7795 6.05179 21.5954 6.08564C21.6252 6.27487 21.6411 6.46923 21.6411 6.66667V17.7436C21.6411 19.7667 20.0139 21.4103 17.9965 21.4359H14.9744C14.7406 21.7472 14.3683 21.9487 13.9488 21.9487H10.0514C9.63189 21.9487 9.25958 21.7472 9.02573 21.4359H6.00364C3.98621 21.4108 2.35906 19.7672 2.35906 17.7441V6.66717C2.35906 6.46922 2.37494 6.27536 2.40469 6.08614C2.22058 6.05229 2.05596 6.02102 1.91135 5.99179C1.66469 5.94256 1.47597 5.90104 1.34674 5.87129L1.14262 5.82257C0.731345 5.71692 0.483149 5.29744 0.58878 4.88617C0.694421 4.47489 1.1139 4.2267 1.52518 4.33233L1.56214 4.34105C1.58983 4.34771 1.63291 4.35796 1.69084 4.37129C1.80623 4.39796 1.98213 4.43641 2.21443 4.48307C2.27187 4.49487 2.33237 4.50667 2.39647 4.51898C2.61186 3.00411 3.75134 1.75539 5.28364 1.42924L7.3852 0.982071V5.16051C7.71494 5.18563 8.05649 5.20925 8.41085 5.22977V0.923077C8.41085 0.413333 8.82418 0 9.33392 0H14.6673Z"/></svg>
+                        View Investigation
+                      </a>
+                    </div>
+                  </div>
+                </td>
               </tr>
               <tr class="recommendation-row" onclick="openInvestigation('prevention', 'Add RIG widget for auth service', 'High', 'manual-review')">
                 <td>
@@ -944,7 +1154,26 @@
                     <span class="deadline-time">≈ 2 days</span>
                   </div>
                 </td>
-                <td><a class="action-link review">Review</a></td>
+                <td>
+                  <div class="summarize-wrapper">
+                    <div class="split-btn-group">
+                      <button class="start-btn" onclick="event.stopPropagation(); handleSummarize(this)">
+                        <svg class="sparkle-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M19 9l-1.25-2.75L15 5l2.75-1.25L19 1l1.25 2.75L23 5l-2.75 1.25L19 9zm0 14l-1.25-2.75L15 19l2.75-1.25L19 15l1.25 2.75L23 19l-2.75 1.25L19 23zM9 18l-2.5-5.5L1 10l5.5-2.5L9 2l2.5 5.5L17 10l-5.5 2.5L9 18z"/></svg>
+                        <svg class="loading-spinner" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
+                        Summarize
+                      </button>
+                      <button class="split-btn-chevron" onclick="toggleSummarizeDropdown(this)">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                      </button>
+                    </div>
+                    <div class="summarize-dropdown">
+                      <a class="summarize-dropdown-item" href="#" onclick="event.stopPropagation(); openInvestigation('prevention', 'Add RIG widget for auth service', 'High', 'manual-review'); return false;">
+                      <svg viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" clip-rule="evenodd" d="M10.0206 15.0256C10.3164 15.8619 11.1136 16.4613 12.0513 16.4615C12.9891 16.4613 13.7863 15.8619 14.0821 15.0256H15.1493C14.8242 16.4359 13.5606 17.4872 12.0514 17.4872C10.5427 17.4872 9.27906 16.4359 8.95341 15.0256H10.0206Z"/><path fill-rule="evenodd" clip-rule="evenodd" d="M8.12879 7.38461C9.61545 7.38462 10.8211 8.59026 10.8211 10.0769C10.8211 11.5636 9.61545 12.7692 8.12879 12.7692C6.64213 12.7692 5.43649 11.5636 5.43649 10.0769C5.43649 8.59026 6.64213 7.38461 8.12879 7.38461ZM8.12879 8.41026C7.20828 8.41026 6.46213 9.15641 6.46213 10.0769C6.46213 10.9974 7.20828 11.7436 8.12879 11.7436C9.0493 11.7436 9.79546 10.9974 9.79546 10.0769C9.79546 9.15641 9.0493 8.41026 8.12879 8.41026Z"/><path fill-rule="evenodd" clip-rule="evenodd" d="M15.8724 7.38461C17.359 7.38462 18.5647 8.59026 18.5647 10.0769C18.5647 11.5636 17.359 12.7692 15.8724 12.7692C14.3857 12.7692 13.1801 11.5636 13.1801 10.0769C13.1801 8.59026 14.3857 7.38461 15.8724 7.38461ZM15.8724 8.41026C14.9519 8.41026 14.2057 9.15641 14.2057 10.0769C14.2057 10.9974 14.9519 11.7436 15.8724 11.7436C16.7929 11.7436 17.5391 10.9974 17.5391 10.0769C17.5391 9.15641 16.7929 8.41026 15.8724 8.41026Z"/><path fill-rule="evenodd" clip-rule="evenodd" d="M14.6673 0C15.177 0 15.5903 0.413337 15.5903 0.923077V5.22922C15.9447 5.2087 16.2862 5.18513 16.616 5.16001V0.98152L18.7175 1.42874C20.2498 1.75489 21.3893 3.00361 21.6047 4.51848C21.6688 4.50617 21.7293 4.49385 21.7867 4.48257C22.019 4.43591 22.1944 4.39746 22.3103 4.37079C22.3683 4.35746 22.4114 4.34716 22.439 4.34049L22.4693 4.33333C22.8877 4.22614 23.3067 4.47435 23.4123 4.88562C23.517 5.29741 23.2688 5.71642 22.8575 5.82206L22.6534 5.87079C22.5247 5.90002 22.3354 5.94154 22.0888 5.99129C21.9442 6.02 21.7795 6.05179 21.5954 6.08564C21.6252 6.27487 21.6411 6.46923 21.6411 6.66667V17.7436C21.6411 19.7667 20.0139 21.4103 17.9965 21.4359H14.9744C14.7406 21.7472 14.3683 21.9487 13.9488 21.9487H10.0514C9.63189 21.9487 9.25958 21.7472 9.02573 21.4359H6.00364C3.98621 21.4108 2.35906 19.7672 2.35906 17.7441V6.66717C2.35906 6.46922 2.37494 6.27536 2.40469 6.08614C2.22058 6.05229 2.05596 6.02102 1.91135 5.99179C1.66469 5.94256 1.47597 5.90104 1.34674 5.87129L1.14262 5.82257C0.731345 5.71692 0.483149 5.29744 0.58878 4.88617C0.694421 4.47489 1.1139 4.2267 1.52518 4.33233L1.56214 4.34105C1.58983 4.34771 1.63291 4.35796 1.69084 4.37129C1.80623 4.39796 1.98213 4.43641 2.21443 4.48307C2.27187 4.49487 2.33237 4.50667 2.39647 4.51898C2.61186 3.00411 3.75134 1.75539 5.28364 1.42924L7.3852 0.982071V5.16051C7.71494 5.18563 8.05649 5.20925 8.41085 5.22977V0.923077C8.41085 0.413333 8.82418 0 9.33392 0H14.6673Z"/></svg>
+                        View Investigation
+                      </a>
+                    </div>
+                  </div>
+                </td>
               </tr>
               <tr class="recommendation-row" onclick="openInvestigation('detection', 'Optimize alert threshold for cache_hit_rate', 'Medium', 'auto-apply')">
                 <td>
@@ -963,7 +1192,26 @@
                     <span class="deadline-time">≈ 7 days</span>
                   </div>
                 </td>
-                <td><a class="action-link">Apply now</a></td>
+                <td>
+                  <div class="summarize-wrapper">
+                    <div class="split-btn-group">
+                      <button class="start-btn" onclick="event.stopPropagation(); handleSummarize(this)">
+                        <svg class="sparkle-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M19 9l-1.25-2.75L15 5l2.75-1.25L19 1l1.25 2.75L23 5l-2.75 1.25L19 9zm0 14l-1.25-2.75L15 19l2.75-1.25L19 15l1.25 2.75L23 19l-2.75 1.25L19 23zM9 18l-2.5-5.5L1 10l5.5-2.5L9 2l2.5 5.5L17 10l-5.5 2.5L9 18z"/></svg>
+                        <svg class="loading-spinner" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
+                        Summarize
+                      </button>
+                      <button class="split-btn-chevron" onclick="toggleSummarizeDropdown(this)">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                      </button>
+                    </div>
+                    <div class="summarize-dropdown">
+                      <a class="summarize-dropdown-item" href="#" onclick="event.stopPropagation(); openInvestigation('detection', 'Optimize alert threshold for cache_hit_rate', 'Medium', 'auto-apply'); return false;">
+                      <svg viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" clip-rule="evenodd" d="M10.0206 15.0256C10.3164 15.8619 11.1136 16.4613 12.0513 16.4615C12.9891 16.4613 13.7863 15.8619 14.0821 15.0256H15.1493C14.8242 16.4359 13.5606 17.4872 12.0514 17.4872C10.5427 17.4872 9.27906 16.4359 8.95341 15.0256H10.0206Z"/><path fill-rule="evenodd" clip-rule="evenodd" d="M8.12879 7.38461C9.61545 7.38462 10.8211 8.59026 10.8211 10.0769C10.8211 11.5636 9.61545 12.7692 8.12879 12.7692C6.64213 12.7692 5.43649 11.5636 5.43649 10.0769C5.43649 8.59026 6.64213 7.38461 8.12879 7.38461ZM8.12879 8.41026C7.20828 8.41026 6.46213 9.15641 6.46213 10.0769C6.46213 10.9974 7.20828 11.7436 8.12879 11.7436C9.0493 11.7436 9.79546 10.9974 9.79546 10.0769C9.79546 9.15641 9.0493 8.41026 8.12879 8.41026Z"/><path fill-rule="evenodd" clip-rule="evenodd" d="M15.8724 7.38461C17.359 7.38462 18.5647 8.59026 18.5647 10.0769C18.5647 11.5636 17.359 12.7692 15.8724 12.7692C14.3857 12.7692 13.1801 11.5636 13.1801 10.0769C13.1801 8.59026 14.3857 7.38461 15.8724 7.38461ZM15.8724 8.41026C14.9519 8.41026 14.2057 9.15641 14.2057 10.0769C14.2057 10.9974 14.9519 11.7436 15.8724 11.7436C16.7929 11.7436 17.5391 10.9974 17.5391 10.0769C17.5391 9.15641 16.7929 8.41026 15.8724 8.41026Z"/><path fill-rule="evenodd" clip-rule="evenodd" d="M14.6673 0C15.177 0 15.5903 0.413337 15.5903 0.923077V5.22922C15.9447 5.2087 16.2862 5.18513 16.616 5.16001V0.98152L18.7175 1.42874C20.2498 1.75489 21.3893 3.00361 21.6047 4.51848C21.6688 4.50617 21.7293 4.49385 21.7867 4.48257C22.019 4.43591 22.1944 4.39746 22.3103 4.37079C22.3683 4.35746 22.4114 4.34716 22.439 4.34049L22.4693 4.33333C22.8877 4.22614 23.3067 4.47435 23.4123 4.88562C23.517 5.29741 23.2688 5.71642 22.8575 5.82206L22.6534 5.87079C22.5247 5.90002 22.3354 5.94154 22.0888 5.99129C21.9442 6.02 21.7795 6.05179 21.5954 6.08564C21.6252 6.27487 21.6411 6.46923 21.6411 6.66667V17.7436C21.6411 19.7667 20.0139 21.4103 17.9965 21.4359H14.9744C14.7406 21.7472 14.3683 21.9487 13.9488 21.9487H10.0514C9.63189 21.9487 9.25958 21.7472 9.02573 21.4359H6.00364C3.98621 21.4108 2.35906 19.7672 2.35906 17.7441V6.66717C2.35906 6.46922 2.37494 6.27536 2.40469 6.08614C2.22058 6.05229 2.05596 6.02102 1.91135 5.99179C1.66469 5.94256 1.47597 5.90104 1.34674 5.87129L1.14262 5.82257C0.731345 5.71692 0.483149 5.29744 0.58878 4.88617C0.694421 4.47489 1.1139 4.2267 1.52518 4.33233L1.56214 4.34105C1.58983 4.34771 1.63291 4.35796 1.69084 4.37129C1.80623 4.39796 1.98213 4.43641 2.21443 4.48307C2.27187 4.49487 2.33237 4.50667 2.39647 4.51898C2.61186 3.00411 3.75134 1.75539 5.28364 1.42924L7.3852 0.982071V5.16051C7.71494 5.18563 8.05649 5.20925 8.41085 5.22977V0.923077C8.41085 0.413333 8.82418 0 9.33392 0H14.6673Z"/></svg>
+                        View Investigation
+                      </a>
+                    </div>
+                  </div>
+                </td>
               </tr>
               <tr class="recommendation-row" onclick="openInvestigation('quality', 'Add monitoring for mobile app crash rate', 'High', 'manual-review')">
                 <td>
@@ -982,7 +1230,26 @@
                     <span class="deadline-time">≈ 4 days</span>
                   </div>
                 </td>
-                <td><a class="action-link review">Review</a></td>
+                <td>
+                  <div class="summarize-wrapper">
+                    <div class="split-btn-group">
+                      <button class="start-btn" onclick="event.stopPropagation(); handleSummarize(this)">
+                        <svg class="sparkle-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M19 9l-1.25-2.75L15 5l2.75-1.25L19 1l1.25 2.75L23 5l-2.75 1.25L19 9zm0 14l-1.25-2.75L15 19l2.75-1.25L19 15l1.25 2.75L23 19l-2.75 1.25L19 23zM9 18l-2.5-5.5L1 10l5.5-2.5L9 2l2.5 5.5L17 10l-5.5 2.5L9 18z"/></svg>
+                        <svg class="loading-spinner" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
+                        Summarize
+                      </button>
+                      <button class="split-btn-chevron" onclick="toggleSummarizeDropdown(this)">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                      </button>
+                    </div>
+                    <div class="summarize-dropdown">
+                      <a class="summarize-dropdown-item" href="#" onclick="event.stopPropagation(); openInvestigation('quality', 'Add monitoring for mobile app crash rate', 'High', 'manual-review'); return false;">
+                      <svg viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" clip-rule="evenodd" d="M10.0206 15.0256C10.3164 15.8619 11.1136 16.4613 12.0513 16.4615C12.9891 16.4613 13.7863 15.8619 14.0821 15.0256H15.1493C14.8242 16.4359 13.5606 17.4872 12.0514 17.4872C10.5427 17.4872 9.27906 16.4359 8.95341 15.0256H10.0206Z"/><path fill-rule="evenodd" clip-rule="evenodd" d="M8.12879 7.38461C9.61545 7.38462 10.8211 8.59026 10.8211 10.0769C10.8211 11.5636 9.61545 12.7692 8.12879 12.7692C6.64213 12.7692 5.43649 11.5636 5.43649 10.0769C5.43649 8.59026 6.64213 7.38461 8.12879 7.38461ZM8.12879 8.41026C7.20828 8.41026 6.46213 9.15641 6.46213 10.0769C6.46213 10.9974 7.20828 11.7436 8.12879 11.7436C9.0493 11.7436 9.79546 10.9974 9.79546 10.0769C9.79546 9.15641 9.0493 8.41026 8.12879 8.41026Z"/><path fill-rule="evenodd" clip-rule="evenodd" d="M15.8724 7.38461C17.359 7.38462 18.5647 8.59026 18.5647 10.0769C18.5647 11.5636 17.359 12.7692 15.8724 12.7692C14.3857 12.7692 13.1801 11.5636 13.1801 10.0769C13.1801 8.59026 14.3857 7.38461 15.8724 7.38461ZM15.8724 8.41026C14.9519 8.41026 14.2057 9.15641 14.2057 10.0769C14.2057 10.9974 14.9519 11.7436 15.8724 11.7436C16.7929 11.7436 17.5391 10.9974 17.5391 10.0769C17.5391 9.15641 16.7929 8.41026 15.8724 8.41026Z"/><path fill-rule="evenodd" clip-rule="evenodd" d="M14.6673 0C15.177 0 15.5903 0.413337 15.5903 0.923077V5.22922C15.9447 5.2087 16.2862 5.18513 16.616 5.16001V0.98152L18.7175 1.42874C20.2498 1.75489 21.3893 3.00361 21.6047 4.51848C21.6688 4.50617 21.7293 4.49385 21.7867 4.48257C22.019 4.43591 22.1944 4.39746 22.3103 4.37079C22.3683 4.35746 22.4114 4.34716 22.439 4.34049L22.4693 4.33333C22.8877 4.22614 23.3067 4.47435 23.4123 4.88562C23.517 5.29741 23.2688 5.71642 22.8575 5.82206L22.6534 5.87079C22.5247 5.90002 22.3354 5.94154 22.0888 5.99129C21.9442 6.02 21.7795 6.05179 21.5954 6.08564C21.6252 6.27487 21.6411 6.46923 21.6411 6.66667V17.7436C21.6411 19.7667 20.0139 21.4103 17.9965 21.4359H14.9744C14.7406 21.7472 14.3683 21.9487 13.9488 21.9487H10.0514C9.63189 21.9487 9.25958 21.7472 9.02573 21.4359H6.00364C3.98621 21.4108 2.35906 19.7672 2.35906 17.7441V6.66717C2.35906 6.46922 2.37494 6.27536 2.40469 6.08614C2.22058 6.05229 2.05596 6.02102 1.91135 5.99179C1.66469 5.94256 1.47597 5.90104 1.34674 5.87129L1.14262 5.82257C0.731345 5.71692 0.483149 5.29744 0.58878 4.88617C0.694421 4.47489 1.1139 4.2267 1.52518 4.33233L1.56214 4.34105C1.58983 4.34771 1.63291 4.35796 1.69084 4.37129C1.80623 4.39796 1.98213 4.43641 2.21443 4.48307C2.27187 4.49487 2.33237 4.50667 2.39647 4.51898C2.61186 3.00411 3.75134 1.75539 5.28364 1.42924L7.3852 0.982071V5.16051C7.71494 5.18563 8.05649 5.20925 8.41085 5.22977V0.923077C8.41085 0.413333 8.82418 0 9.33392 0H14.6673Z"/></svg>
+                        View Investigation
+                      </a>
+                    </div>
+                  </div>
+                </td>
               </tr>
               <tr class="recommendation-row" onclick="openInvestigation('detection', 'Missing SLO configuration for checkout flow', 'High', 'manual-review')">
                 <td>
@@ -1001,7 +1268,26 @@
                     <span class="deadline-time">≈ 1 day</span>
                   </div>
                 </td>
-                <td><a class="action-link review">Review</a></td>
+                <td>
+                  <div class="summarize-wrapper">
+                    <div class="split-btn-group">
+                      <button class="start-btn" onclick="event.stopPropagation(); handleSummarize(this)">
+                        <svg class="sparkle-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M19 9l-1.25-2.75L15 5l2.75-1.25L19 1l1.25 2.75L23 5l-2.75 1.25L19 9zm0 14l-1.25-2.75L15 19l2.75-1.25L19 15l1.25 2.75L23 19l-2.75 1.25L19 23zM9 18l-2.5-5.5L1 10l5.5-2.5L9 2l2.5 5.5L17 10l-5.5 2.5L9 18z"/></svg>
+                        <svg class="loading-spinner" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
+                        Summarize
+                      </button>
+                      <button class="split-btn-chevron" onclick="toggleSummarizeDropdown(this)">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                      </button>
+                    </div>
+                    <div class="summarize-dropdown">
+                      <a class="summarize-dropdown-item" href="#" onclick="event.stopPropagation(); openInvestigation('detection', 'Missing SLO configuration for checkout flow', 'High', 'manual-review'); return false;">
+                      <svg viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" clip-rule="evenodd" d="M10.0206 15.0256C10.3164 15.8619 11.1136 16.4613 12.0513 16.4615C12.9891 16.4613 13.7863 15.8619 14.0821 15.0256H15.1493C14.8242 16.4359 13.5606 17.4872 12.0514 17.4872C10.5427 17.4872 9.27906 16.4359 8.95341 15.0256H10.0206Z"/><path fill-rule="evenodd" clip-rule="evenodd" d="M8.12879 7.38461C9.61545 7.38462 10.8211 8.59026 10.8211 10.0769C10.8211 11.5636 9.61545 12.7692 8.12879 12.7692C6.64213 12.7692 5.43649 11.5636 5.43649 10.0769C5.43649 8.59026 6.64213 7.38461 8.12879 7.38461ZM8.12879 8.41026C7.20828 8.41026 6.46213 9.15641 6.46213 10.0769C6.46213 10.9974 7.20828 11.7436 8.12879 11.7436C9.0493 11.7436 9.79546 10.9974 9.79546 10.0769C9.79546 9.15641 9.0493 8.41026 8.12879 8.41026Z"/><path fill-rule="evenodd" clip-rule="evenodd" d="M15.8724 7.38461C17.359 7.38462 18.5647 8.59026 18.5647 10.0769C18.5647 11.5636 17.359 12.7692 15.8724 12.7692C14.3857 12.7692 13.1801 11.5636 13.1801 10.0769C13.1801 8.59026 14.3857 7.38461 15.8724 7.38461ZM15.8724 8.41026C14.9519 8.41026 14.2057 9.15641 14.2057 10.0769C14.2057 10.9974 14.9519 11.7436 15.8724 11.7436C16.7929 11.7436 17.5391 10.9974 17.5391 10.0769C17.5391 9.15641 16.7929 8.41026 15.8724 8.41026Z"/><path fill-rule="evenodd" clip-rule="evenodd" d="M14.6673 0C15.177 0 15.5903 0.413337 15.5903 0.923077V5.22922C15.9447 5.2087 16.2862 5.18513 16.616 5.16001V0.98152L18.7175 1.42874C20.2498 1.75489 21.3893 3.00361 21.6047 4.51848C21.6688 4.50617 21.7293 4.49385 21.7867 4.48257C22.019 4.43591 22.1944 4.39746 22.3103 4.37079C22.3683 4.35746 22.4114 4.34716 22.439 4.34049L22.4693 4.33333C22.8877 4.22614 23.3067 4.47435 23.4123 4.88562C23.517 5.29741 23.2688 5.71642 22.8575 5.82206L22.6534 5.87079C22.5247 5.90002 22.3354 5.94154 22.0888 5.99129C21.9442 6.02 21.7795 6.05179 21.5954 6.08564C21.6252 6.27487 21.6411 6.46923 21.6411 6.66667V17.7436C21.6411 19.7667 20.0139 21.4103 17.9965 21.4359H14.9744C14.7406 21.7472 14.3683 21.9487 13.9488 21.9487H10.0514C9.63189 21.9487 9.25958 21.7472 9.02573 21.4359H6.00364C3.98621 21.4108 2.35906 19.7672 2.35906 17.7441V6.66717C2.35906 6.46922 2.37494 6.27536 2.40469 6.08614C2.22058 6.05229 2.05596 6.02102 1.91135 5.99179C1.66469 5.94256 1.47597 5.90104 1.34674 5.87129L1.14262 5.82257C0.731345 5.71692 0.483149 5.29744 0.58878 4.88617C0.694421 4.47489 1.1139 4.2267 1.52518 4.33233L1.56214 4.34105C1.58983 4.34771 1.63291 4.35796 1.69084 4.37129C1.80623 4.39796 1.98213 4.43641 2.21443 4.48307C2.27187 4.49487 2.33237 4.50667 2.39647 4.51898C2.61186 3.00411 3.75134 1.75539 5.28364 1.42924L7.3852 0.982071V5.16051C7.71494 5.18563 8.05649 5.20925 8.41085 5.22977V0.923077C8.41085 0.413333 8.82418 0 9.33392 0H14.6673Z"/></svg>
+                        View Investigation
+                      </a>
+                    </div>
+                  </div>
+                </td>
               </tr>
               <tr class="recommendation-row" onclick="openInvestigation('prevention', 'Add deployment freeze protection for prod', 'Medium', 'manual-review')">
                 <td>
@@ -1020,7 +1306,26 @@
                     <span class="deadline-time">≈ 5 days</span>
                   </div>
                 </td>
-                <td><a class="action-link review">Review</a></td>
+                <td>
+                  <div class="summarize-wrapper">
+                    <div class="split-btn-group">
+                      <button class="start-btn" onclick="event.stopPropagation(); handleSummarize(this)">
+                        <svg class="sparkle-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M19 9l-1.25-2.75L15 5l2.75-1.25L19 1l1.25 2.75L23 5l-2.75 1.25L19 9zm0 14l-1.25-2.75L15 19l2.75-1.25L19 15l1.25 2.75L23 19l-2.75 1.25L19 23zM9 18l-2.5-5.5L1 10l5.5-2.5L9 2l2.5 5.5L17 10l-5.5 2.5L9 18z"/></svg>
+                        <svg class="loading-spinner" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
+                        Summarize
+                      </button>
+                      <button class="split-btn-chevron" onclick="toggleSummarizeDropdown(this)">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                      </button>
+                    </div>
+                    <div class="summarize-dropdown">
+                      <a class="summarize-dropdown-item" href="#" onclick="event.stopPropagation(); openInvestigation('prevention', 'Add deployment freeze protection for prod', 'Medium', 'manual-review'); return false;">
+                      <svg viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" clip-rule="evenodd" d="M10.0206 15.0256C10.3164 15.8619 11.1136 16.4613 12.0513 16.4615C12.9891 16.4613 13.7863 15.8619 14.0821 15.0256H15.1493C14.8242 16.4359 13.5606 17.4872 12.0514 17.4872C10.5427 17.4872 9.27906 16.4359 8.95341 15.0256H10.0206Z"/><path fill-rule="evenodd" clip-rule="evenodd" d="M8.12879 7.38461C9.61545 7.38462 10.8211 8.59026 10.8211 10.0769C10.8211 11.5636 9.61545 12.7692 8.12879 12.7692C6.64213 12.7692 5.43649 11.5636 5.43649 10.0769C5.43649 8.59026 6.64213 7.38461 8.12879 7.38461ZM8.12879 8.41026C7.20828 8.41026 6.46213 9.15641 6.46213 10.0769C6.46213 10.9974 7.20828 11.7436 8.12879 11.7436C9.0493 11.7436 9.79546 10.9974 9.79546 10.0769C9.79546 9.15641 9.0493 8.41026 8.12879 8.41026Z"/><path fill-rule="evenodd" clip-rule="evenodd" d="M15.8724 7.38461C17.359 7.38462 18.5647 8.59026 18.5647 10.0769C18.5647 11.5636 17.359 12.7692 15.8724 12.7692C14.3857 12.7692 13.1801 11.5636 13.1801 10.0769C13.1801 8.59026 14.3857 7.38461 15.8724 7.38461ZM15.8724 8.41026C14.9519 8.41026 14.2057 9.15641 14.2057 10.0769C14.2057 10.9974 14.9519 11.7436 15.8724 11.7436C16.7929 11.7436 17.5391 10.9974 17.5391 10.0769C17.5391 9.15641 16.7929 8.41026 15.8724 8.41026Z"/><path fill-rule="evenodd" clip-rule="evenodd" d="M14.6673 0C15.177 0 15.5903 0.413337 15.5903 0.923077V5.22922C15.9447 5.2087 16.2862 5.18513 16.616 5.16001V0.98152L18.7175 1.42874C20.2498 1.75489 21.3893 3.00361 21.6047 4.51848C21.6688 4.50617 21.7293 4.49385 21.7867 4.48257C22.019 4.43591 22.1944 4.39746 22.3103 4.37079C22.3683 4.35746 22.4114 4.34716 22.439 4.34049L22.4693 4.33333C22.8877 4.22614 23.3067 4.47435 23.4123 4.88562C23.517 5.29741 23.2688 5.71642 22.8575 5.82206L22.6534 5.87079C22.5247 5.90002 22.3354 5.94154 22.0888 5.99129C21.9442 6.02 21.7795 6.05179 21.5954 6.08564C21.6252 6.27487 21.6411 6.46923 21.6411 6.66667V17.7436C21.6411 19.7667 20.0139 21.4103 17.9965 21.4359H14.9744C14.7406 21.7472 14.3683 21.9487 13.9488 21.9487H10.0514C9.63189 21.9487 9.25958 21.7472 9.02573 21.4359H6.00364C3.98621 21.4108 2.35906 19.7672 2.35906 17.7441V6.66717C2.35906 6.46922 2.37494 6.27536 2.40469 6.08614C2.22058 6.05229 2.05596 6.02102 1.91135 5.99179C1.66469 5.94256 1.47597 5.90104 1.34674 5.87129L1.14262 5.82257C0.731345 5.71692 0.483149 5.29744 0.58878 4.88617C0.694421 4.47489 1.1139 4.2267 1.52518 4.33233L1.56214 4.34105C1.58983 4.34771 1.63291 4.35796 1.69084 4.37129C1.80623 4.39796 1.98213 4.43641 2.21443 4.48307C2.27187 4.49487 2.33237 4.50667 2.39647 4.51898C2.61186 3.00411 3.75134 1.75539 5.28364 1.42924L7.3852 0.982071V5.16051C7.71494 5.18563 8.05649 5.20925 8.41085 5.22977V0.923077C8.41085 0.413333 8.82418 0 9.33392 0H14.6673Z"/></svg>
+                        View Investigation
+                      </a>
+                    </div>
+                  </div>
+                </td>
               </tr>
             </tbody>
           </table>
@@ -1194,6 +1499,41 @@
       // In a real app, this would filter the table data
     }
 
+    // Handle Summarize button click
+    function handleSummarize(btn) {
+      event.stopPropagation();
+      btn.classList.add('loading');
+      btn.disabled = true;
+      
+      // Simulate loading then show alert (placeholder for actual functionality)
+      setTimeout(() => {
+        btn.classList.remove('loading');
+        btn.disabled = false;
+        alert('Summary generated! This feature would show a summary dropdown in production.');
+      }, 1000);
+    }
+
+    // Toggle dropdown for split button
+    function toggleSummarizeDropdown(btn) {
+      event.stopPropagation();
+      const wrapper = btn.closest('.summarize-wrapper');
+      const dropdown = wrapper.querySelector('.summarize-dropdown');
+      
+      // Close all other dropdowns first
+      document.querySelectorAll('.summarize-dropdown.open').forEach(d => {
+        if (d !== dropdown) d.classList.remove('open');
+      });
+      
+      dropdown.classList.toggle('open');
+    }
+
+    // Close dropdowns when clicking outside
+    document.addEventListener('click', function(e) {
+      if (!e.target.closest('.summarize-wrapper')) {
+        document.querySelectorAll('.summarize-dropdown.open').forEach(d => d.classList.remove('open'));
+      }
+    });
+
     // Navigation functions that redirect to main page
     function showIncidents() {
       window.location.href = 'index.html';
@@ -1223,7 +1563,7 @@
           iframe.src = '';
         }, 300);
       } else {
-        iframe.src = './opsmate-app/index.html?chatOnly=true';
+        iframe.src = './opsmate-app/index.html?chatOnly=true&page=quality-home';
         panel.classList.add('open');
         if (mainContent) mainContent.classList.add('panel-open');
       }

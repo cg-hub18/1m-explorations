@@ -6,7 +6,6 @@
   <title>OneMonitoring</title>
   <link rel="icon" type="image/svg+xml" href="favicon.svg?v=2">
   <link rel="stylesheet" href="styles.css?v=58">
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
   <!-- ECharts for Data Exploration charts -->
   <script src="https://cdn.jsdelivr.net/npm/echarts@5.6.0/dist/echarts.min.js"></script>
   <!-- Left Nav Component -->
@@ -93,6 +92,7 @@
     <symbol id="icon-dot-double-arcs-filled" viewBox="0 0 24 24"><path fill="currentColor" d="M4.929 4.929a1 1 0 0 1 1.414 1.414 8 8 0 0 0 0 11.314 1 1 0 0 1-1.414 1.414c-3.905-3.906-3.905-10.237 0-14.142m12.728 0a1 1 0 0 1 1.338-.068l.076.068.355.373c3.546 3.925 3.428 9.985-.355 13.769a1 1 0 0 1-1.414-1.415 8 8 0 0 0 .283-11.014l-.283-.299-.07-.076a1 1 0 0 1 .07-1.338m-9.9 2.83a1 1 0 0 1 1.415 1.413 4 4 0 0 0-.143 5.508l.143.15.068.075a1.001 1.001 0 0 1-1.407 1.407l-.075-.069-.213-.223a6 6 0 0 1 .213-8.262m7.071 0a1 1 0 0 1 1.414 0 6 6 0 0 1 0 8.484 1 1 0 0 1-1.414-1.414 4 4 0 0 0 0-5.657 1 1 0 0 1 0-1.414M12 10a2 2 0 1 1 0 4 2 2 0 0 1 0-4"/></symbol>
     <symbol id="icon-exclamation-square-outline" viewBox="0 0 24 24"><path fill="currentColor" d="M12.03 15c-.83 0-1.25.4-1.25 1s.42 1 1.25 1 1.25-.4 1.25-1-.42-1-1.25-1m0-1.27c.48 0 .88-.39.88-.88V7.88c0-.48-.39-.88-.88-.88s-.88.39-.88.88v4.97c0 .48.39.88.88.88"/><path fill="currentColor" d="M19.99 3.77a42.1 42.1 0 0 0-15.98 0C2.84 3.99 2 5.03 2 6.23v11.55c0 1.2.85 2.23 2.01 2.46 2.65.51 5.32.77 7.99.77s5.34-.26 7.99-.77c1.17-.22 2.01-1.26 2.01-2.46V6.23c0-1.2-.85-2.23-2.01-2.46m.01 14c0 .24-.17.45-.39.49-5.05.97-10.17.97-15.22 0a.496.496 0 0 1-.39-.49V6.22c0-.24.17-.45.39-.49C6.91 5.24 9.46 5 12 5s5.09.24 7.61.73c.22.04.39.25.39.49z"/></symbol>
     <symbol id="icon-exclamation-square-filled" viewBox="0 0 24 24"><path fill="currentColor" d="M19.99 3.77a42.1 42.1 0 0 0-15.98 0C2.84 3.99 2 5.03 2 6.23v11.55c0 1.2.85 2.23 2.01 2.46 2.65.51 5.32.77 7.99.77s5.34-.26 7.99-.77c1.17-.22 2.01-1.26 2.01-2.46V6.23c0-1.2-.85-2.23-2.01-2.46m-8.84 4.11c0-.48.39-.88.88-.88s.88.39.88.88v4.97c0 .48-.39.88-.88.88s-.88-.39-.88-.88zm.88 9.12c-.83 0-1.25-.4-1.25-1s.42-1 1.25-1 1.25.4 1.25 1-.42 1-1.25 1"/></symbol>
+    <symbol id="icon-feed-rss-outline" viewBox="0 0 24 24"><path fill="currentColor" d="M6.18 15.64a2.18 2.18 0 1 1 0 4.36 2.18 2.18 0 0 1 0-4.36M4 4.44A15.56 15.56 0 0 1 19.56 20h-2.83A12.73 12.73 0 0 0 4 7.27V4.44m0 5.66a9.9 9.9 0 0 1 9.9 9.9h-2.83A7.07 7.07 0 0 0 4 12.93V10.1"/></symbol>
   </svg>
 
   <!-- Main Sidebar Container - Rendered by LeftNav component -->
@@ -101,11 +101,11 @@
   <main class="main-content">
     <!-- Breadcrumb Navigation -->
     <div class="sev-breadcrumb">
-      <a href="#" class="breadcrumb-link">Feed</a>
+      <a href="feed.html" class="breadcrumb-link">Feed</a>
       <svg class="breadcrumb-separator" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
         <polyline points="9 18 15 12 9 6"/>
       </svg>
-      <span class="breadcrumb-current">SEVs</span>
+      <span class="breadcrumb-current">S448319 Taylor Swift - Life of a Showgirl - Only In Polish</span>
       <button class="ask-opsmate-btn" onclick="openOpsmate()">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path fill-rule="evenodd" clip-rule="evenodd" d="M10.0206 15.0256C10.3164 15.8619 11.1136 16.4613 12.0513 16.4615C12.9891 16.4613 13.7863 15.8619 14.0821 15.0256H15.1493C14.8242 16.4359 13.5606 17.4872 12.0514 17.4872C10.5427 17.4872 9.27906 16.4359 8.95341 15.0256H10.0206ZM12.0508 16.4615H12.0519C12.0517 16.4615 12.0515 16.4615 12.0513 16.4615C12.0512 16.4615 12.051 16.4615 12.0508 16.4615Z" fill="currentColor"/>
@@ -156,7 +156,7 @@
               </svg>
             </button>
             <button class="card-action-btn affected-btn">+1(0)</button>
-            <div class="card-btn-group">
+            <div class="card-btn-group" style="display: none;">
               <button class="card-chat-btn">Join Chat</button>
               <button class="card-chat-dropdown">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -546,7 +546,7 @@
               </div>
             </div>
             <div class="opsmate-actions">
-              <button class="pill-btn blue" id="opsmate-explore-btn" onclick="openOpsmateOverlay()">Explore</button>
+              <button type="button" class="pill-btn blue" id="opsmate-explore-btn" onclick="event.stopPropagation(); openOpsmateOverlay();" style="display: none;">Explore</button>
               <button class="card-toggle" onclick="toggleOpsmate(this)">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <polyline points="18 15 12 9 6 15"/>
@@ -1684,7 +1684,7 @@
                     </div>
                   </div>
                   <div class="opsmate-actions">
-                    <button class="pill-btn blue" onclick="openOpsmateOverlay()">Explore</button>
+                    <button type="button" class="pill-btn blue" onclick="event.stopPropagation(); openOpsmateOverlay();" style="display: none;">Explore</button>
                     <button class="card-toggle" onclick="toggleInvestigationOpsmate(this)">
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <polyline points="18 15 12 9 6 15"/>
@@ -2999,25 +2999,12 @@ Cisco <span class="log-var">I2C</span> <span class="log-var">SMB</span> adapter 
         }
       }
 
-      // Opsmate Overlay functions
+      // Opsmate navigation function
       function openOpsmateOverlay() {
-        const overlay = document.getElementById('opsmateOverlay');
-        const iframe = document.getElementById('opsmateFrame');
-        iframe.src = './opsmate-app/';
-        overlay.classList.add('open');
-        document.body.style.overflow = 'hidden';
+        // Navigate to Opsmate SEV investigation UI
+        window.location.href = './opsmate-app/index.html?page=sev';
       }
 
-      function closeOpsmateOverlay() {
-        const overlay = document.getElementById('opsmateOverlay');
-        const iframe = document.getElementById('opsmateFrame');
-        overlay.classList.remove('open');
-        document.body.style.overflow = '';
-        // Clear iframe src after animation
-        setTimeout(() => {
-          iframe.src = '';
-        }, 500);
-      }
 
       // Opsmate Panel functions (slide from right, pushes content)
       function openOpsmate() {
@@ -3061,7 +3048,6 @@ Cisco <span class="log-var">I2C</span> <span class="log-var">SMB</span> adapter 
       // Listen for close message from iframe
       window.addEventListener('message', (event) => {
         if (event.data === 'closeOpsmate') {
-          closeOpsmateOverlay();
           closeOpsmatePanel();
         }
       });
@@ -5675,13 +5661,9 @@ Acceptance Criteria:
     <iframe id="opsmatePanelFrame" src="" frameborder="0"></iframe>
   </div>
 
-  <!-- Opsmate Overlay -->
-  <div class="opsmate-overlay" id="opsmateOverlay">
-    <iframe id="opsmateFrame" src="" frameborder="0"></iframe>
-  </div>
 
   <!-- Initialize Left Nav Components -->
-  <!-- Floating Experiment Button -->
+  <!-- Floating Experiment Button (hidden)
   <a href="sev-header-experiment.html" class="floating-experiment-btn" title="SEV Header Experiment">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24">
       <path d="M9 3h6v2H9zM12 5v6"/>
@@ -5690,6 +5672,7 @@ Acceptance Criteria:
       <circle cx="14" cy="17" r="1" fill="currentColor"/>
     </svg>
   </a>
+  -->
 
   <script>
     document.addEventListener('DOMContentLoaded', function() {

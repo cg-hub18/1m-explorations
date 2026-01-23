@@ -14,19 +14,20 @@ const LeftNav = {
   // action: function name to call on click
   // deAction: function name to call when in Data Exploration (if different)
   navItems: [
-    { name: 'Feed', icon: 'icon-exclamation-arcs-outline', href: 'feed.html' },
-    { name: 'Quality Home', icon: 'icon-dot-double-arcs-outline', href: 'quality-home.html' },
+    { name: 'Feed', icon: 'icon-feed-rss-outline', href: '/feed.html' },
+    { name: 'Quality Home', icon: 'icon-dot-double-arcs-outline', href: '/quality-home.html' },
     { 
       name: 'Entities', 
       icon: 'icon-circles-outline', 
+      href: '/entities/',
       expandable: true,
       subnav: [
         { name: 'Agents', action: null, deAction: null }
       ]
     },
-    { name: 'Metrics', icon: 'icon-dots-lines-outline', action: null, deAction: null },
+    { name: 'Metrics', icon: 'icon-dots-lines-outline', href: '/metrics/' },
     { type: 'divider' },
-    { name: 'Data Exploration', icon: 'icon-chart-outline', href: 'data-explore.html', action: null, deAction: null },
+    { name: 'Data Exploration', icon: 'icon-chart-outline', href: '/data-explore.html', action: null, deAction: null },
     { type: 'divider' },
     { name: 'Protections', icon: 'icon-shield-outline', action: null, deAction: null },
     { name: 'SEV Criteria', icon: 'icon-flame-outline', action: null, deAction: null }
@@ -80,6 +81,30 @@ const LeftNav = {
         : true; // default to expanded
       const expandedClass = isExpanded ? ' expanded' : '';
       const subnavOpenClass = isExpanded ? ' open' : '';
+      
+      // If item has href, make it a link that navigates
+      if (item.href) {
+        let html = `
+          <a href="${item.href}" class="sk-simple-nav-item${activeClass}">
+            <svg class="sk-nav-icon"><use href="#${item.icon}"></use></svg>
+            <span>${item.name}</span>
+          </a>
+          <div class="sk-simple-nav-subnav${subnavOpenClass}">`;
+        
+        if (item.subnav) {
+          item.subnav.forEach(subitem => {
+            let subOnclick = '';
+            const subAction = isInDataExploration ? subitem.deAction : subitem.action;
+            if (subAction) {
+              subOnclick = ` onclick="${subAction}(); return false;"`;
+            }
+            html += `<a href="#" class="sk-simple-nav-item sk-subnav-item"${subOnclick}>${subitem.name}</a>`;
+          });
+        }
+        
+        html += '</div>';
+        return html;
+      }
       
       let html = `
         <button class="sk-simple-nav-item sk-expandable${expandedClass}" data-accordion-name="${item.name}">
@@ -159,8 +184,8 @@ const LeftNav = {
     const html = `
       <aside class="sidebar sk-sidebar${extraClass}">
         <div class="sk-sidebar-header">
-          <a href="feed.html" class="sk-logo"${logoAction}>
-            <img src="ops-dashboard_12.12.25/images/1Micon.png" alt="1M" class="sk-logo-icon">
+          <a href="/feed.html" class="sk-logo"${logoAction}>
+            <img src="/ops-dashboard_12.12.25/images/1Micon.png" alt="1M" class="sk-logo-icon">
             <span class="sk-logo-text">OneMonitoring</span>
           </a>
         </div>

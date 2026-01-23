@@ -1,5 +1,5 @@
 import { useState, forwardRef, useImperativeHandle, useRef, useEffect } from 'react'
-import { FileText, Clock, Paperclip, ArrowUp, List, CornerDownRight, X } from 'lucide-react'
+import { FileText, Clock, Paperclip, ArrowUp, List, CornerDownRight, X, Loader2 } from 'lucide-react'
 
 function OpsmateLogo({ className }) {
   return (
@@ -19,18 +19,137 @@ function OpsmateLogo({ className }) {
   )
 }
 
+// Summary bullet point pools for randomization
+const summaryBulletPools = [
+  [
+    "Kshitiz asked if research was done regarding Opsmate relying on impact area for SEV taxonomy.",
+    "Kshitiz reported Opsmate found impact area available for 60% of SEVs within 15 minutes.",
+    "Kshitiz stated they are building LLM prediction logic for the remaining 40% of SEVs.",
+  ],
+  [
+    "Team identified root cause as a database connection pool exhaustion issue.",
+    "Mitigation was applied by scaling up connection limits and adding retry logic.",
+    "Post-incident analysis revealed similar patterns in 3 previous SEVs this quarter.",
+  ],
+  [
+    "Initial detection came from anomaly alerts on error rate metrics at 09:47 UTC.",
+    "Impact assessment showed 2.3M users affected during the 18-minute incident window.",
+    "Recovery was confirmed after deploying hotfix and clearing the cache layer.",
+  ],
+  [
+    "Investigation traced the issue to a recent config change in the auth service.",
+    "Team implemented a rollback which restored service within 12 minutes.",
+    "Prevention measures include adding validation checks before config deployment.",
+  ],
+  [
+    "Automated detection triggered 3 minutes before user reports started coming in.",
+    "Cross-team coordination was initiated involving Platform, API, and SRE teams.",
+    "Lessons learned session scheduled for next Tuesday to discuss improvements.",
+  ],
+]
+
+const getRandomSummaryBullets = () => {
+  const pool = summaryBulletPools[Math.floor(Math.random() * summaryBulletPools.length)]
+  const numBullets = Math.random() > 0.5 ? 3 : 2
+  return pool.slice(0, numBullets)
+}
+
 const Copilot = forwardRef(function Copilot({ onOpenSources, onOpenSteps, onAddSection, onViewSharedCanvas, recommendationContext }, ref) {
   const [message, setMessage] = useState('')
   const [activeTab, setActiveTab] = useState('runbook')
-  const [isThinking, setIsThinking] = useState(false)
-  const [referencedSection, setReferencedSection] = useState(null)
   const chatContainerRef = useRef(null)
   
-  // Check if we're in protection mode
-  const isProtectionMode = new URLSearchParams(window.location.search).get('mode') === 'protection'
+  // Check if we're in protection mode, feed mode, quality home mode, data exploration mode, or fix action mode
+  const params = new URLSearchParams(window.location.search)
+  const isProtectionMode = params.get('mode') === 'protection'
+  const isFeedMode = params.get('page') === 'feed'
+  const isQualityHomeMode = params.get('page') === 'quality-home'
+  const isDataExplorationMode = params.get('page') === 'data-exploration'
+  const isFixAction = params.get('action') === 'fix'
+  
+  // For fix actions, start with thinking state and empty messages
+  const [isThinking, setIsThinking] = useState(isFixAction)
+  
+  // Parse feed context to extract title for reference
+  const parseFeedContext = (context) => {
+    if (!context) return null
+    // Context format: "Help me with this TYPE: "TITLE" (Priority: X) - Status: Y"
+    const titleMatch = context.match(/"([^"]+)"/)
+    if (titleMatch) {
+      return { title: titleMatch[1] }
+    }
+    return null
+  }
+  
+  // Initialize referencedSection from feedContext (but not for fix actions)
+  const [referencedSection, setReferencedSection] = useState(() => {
+    // Don't show reference for fix actions - the title is already in the message
+    if (isFixAction) {
+      return null
+    }
+    if (recommendationContext?.feedContext) {
+      return parseFeedContext(recommendationContext.feedContext)
+    }
+    return null
+  })
   
   // Generate initial message based on recommendation context
   const getInitialMessages = () => {
+    // Handle fix action from Feed (Fix with Devmate button)
+    if (isFixAction && recommendationContext?.feedContext) {
+      const itemTitle = parseFeedContext(recommendationContext.feedContext)?.title || 'this item'
+      return [
+        {
+          id: 'initial',
+          type: 'assistant',
+          content: `I can help you fix "${itemTitle}". I've analyzed the issue and have a recommended mitigation ready.`,
+          followUp: "What would you like to do?",
+          quickActions: [
+            { id: 'apply-fix', label: 'Apply fix', primary: true },
+            { id: 'preview-fix', label: 'Preview changes' },
+            { id: 'explain-fix', label: 'Explain the fix' },
+            { id: 'investigate', label: 'Investigate first' },
+          ],
+        },
+      ]
+    }
+    
+    // Handle feed page mode (general feed, no specific item)
+    if (isFeedMode && !recommendationContext?.feedContext) {
+      return [
+        {
+          id: 'initial',
+          type: 'assistant',
+          content: "Hi! I'm Opsmate. I can help you navigate your feed, prioritize what needs attention, and investigate any issues.",
+          followUp: "What would you like to explore?",
+          quickActions: [
+            { id: 'focus-priority', label: 'What should I focus on?', primary: true },
+            { id: 'summarize-feed', label: 'Summarize my feed' },
+            { id: 'show-critical', label: 'Show critical items' },
+            { id: 'find-related', label: 'Show related issues' },
+          ],
+        },
+      ]
+    }
+    
+    // Handle specific item context (from "Ask Opsmate" on a Feed item)
+    if (recommendationContext?.feedContext) {
+      return [
+        {
+          id: 'initial',
+          type: 'assistant',
+          content: "Hi! I'm Opsmate. I can help you investigate this item and find relevant information.",
+          followUp: "What would you like to explore?",
+          quickActions: [
+            { id: 'summarize', label: 'Summarize' },
+            { id: 'investigate', label: 'Start investigation' },
+            { id: 'find-related', label: 'Find related issues' },
+            { id: 'suggest-action', label: 'Suggest next actions' },
+          ],
+        },
+      ]
+    }
+    
     if (recommendationContext?.title) {
       const typeLabels = {
         detection: 'Detection',
@@ -104,6 +223,42 @@ const Copilot = forwardRef(function Copilot({ onOpenSources, onOpenSteps, onAddS
       ]
     }
     
+    // Quality Home mode - show recommendations and protection-focused copy
+    if (isQualityHomeMode) {
+      return [
+        {
+          id: 'initial',
+          type: 'assistant',
+          content: "Hi! I'm Opsmate. I can help you improve your monitoring quality and find the best protections for your services.",
+          followUp: 'What would you like help with?',
+          quickActions: [
+            { id: 'summarize-quality', label: 'Summarize this page', primary: true },
+            { id: 'top-recommendations', label: 'What should I focus on?' },
+            { id: 'add-protections', label: 'Add new protections' },
+            { id: 'improve-coverage', label: 'Improve detection coverage' },
+          ],
+        },
+      ]
+    }
+    
+    // Data Exploration mode - help with data analysis and visualization
+    if (isDataExplorationMode) {
+      return [
+        {
+          id: 'initial',
+          type: 'assistant',
+          content: "Hi! I'm Opsmate. I can help you explore your data, create visualizations, and find insights in your metrics.",
+          followUp: 'What would you like to explore?',
+          quickActions: [
+            { id: 'summarize-doc', label: 'Summarize this document', primary: true },
+            { id: 'suggest-queries', label: 'Suggest queries' },
+            { id: 'find-anomalies', label: 'Find anomalies' },
+            { id: 'create-chart', label: 'Help me create a chart' },
+          ],
+        },
+      ]
+    }
+    
     // Default initial message when no recommendation context
     return [
       {
@@ -121,12 +276,24 @@ const Copilot = forwardRef(function Copilot({ onOpenSources, onOpenSteps, onAddS
     ]
   }
   
-  const [chatMessages, setChatMessages] = useState(getInitialMessages())
+  // For fix actions, start with empty messages and load after thinking delay
+  const [chatMessages, setChatMessages] = useState(() => isFixAction ? [] : getInitialMessages())
   const [stepCount, setStepCount] = useState(3) // Start with some initial steps
   const MAX_STEPS = 19 // Must match allSteps array length in StepsPanel
   
   // Generate random steps between min and max (inclusive)
   const getRandomSteps = (min = 1, max = 4) => Math.floor(Math.random() * (max - min + 1)) + min
+
+  // Load initial message with thinking delay for fix actions
+  useEffect(() => {
+    if (isFixAction && chatMessages.length === 0) {
+      const timer = setTimeout(() => {
+        setChatMessages(getInitialMessages())
+        setIsThinking(false)
+      }, 2000)
+      return () => clearTimeout(timer)
+    }
+  }, [isFixAction])
 
   const tabs = isProtectionMode 
     ? [
@@ -274,6 +441,407 @@ const Copilot = forwardRef(function Copilot({ onOpenSources, onOpenSteps, onAddS
     // Handle view shared canvas action immediately
     if (actionId === 'view-shared') {
       onViewSharedCanvas?.()
+      return
+    }
+
+    // Handle feed-specific actions
+    if (actionId === 'focus-priority') {
+      setIsThinking(true)
+      await new Promise(resolve => setTimeout(resolve, 3000))
+      setIsThinking(false)
+
+      const focusSteps = getRandomSteps(2, 4)
+      const focusMessage = {
+        id: `msg-${Date.now()}`,
+        type: 'assistant',
+        header: {
+          icon: 'opsmate',
+          title: 'Opsmate',
+          steps: focusSteps,
+        },
+        content: `Based on your feed, here's what needs your attention:\n\n**Immediate Priority:**\n• S512847 Super Bowl LVIII - Audio Sync Failures is actively mitigating and has 11 comments\n• API latency threshold exceeded - High priority with 9 new comments\n\n**Soon:**\n• SSL certificate expiring soon - High priority alert\n• Task regression: Database connection pool tuning needs review\n\nWould you like me to dig deeper into any of these?`,
+        quickActions: [
+          { id: 'summarize-feed', label: 'Summarize my feed' },
+          { id: 'find-related', label: 'Show related issues' },
+        ],
+      }
+
+      setChatMessages(prev => [...prev, focusMessage])
+      setStepCount(prev => Math.min(prev + focusSteps, MAX_STEPS))
+      return
+    }
+
+    if (actionId === 'summarize-feed') {
+      setIsThinking(true)
+      await new Promise(resolve => setTimeout(resolve, 3500))
+      setIsThinking(false)
+
+      const summarySteps = getRandomSteps(2, 4)
+      const summaryMessage = {
+        id: `msg-${Date.now()}`,
+        type: 'assistant',
+        header: {
+          icon: 'opsmate',
+          title: 'Opsmate',
+          steps: summarySteps,
+        },
+        content: `Here's a summary of your feed:\n\n**Active Items:** 12 total\n• 3 SEVs (2 investigating, 1 mitigating)\n• 4 Alerts (2 active, 1 acknowledged)\n• 4 Tasks (2 in progress, 2 to do)\n• 1 Recommendation (auto-apply ready)\n\n**Activity:**\n• 5 items have new comments\n• 3 items updated in the last 24 hours\n• 2 High priority items need attention`,
+        quickActions: [
+          { id: 'show-critical', label: 'Show critical items' },
+          { id: 'focus-priority', label: 'What should I focus on?' },
+        ],
+      }
+
+      setChatMessages(prev => [...prev, summaryMessage])
+      setStepCount(prev => Math.min(prev + summarySteps, MAX_STEPS))
+      return
+    }
+
+    if (actionId === 'show-critical') {
+      setIsThinking(true)
+      await new Promise(resolve => setTimeout(resolve, 2500))
+      setIsThinking(false)
+
+      const criticalSteps = getRandomSteps(2, 3)
+      const criticalMessage = {
+        id: `msg-${Date.now()}`,
+        type: 'assistant',
+        header: {
+          icon: 'opsmate',
+          title: 'Opsmate',
+          steps: criticalSteps,
+        },
+        content: `**Critical Items Requiring Immediate Attention:**\n\n1. **S512847 Super Bowl LVIII - Halftime Show - Audio Sync Failures**\n   Status: Mitigating | Priority: High | 11 new comments\n\n2. **API latency threshold exceeded**\n   Status: Acknowledged | Priority: High | 9 new comments\n\n3. **SSL certificate expiring soon**\n   Status: Active | Priority: High\n\nThese items have either high user impact or approaching deadlines.`,
+        quickActions: [
+          { id: 'investigate', label: 'Investigate top item' },
+          { id: 'find-related', label: 'Show related issues' },
+        ],
+      }
+
+      setChatMessages(prev => [...prev, criticalMessage])
+      setStepCount(prev => Math.min(prev + criticalSteps, MAX_STEPS))
+      return
+    }
+
+    // Quality Home specific actions
+    if (actionId === 'summarize-quality') {
+      setIsThinking(true)
+      await new Promise(resolve => setTimeout(resolve, 3000))
+      setIsThinking(false)
+
+      const summarySteps = getRandomSteps(2, 4)
+      const summaryMessage = {
+        id: `msg-${Date.now()}`,
+        type: 'assistant',
+        header: {
+          icon: 'opsmate',
+          title: 'Opsmate',
+          steps: summarySteps,
+        },
+        content: `Here's a summary of your Quality Home:\n\n**Overall Score:** 82/100 – Good, but room for improvement\n\n**Key Highlights:**\n• 40% of potential SEVs were prevented this month\n• 68% detection coverage – 32 metrics still need detectors\n• 15 recommendations ready for review (8 need your action)\n\n**Biggest Opportunities:**\n• Add SLI detector for rb_app_responsiveness (High priority)\n• Health check for payment service would prevent ~3 incidents/month\n\nWould you like me to dive deeper into any area?`,
+        quickActions: [
+          { id: 'top-recommendations', label: 'Show top recommendations' },
+          { id: 'improve-coverage', label: 'How to improve coverage?' },
+        ],
+      }
+
+      setChatMessages(prev => [...prev, summaryMessage])
+      setStepCount(prev => Math.min(prev + summarySteps, MAX_STEPS))
+      return
+    }
+
+    if (actionId === 'top-recommendations') {
+      setIsThinking(true)
+      await new Promise(resolve => setTimeout(resolve, 2500))
+      setIsThinking(false)
+
+      const recsSteps = getRandomSteps(2, 4)
+      const recsMessage = {
+        id: `msg-${Date.now()}`,
+        type: 'assistant',
+        header: {
+          icon: 'opsmate',
+          title: 'Opsmate',
+          steps: recsSteps,
+        },
+        content: `Based on impact and urgency, here's what I'd prioritize:\n\n**Immediate (this week):**\n1. **Missing SLO for checkout flow** – Deadline in 1 day, high customer impact\n2. **RIG widget for auth service** – 2 days deadline, prevents auth outages\n\n**High Impact:**\n3. **SLI detector for rb_app_responsiveness** – Will auto-apply in 4 days if approved\n4. **Health check for payment service** – Could prevent 40% of payment-related SEVs\n\n**Quick Wins:**\n5. **Cache hit rate threshold** – 5 min setup, reduces alert noise by ~20%\n\nWant me to help you apply any of these?`,
+        quickActions: [
+          { id: 'apply-checkout-slo', label: 'Start with checkout SLO' },
+          { id: 'review-all', label: 'Review all recommendations' },
+        ],
+      }
+
+      setChatMessages(prev => [...prev, recsMessage])
+      setStepCount(prev => Math.min(prev + recsSteps, MAX_STEPS))
+      return
+    }
+
+    if (actionId === 'add-protections') {
+      setIsThinking(true)
+      await new Promise(resolve => setTimeout(resolve, 3000))
+      setIsThinking(false)
+
+      const protSteps = getRandomSteps(2, 4)
+      const protMessage = {
+        id: `msg-${Date.now()}`,
+        type: 'assistant',
+        header: {
+          icon: 'opsmate',
+          title: 'Opsmate',
+          steps: protSteps,
+        },
+        content: `I've analyzed your services and found these protection gaps:\n\n**Recommended Protections:**\n\n🛡️ **Deployment freeze for prod** (Medium priority)\nPrevents risky deploys during high-traffic periods. Similar teams saw 25% fewer incident SEVs.\n\n🛡️ **Circuit breaker for external APIs** (High priority)\nYour payment service calls 3 external APIs without circuit breakers.\n\n🛡️ **Rate limiting on auth endpoints** (Medium priority)\nProtects against credential stuffing attacks.\n\nI can help you set up any of these – which interests you most?`,
+        quickActions: [
+          { id: 'setup-circuit-breaker', label: 'Set up circuit breaker' },
+          { id: 'setup-deployment-freeze', label: 'Configure deployment freeze' },
+          { id: 'view-all-protections', label: 'View all protection options' },
+        ],
+      }
+
+      setChatMessages(prev => [...prev, protMessage])
+      setStepCount(prev => Math.min(prev + protSteps, MAX_STEPS))
+      return
+    }
+
+    if (actionId === 'improve-coverage') {
+      setIsThinking(true)
+      await new Promise(resolve => setTimeout(resolve, 3500))
+      setIsThinking(false)
+
+      const covSteps = getRandomSteps(3, 5)
+      const covMessage = {
+        id: `msg-${Date.now()}`,
+        type: 'assistant',
+        header: {
+          icon: 'opsmate',
+          title: 'Opsmate',
+          steps: covSteps,
+        },
+        content: `Your detection coverage is at **68%** – here's how to reach optimal levels:\n\n**Missing Detectors (32 metrics):**\n• 12 API latency metrics without anomaly detection\n• 8 database metrics missing threshold alerts\n• 7 cache metrics with no monitoring\n• 5 queue depth metrics untracked\n\n**Fastest Path to 80%:**\nAdd detectors to these 5 high-impact metrics:\n1. \`rb_app_responsiveness\` – User-facing latency\n2. \`database_connection_pool\` – Resource exhaustion risk\n3. \`cache_hit_rate\` – Performance degradation signal\n4. \`api_error_rate\` – Early incident indicator\n5. \`queue_processing_time\` – Backlog detection\n\nI can auto-configure detectors for these with smart thresholds based on your historical data. Want me to proceed?`,
+        quickActions: [
+          { id: 'auto-add-detectors', label: 'Add recommended detectors', primary: true },
+          { id: 'customize-detectors', label: 'Customize thresholds first' },
+          { id: 'view-all-gaps', label: 'View all coverage gaps' },
+        ],
+      }
+
+      setChatMessages(prev => [...prev, covMessage])
+      setStepCount(prev => Math.min(prev + covSteps, MAX_STEPS))
+      return
+    }
+
+    // Data Exploration specific actions
+    if (actionId === 'summarize-doc') {
+      setIsThinking(true)
+      await new Promise(resolve => setTimeout(resolve, 3000))
+      setIsThinking(false)
+
+      const summarySteps = getRandomSteps(2, 4)
+      const summaryMessage = {
+        id: `msg-${Date.now()}`,
+        type: 'assistant',
+        header: {
+          icon: 'opsmate',
+          title: 'Opsmate',
+          steps: summarySteps,
+        },
+        content: `Here's a summary of this document:\n\n**Document:** Untitled Doc\n**Status:** Draft\n\n**Contents:**\n• 3 metric queries currently configured\n• 2 time series visualizations\n• Data range: Last 7 days\n\n**Key Insights:**\n• API latency shows a 15% increase during peak hours (2-4pm)\n• Error rate correlates with deployment events\n• Cache hit ratio dropped on Jan 20th\n\nWould you like me to explain any of these patterns?`,
+        quickActions: [
+          { id: 'explain-patterns', label: 'Explain the patterns' },
+          { id: 'suggest-queries', label: 'Suggest more queries' },
+        ],
+      }
+
+      setChatMessages(prev => [...prev, summaryMessage])
+      setStepCount(prev => Math.min(prev + summarySteps, MAX_STEPS))
+      return
+    }
+
+    if (actionId === 'suggest-queries') {
+      setIsThinking(true)
+      await new Promise(resolve => setTimeout(resolve, 2500))
+      setIsThinking(false)
+
+      const querySteps = getRandomSteps(2, 4)
+      const queryMessage = {
+        id: `msg-${Date.now()}`,
+        type: 'assistant',
+        header: {
+          icon: 'opsmate',
+          title: 'Opsmate',
+          steps: querySteps,
+        },
+        content: `Based on your current data, here are some queries you might find useful:\n\n**Performance Analysis:**\n• \`p99 latency by endpoint\` – Find your slowest endpoints\n• \`error_rate WHERE service='api'\` – Track API errors\n\n**Capacity Planning:**\n• \`cpu_usage by host percentile(95)\` – Identify hotspots\n• \`request_count trend 7d\` – Traffic growth patterns\n\n**Correlation:**\n• \`latency vs deployment_events\` – Impact of releases\n• \`error_rate vs traffic_volume\` – Load-related failures\n\nWant me to add any of these to your document?`,
+        quickActions: [
+          { id: 'add-latency-query', label: 'Add latency query' },
+          { id: 'add-error-query', label: 'Add error rate query' },
+          { id: 'create-chart', label: 'Help me create a chart' },
+        ],
+      }
+
+      setChatMessages(prev => [...prev, queryMessage])
+      setStepCount(prev => Math.min(prev + querySteps, MAX_STEPS))
+      return
+    }
+
+    if (actionId === 'find-anomalies') {
+      setIsThinking(true)
+      await new Promise(resolve => setTimeout(resolve, 4000))
+      setIsThinking(false)
+
+      const anomalySteps = getRandomSteps(3, 5)
+      const anomalyMessage = {
+        id: `msg-${Date.now()}`,
+        type: 'assistant',
+        header: {
+          icon: 'opsmate',
+          title: 'Opsmate',
+          steps: anomalySteps,
+        },
+        content: `I analyzed your data and found these anomalies:\n\n**🔴 High Severity:**\n• **Jan 20, 3:42pm** – Error rate spiked to 12% (normal: <1%)\n  Correlated with deployment D12847\n\n**🟡 Medium Severity:**\n• **Jan 19, 2:15am** – Latency increased 40% for 23 minutes\n  Coincided with database maintenance window\n\n**🟢 Low Severity:**\n• **Jan 18-21** – Gradual 8% increase in request volume\n  Likely organic traffic growth\n\nWould you like me to create alerts for these patterns?`,
+        quickActions: [
+          { id: 'create-alert', label: 'Create alert for error spikes' },
+          { id: 'investigate-deployment', label: 'Investigate D12847' },
+          { id: 'view-more-anomalies', label: 'View more anomalies' },
+        ],
+      }
+
+      setChatMessages(prev => [...prev, anomalyMessage])
+      setStepCount(prev => Math.min(prev + anomalySteps, MAX_STEPS))
+      return
+    }
+
+    if (actionId === 'create-chart') {
+      setIsThinking(true)
+      await new Promise(resolve => setTimeout(resolve, 2000))
+      setIsThinking(false)
+
+      const chartSteps = getRandomSteps(1, 3)
+      const chartMessage = {
+        id: `msg-${Date.now()}`,
+        type: 'assistant',
+        header: {
+          icon: 'opsmate',
+          title: 'Opsmate',
+          steps: chartSteps,
+        },
+        content: `I can help you create a chart! What would you like to visualize?\n\n**Popular options:**\n• **Time series** – Great for trends over time\n• **Heatmap** – See patterns by hour/day\n• **Bar chart** – Compare values across dimensions\n• **Histogram** – Distribution of values\n\n**Quick suggestions based on your data:**\n• Latency percentiles over the last 24h\n• Error rate by service (stacked area)\n• Request volume comparison (this week vs last)\n\nTell me what you'd like to see, or pick one above!`,
+        quickActions: [
+          { id: 'chart-latency', label: 'Latency over time' },
+          { id: 'chart-errors', label: 'Error rate by service' },
+          { id: 'chart-traffic', label: 'Traffic comparison' },
+        ],
+      }
+
+      setChatMessages(prev => [...prev, chartMessage])
+      setStepCount(prev => Math.min(prev + chartSteps, MAX_STEPS))
+      return
+    }
+
+    if (actionId === 'find-patterns') {
+      setIsThinking(true)
+      await new Promise(resolve => setTimeout(resolve, 4000))
+      setIsThinking(false)
+
+      const patternsSteps = getRandomSteps(3, 5)
+      const patternsMessage = {
+        id: `msg-${Date.now()}`,
+        type: 'assistant',
+        header: {
+          icon: 'opsmate',
+          title: 'Opsmate',
+          steps: patternsSteps,
+        },
+        content: `I found some patterns across your feed items:\n\n**Recurring Issues:**\n• 3 items are related to performance/latency (cache, API, checkout)\n• 2 SEVs involve live streaming events (Super Bowl, Grammy Awards)\n\n**Cluster Analysis:**\n• Media streaming issues tend to spike during major events\n• Database-related tasks have been open for 2+ weeks\n\n**Recommendation:**\nConsider creating a runbook for live event monitoring to prevent future SEVs.`,
+        quickActions: [
+          { id: 'summarize-feed', label: 'Summarize my feed' },
+          { id: 'focus-priority', label: 'What should I focus on?' },
+        ],
+      }
+
+      setChatMessages(prev => [...prev, patternsMessage])
+      setStepCount(prev => Math.min(prev + patternsSteps, MAX_STEPS))
+      return
+    }
+
+    // Handle fix actions (from Fix with Devmate button)
+    if (actionId === 'apply-fix') {
+      setIsThinking(true)
+      await new Promise(resolve => setTimeout(resolve, 3000))
+      setIsThinking(false)
+
+      const fixSteps = getRandomSteps(3, 5)
+      const fixMessage = {
+        id: `msg-${Date.now()}`,
+        type: 'assistant',
+        header: {
+          icon: 'opsmate',
+          title: 'Opsmate',
+          steps: fixSteps,
+        },
+        content: `I've kicked off Devmate to create a fix for this issue.`,
+        embed: {
+          type: 'devmate-diff',
+          title: 'Devmate created a diff',
+          subtitle: 'Ready for your review',
+          action: { label: 'Open session to review', url: '#' }
+        },
+      }
+
+      setChatMessages(prev => [...prev, fixMessage])
+      setStepCount(prev => Math.min(prev + fixSteps, MAX_STEPS))
+      return
+    }
+
+    if (actionId === 'preview-fix') {
+      setIsThinking(true)
+      await new Promise(resolve => setTimeout(resolve, 2500))
+      setIsThinking(false)
+
+      const previewSteps = getRandomSteps(2, 4)
+      const previewMessage = {
+        id: `msg-${Date.now()}`,
+        type: 'assistant',
+        header: {
+          icon: 'opsmate',
+          title: 'Opsmate',
+          steps: previewSteps,
+        },
+        content: `Here's what the fix will change:\n\n**Files Modified:**\n• \`services/cache/invalidator.py\` - Fix memory leak in cleanup routine\n• \`config/cache_settings.yaml\` - Adjust timeout thresholds\n\n**Expected Impact:**\n• Memory usage should decrease by ~40%\n• No service disruption during deployment\n• Rollback plan ready if issues occur\n\n**Risk Assessment:** Low - Similar fix deployed successfully on staging`,
+        quickActions: [
+          { id: 'apply-fix', label: 'Apply fix', primary: true },
+          { id: 'explain-fix', label: 'Explain more' },
+        ],
+      }
+
+      setChatMessages(prev => [...prev, previewMessage])
+      setStepCount(prev => Math.min(prev + previewSteps, MAX_STEPS))
+      return
+    }
+
+    if (actionId === 'explain-fix') {
+      setIsThinking(true)
+      await new Promise(resolve => setTimeout(resolve, 3500))
+      setIsThinking(false)
+
+      const explainSteps = getRandomSteps(3, 5)
+      const explainMessage = {
+        id: `msg-${Date.now()}`,
+        type: 'assistant',
+        header: {
+          icon: 'opsmate',
+          title: 'Opsmate',
+          steps: explainSteps,
+        },
+        content: `**Why this fix works:**\n\nThe issue stems from a race condition in the cache invalidation logic. When multiple requests try to invalidate the same cache key simultaneously, the cleanup routine doesn't properly release memory.\n\n**The Fix:**\n1. Added mutex lock around cache invalidation\n2. Implemented proper cleanup of orphaned cache entries\n3. Added configurable timeout for stale entries\n\n**How I found this:**\n• Analyzed memory patterns from the last 7 days\n• Correlated spikes with cache invalidation events\n• Identified similar fix from SEV S398271 (3 months ago)\n\nThis has been tested on staging with 99.7% confidence.`,
+        quickActions: [
+          { id: 'apply-fix', label: 'Apply fix', primary: true },
+          { id: 'preview-fix', label: 'Preview changes' },
+        ],
+      }
+
+      setChatMessages(prev => [...prev, explainMessage])
+      setStepCount(prev => Math.min(prev + explainSteps, MAX_STEPS))
       return
     }
 
@@ -488,13 +1056,16 @@ const Copilot = forwardRef(function Copilot({ onOpenSources, onOpenSteps, onAddS
       return
     }
 
-    // Handle summarize SEV action
+    // Handle summarize SEV action - shows as a new chat reply
     if (actionId === 'summarize') {
       setIsThinking(true)
-      await new Promise(resolve => setTimeout(resolve, 5000))
+      await new Promise(resolve => setTimeout(resolve, 2500))
       setIsThinking(false)
 
+      const bullets = getRandomSummaryBullets()
       const summarySteps = getRandomSteps(2, 4)
+      const summaryText = bullets.map(b => `• ${b}`).join('\n\n')
+      
       const summaryMessage = {
         id: `msg-${Date.now()}`,
         type: 'assistant',
@@ -503,11 +1074,11 @@ const Copilot = forwardRef(function Copilot({ onOpenSources, onOpenSteps, onAddS
           title: 'Opsmate',
           steps: summarySteps,
         },
-        content: `Taylor Swift is a Superstar Creator and one of the most famous living popstars. Taylor Swift currently has 79M followers on Facebook, 280M followers on Instagram, and 61M followers on YouTube.
-
-Her recent posts have had some challenges with unconnected distribution. Because of this, and because Taylor Swift's team will post her content simultaneously to multiple platforms, the Creator Forensics team filed T234502850 to proactively monitor the distribution of her announcement for her latest "Life of a Showgirl" album.`,
+        content: `Here's a summary of this SEV:\n\n${summaryText}`,
+        followUp: 'Would you like me to dig deeper into any of these points?',
         quickActions: [
-          { id: 'add-to-canvas', label: 'Add to Canvas' },
+          { id: 'datasets', label: 'Find relevant datasets' },
+          { id: 'similar', label: 'Find similar SEVs' },
         ],
       }
 
@@ -910,6 +1481,39 @@ Monitors keanu service metrics related to SEV owner's area of responsibility.`,
                   </p>
                 )}
 
+                {/* Devmate Embed Card */}
+                {msg.embed?.type === 'devmate-diff' && (
+                  <a
+                    href={msg.embed.action?.url || '#'}
+                    className="block mb-4 p-4 rounded-xl bg-gray-100 border border-gray-200 hover:border-gray-300 hover:shadow-sm transition-all cursor-pointer group"
+                  >
+                    <div className="flex items-start gap-3">
+                      {/* Devmate Logo */}
+                      <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-white border border-gray-200 flex items-center justify-center">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" className="text-gray-700">
+                          <path d="M8.582 5.377H7.082C6.087 5.377 5.281 6.217 5.281 7.252V9.436C5.281 10.478 4.811 11.405 4.08 12C4.45771 12.3116 4.76135 12.7033 4.9689 13.1468C5.17646 13.5903 5.28273 14.0744 5.28 14.564V16.748C5.28 17.783 6.087 18.623 7.081 18.623H8.581V20H7.081C5.357 20 3.959 18.544 3.959 16.748V14.564C3.959 13.528 3.153 12.688 2.159 12.688H2V11.312H2.159C3.153 11.312 3.959 10.472 3.959 9.436V7.252C3.96 5.456 5.357 4 7.081 4H8.581L8.582 5.377ZM16.919 4C18.643 4 20.041 5.456 20.041 7.252V9.436C20.041 10.472 20.847 11.312 21.841 11.312H22V12.688H21.841C20.847 12.688 20.041 13.528 20.041 14.564V16.748C20.041 18.544 18.643 20 16.919 20H15.419V18.623H16.919C17.913 18.623 18.719 17.783 18.719 16.748V14.564C18.719 13.522 19.189 12.595 19.92 12C19.5423 11.6884 19.2386 11.2967 19.0311 10.8532C18.8235 10.4097 18.7173 9.92563 18.72 9.436V7.252C18.72 6.216 17.913 5.377 16.919 5.377H15.419V4H16.919ZM10.303 14.402C10.528 15.156 11.203 15.703 12.001 15.703C12.799 15.703 13.473 15.156 13.698 14.403H14.545C14.301 15.633 13.255 16.558 12.001 16.558C10.747 16.558 9.701 15.633 9.457 14.402H10.303Z" fill="currentColor"/>
+                          <path fillRule="evenodd" clipRule="evenodd" d="M8.708 7.798C9.945 7.798 10.948 8.843 10.948 10.133C10.948 11.423 9.945 12.469 8.708 12.469C7.471 12.469 6.467 11.423 6.467 10.133C6.467 8.843 7.47 7.798 8.707 7.798M8.707 8.652C7.922 8.652 7.287 9.315 7.287 10.133C7.287 10.951 7.922 11.613 8.707 11.613C9.492 11.613 10.127 10.951 10.127 10.133C10.127 9.315 9.491 8.652 8.707 8.652ZM15.287 7.798C16.524 7.798 17.527 8.843 17.527 10.133C17.527 11.423 16.524 12.469 15.287 12.469C14.05 12.469 13.046 11.423 13.046 10.133C13.046 8.843 14.05 7.798 15.287 7.798ZM15.286 8.652C14.501 8.652 13.865 9.315 13.865 10.133C13.865 10.951 14.501 11.613 15.285 11.613C16.07 11.613 16.706 10.951 16.706 10.133C16.706 9.315 16.07 8.652 15.286 8.652Z" fill="currentColor"/>
+                        </svg>
+                      </div>
+                      {/* Content */}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          <h4 className="text-sm font-semibold text-gray-900">{msg.embed.title}</h4>
+                        </div>
+                        <p className="text-xs text-gray-600">
+                          {msg.embed.action?.label || msg.embed.subtitle}
+                        </p>
+                      </div>
+                      {/* Arrow */}
+                      <div className="flex-shrink-0 text-gray-400 group-hover:text-gray-600 transition-colors">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M9 18l6-6-6-6"/>
+                        </svg>
+                      </div>
+                    </div>
+                  </a>
+                )}
+
                 {/* Rich Content - Datasets */}
                 {msg.richContent?.type === 'datasets' && (
                   <div className="mb-4">
@@ -964,7 +1568,7 @@ Monitors keanu service metrics related to SEV owner's area of responsibility.`,
                         key={action.id}
                         onClick={() => handleQuickAction(action.id, action.label)}
                         disabled={isThinking}
-                        className={`px-3 py-2 rounded-lg text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
+                        className={`px-3 py-2 rounded-lg text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 ${
                           action.primary 
                             ? 'bg-blue-500 hover:bg-blue-600 text-white font-medium' 
                             : 'bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-gray-300'

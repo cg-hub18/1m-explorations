@@ -1,0 +1,1381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Data Exploration - OneMonitoring</title>
+  <link rel="icon" type="image/svg+xml" href="../favicon.svg?v=2">
+  <link rel="stylesheet" href="../styles.css?v=58">
+  <!-- Left Nav Component -->
+  <script src="../components/left-nav.js"></script>
+  <!-- ECharts for charts -->
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5.6.0/dist/echarts.min.js"></script>
+  <style>
+    body { overflow: hidden; }
+    
+    .page-container {
+      display: flex;
+      height: 100vh;
+      background: var(--color-bg-page);
+    }
+    
+    .de-main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      margin-left: var(--sidebar-width, 240px);
+      width: calc(100% - var(--sidebar-width, 240px));
+    }
+    
+    /* Breadcrumb */
+    .de-breadcrumb {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 24px;
+      border-bottom: 1px solid var(--color-border);
+      background: white;
+    }
+    
+    .de-breadcrumb a {
+      color: #6b7280;
+      text-decoration: none;
+      font-size: 13px;
+      transition: color 0.15s;
+    }
+    
+    .de-breadcrumb a:hover { color: var(--color-text-primary); }
+    
+    .de-breadcrumb a svg {
+      width: 16px;
+      height: 16px;
+      vertical-align: middle;
+    }
+    
+    .de-breadcrumb-sep { color: #9ca3af; font-size: 12px; }
+    .de-breadcrumb-current { color: var(--color-text-primary); font-size: 13px; font-weight: 500; }
+    
+    /* Doc Header */
+    .de-doc-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      padding: 16px 24px;
+      background: white;
+      border-bottom: 1px solid var(--color-border);
+    }
+    
+    .de-doc-header-left {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+    }
+    
+    .de-doc-back-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      border: 1px solid var(--color-border);
+      border-radius: 6px;
+      background: white;
+      cursor: pointer;
+      color: #6b7280;
+      transition: all 0.15s;
+    }
+    
+    .de-doc-back-btn:hover {
+      background: #f3f4f6;
+      color: var(--color-text-primary);
+    }
+    
+    .de-doc-back-btn svg { width: 16px; height: 16px; }
+    
+    .de-doc-title-area { flex: 1; }
+    
+    .de-doc-title-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .de-doc-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--color-text-primary);
+      margin: 0;
+      cursor: pointer;
+    }
+    
+    .de-doc-title:hover { color: #3b82f6; }
+    
+    .de-doc-edit-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 24px;
+      height: 24px;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      color: #9ca3af;
+      border-radius: 4px;
+      transition: all 0.15s;
+    }
+    
+    .de-doc-edit-btn:hover { background: #f3f4f6; color: #6b7280; }
+    .de-doc-edit-btn svg { width: 14px; height: 14px; }
+    
+    .de-doc-title-input {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--color-text-primary);
+      border: 1px solid #3b82f6;
+      border-radius: 4px;
+      padding: 2px 8px;
+      outline: none;
+    }
+    
+    .de-doc-meta {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: #6b7280;
+      margin-top: 4px;
+    }
+    
+    .de-doc-header-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .de-doc-action-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      border: 1px solid var(--color-border);
+      border-radius: 6px;
+      background: white;
+      font-size: 13px;
+      color: var(--color-text-primary);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    
+    .de-doc-action-btn:hover { background: #f3f4f6; }
+    .de-doc-action-btn svg { width: 16px; height: 16px; }
+    
+    .de-doc-add-widget-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      background: #3b82f6;
+      border: none;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 500;
+      color: white;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    
+    .de-doc-add-widget-btn:hover { background: #2563eb; }
+    .de-doc-add-widget-btn svg { width: 14px; height: 14px; }
+    
+    /* Add Widget Dropdown */
+    .de-doc-add-widget-wrapper { position: relative; }
+    
+    .de-datasource-dropdown {
+      position: absolute;
+      top: calc(100% + 8px);
+      right: 0;
+      width: 420px;
+      background: white;
+      border: 1px solid var(--color-border);
+      border-radius: 8px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+      z-index: 100;
+      display: none;
+      padding: 12px;
+    }
+    
+    .de-datasource-dropdown.open { display: block; }
+    
+    .de-datasource-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+    }
+    
+    .de-datasource-item {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      padding: 12px;
+      border: 1px solid var(--color-border);
+      border-radius: 6px;
+      background: white;
+      cursor: pointer;
+      text-align: left;
+      transition: all 0.15s;
+    }
+    
+    .de-datasource-item:hover {
+      background: #f9fafb;
+      border-color: #3b82f6;
+    }
+    
+    .de-datasource-name {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--color-text-primary);
+    }
+    
+    .de-datasource-desc {
+      font-size: 11px;
+      color: #6b7280;
+      line-height: 1.4;
+    }
+    
+    .de-datasource-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 10px;
+      font-weight: 500;
+      color: #059669;
+      margin-bottom: 2px;
+    }
+    
+    .de-datasource-badge svg { width: 12px; height: 12px; }
+    
+    /* Time Bar */
+    .de-doc-timebar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 24px;
+      background: #f9fafb;
+      border-bottom: 1px solid var(--color-border);
+    }
+    
+    .de-doc-time-range {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      color: var(--color-text-primary);
+    }
+    
+    .de-doc-time-range svg { width: 16px; height: 16px; color: #6b7280; }
+    .de-doc-time-sep { color: #9ca3af; }
+    
+    .de-doc-time-pills {
+      display: flex;
+      gap: 4px;
+      margin-left: auto;
+    }
+    
+    .de-doc-time-pill {
+      padding: 4px 10px;
+      border: 1px solid var(--color-border);
+      border-radius: 4px;
+      background: white;
+      font-size: 12px;
+      color: #6b7280;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    
+    .de-doc-time-pill:hover { background: #f3f4f6; }
+    
+    .de-doc-time-pill.active {
+      background: #3b82f6;
+      border-color: #3b82f6;
+      color: white;
+    }
+    
+    .de-doc-refresh-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      border: 1px solid var(--color-border);
+      border-radius: 6px;
+      background: white;
+      font-size: 13px;
+      color: var(--color-text-primary);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    
+    .de-doc-refresh-btn:hover { background: #f3f4f6; }
+    .de-doc-refresh-btn svg { width: 14px; height: 14px; }
+    
+    /* Content Area */
+    .de-content-wrapper {
+      flex: 1;
+      display: flex;
+      overflow: hidden;
+    }
+    
+    /* Doc View (queries/charts) */
+    .de-doc-view {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      padding: 24px;
+    }
+    
+    /* Empty State */
+    .de-doc-empty {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 80px 24px;
+      text-align: center;
+    }
+    
+    .de-doc-empty svg {
+      width: 64px;
+      height: 64px;
+      color: #9ca3af;
+      margin-bottom: 16px;
+    }
+    
+    .de-doc-empty h3 {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--color-text-primary);
+      margin: 0 0 8px 0;
+    }
+    
+    .de-doc-empty p {
+      font-size: 14px;
+      color: #6b7280;
+      margin: 0 0 24px 0;
+    }
+    
+    .de-doc-empty-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 10px 20px;
+      background: #3b82f6;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    
+    .de-doc-empty-btn:hover { background: #2563eb; }
+    .de-doc-empty-btn svg { width: 16px; height: 16px; }
+    
+    /* Query Cards */
+    .de-doc-query-card {
+      background: white;
+      border: 1px solid var(--color-border);
+      border-radius: 8px;
+      margin-bottom: 16px;
+      overflow: hidden;
+    }
+    
+    .de-doc-query-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--color-border);
+      background: #f9fafb;
+    }
+    
+    .de-doc-query-header-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .de-doc-query-type {
+      padding: 2px 8px;
+      background: #dbeafe;
+      color: #1d4ed8;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+    
+    .de-doc-query-name {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--color-text-primary);
+    }
+    
+    .de-doc-query-header-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    
+    .de-doc-query-checkbox {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 12px;
+      color: #6b7280;
+      cursor: pointer;
+    }
+    
+    .de-doc-query-checkbox input { margin: 0; }
+    
+    .de-doc-query-menu {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      border: none;
+      background: transparent;
+      color: #6b7280;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    
+    .de-doc-query-menu:hover { background: #e5e7eb; }
+    .de-doc-query-menu svg { width: 16px; height: 16px; }
+    
+    .de-doc-query-info {
+      padding: 8px 16px;
+      font-size: 12px;
+      color: #6b7280;
+      border-bottom: 1px solid var(--color-border);
+    }
+    
+    .de-doc-query-chart {
+      height: 280px;
+      width: 100%;
+    }
+    
+    /* Query Builder Panel */
+    .de-qb-panel {
+      width: 400px;
+      background: white;
+      border-left: 1px solid var(--color-border);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    
+    .de-qb-panel.hidden { display: none; }
+    
+    .de-qb-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--color-border);
+      background: #f9fafb;
+    }
+    
+    .de-qb-header-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .de-qb-header-title {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--color-text-primary);
+    }
+    
+    .de-qb-header-title svg { width: 18px; height: 18px; color: #6b7280; }
+    
+    .de-qb-close-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      border: none;
+      background: transparent;
+      color: #6b7280;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    
+    .de-qb-close-btn:hover { background: #e5e7eb; }
+    .de-qb-close-btn svg { width: 16px; height: 16px; }
+    
+    .de-qb-fields {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+    }
+    
+    .de-qb-field-wrapper {
+      margin-bottom: 16px;
+      position: relative;
+    }
+    
+    .de-qb-field {
+      border: 1px solid var(--color-border);
+      border-radius: 6px;
+      padding: 8px 12px;
+      background: white;
+    }
+    
+    .de-qb-field-label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      font-weight: 600;
+      color: #6b7280;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+    
+    .de-qb-field-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 16px;
+      height: 16px;
+      background: #9ca3af;
+      color: white;
+      border-radius: 50%;
+      font-size: 10px;
+      font-weight: 600;
+    }
+    
+    .de-qb-field-q {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 16px;
+      height: 16px;
+      background: #3b82f6;
+      color: white;
+      border-radius: 3px;
+      font-size: 10px;
+      font-weight: 600;
+    }
+    
+    .de-qb-field-input {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-items: center;
+    }
+    
+    .de-qb-field-input input {
+      flex: 1;
+      min-width: 120px;
+      border: none;
+      outline: none;
+      font-size: 13px;
+      padding: 4px 0;
+    }
+    
+    .de-qb-field-input input::placeholder { color: #9ca3af; }
+    
+    .de-qb-pills { display: flex; flex-wrap: wrap; gap: 6px; }
+    
+    .de-qb-tile {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 8px;
+      background: #dbeafe;
+      color: #1d4ed8;
+      border-radius: 4px;
+      font-size: 12px;
+    }
+    
+    .de-qb-tile button {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 14px;
+      height: 14px;
+      border: none;
+      background: transparent;
+      color: #1d4ed8;
+      cursor: pointer;
+      font-size: 14px;
+      line-height: 1;
+      padding: 0;
+    }
+    
+    .de-qb-tile button:hover { color: #1e40af; }
+    
+    .de-qb-dropdown {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: white;
+      border: 1px solid var(--color-border);
+      border-radius: 6px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      z-index: 50;
+      max-height: 200px;
+      overflow-y: auto;
+      display: none;
+    }
+    
+    .de-qb-dropdown.visible { display: block; }
+    
+    .de-qb-dropdown-item {
+      padding: 8px 12px;
+      font-size: 13px;
+      color: var(--color-text-primary);
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    
+    .de-qb-dropdown-item:hover,
+    .de-qb-dropdown-item.selected {
+      background: #f3f4f6;
+    }
+    
+    .de-qb-footer {
+      padding: 12px 16px;
+      border-top: 1px solid var(--color-border);
+      background: #f9fafb;
+    }
+    
+    .de-qb-run-btn {
+      width: 100%;
+      padding: 10px 16px;
+      background: #3b82f6;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 500;
+      color: white;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    
+    .de-qb-run-btn:hover { background: #2563eb; }
+    .de-qb-run-btn:disabled { background: #9ca3af; cursor: not-allowed; }
+    
+    .de-qb-run-btn.loading {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    
+    .spinner {
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
+    /* Ask Opsmate Button */
+    .ask-opsmate-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border: none;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 500;
+      color: white;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    
+    .ask-opsmate-btn:hover { opacity: 0.9; }
+    .ask-opsmate-btn svg { width: 16px; height: 16px; }
+  </style>
+</head>
+<body>
+  <!-- SVG Sprite -->
+  <svg xmlns="http://www.w3.org/2000/svg" style="display:none">
+    <symbol id="icon-feed-rss-outline" viewBox="0 0 24 24"><path fill="currentColor" d="M6.18 15.64a2.18 2.18 0 1 1 0 4.36 2.18 2.18 0 0 1 0-4.36M4 4.44A15.56 15.56 0 0 1 19.56 20h-2.83A12.73 12.73 0 0 0 4 7.27V4.44m0 5.66a9.9 9.9 0 0 1 9.9 9.9h-2.83A7.07 7.07 0 0 0 4 12.93V10.1"/></symbol>
+    <symbol id="icon-dot-double-arcs-outline" viewBox="0 0 24 24"><path fill="currentColor" d="M4.929 4.929a1 1 0 0 1 1.414 1.414 8 8 0 0 0 0 11.314 1 1 0 0 1-1.414 1.414c-3.905-3.906-3.905-10.237 0-14.142m12.728 0a1 1 0 0 1 1.338-.068l.076.068.355.373c3.546 3.925 3.428 9.985-.355 13.769a1 1 0 0 1-1.414-1.415 8 8 0 0 0 .283-11.014l-.283-.299-.07-.076a1 1 0 0 1 .07-1.338m-9.9 2.83a1 1 0 0 1 1.415 1.413 4 4 0 0 0-.143 5.508l.143.15.068.075a1.001 1.001 0 0 1-1.407 1.407l-.075-.069-.213-.223a6 6 0 0 1 .213-8.262m7.071 0a1 1 0 0 1 1.414 0 6 6 0 0 1 0 8.484 1 1 0 0 1-1.414-1.414 4 4 0 0 0 0-5.657 1 1 0 0 1 0-1.414M12 10a2 2 0 1 1 0 4 2 2 0 0 1 0-4"/></symbol>
+    <symbol id="icon-circles-outline" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2C6.49 2 2 6.49 2 12s4.49 10 10 10 10-4.49 10-10S17.51 2 12 2m0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8"/><path fill="currentColor" d="M12 6c-3.31 0-6 2.69-6 6s2.69 6 6 6 6-2.69 6-6-2.69-6-6-6m0 10c-2.21 0-4-1.79-4-4s1.79-4 4-4 4 1.79 4 4-1.79 4-4 4"/><path fill="currentColor" d="M12 14a2 2 0 1 0 0-4 2 2 0 0 0 0 4"/></symbol>
+    <symbol id="icon-dots-lines-outline" viewBox="0 0 24 24"><path fill="currentColor" d="M6.23 10.42c.5.36 1.11.58 1.77.58l.14-.01-1.37 4.59c-.5-.36-1.11-.58-1.77-.58l-.14.01 1.37-4.59zm8.48 2.88c-.62.3-1.12.8-1.42 1.42l-4-4c.62-.3 1.12-.8 1.42-1.42l4 4zm2.52-4.88c.5.36 1.11.58 1.77.58l.14-.01-1.37 4.59c-.5-.36-1.11-.58-1.77-.58l-.15.01 1.38-4.59zM5 15c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 2c-.55 0-1 .45-1 1s.45 1 1 1 1-.45 1-1-.45-1-1-1zm11-4c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 2c-.55 0-1 .45-1 1s.45 1 1 1 1-.45 1-1-.45-1-1-1zM8 5c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 2c-.55 0-1 .45-1 1s.45 1 1 1 1-.45 1-1-.45-1-1-1zm11-4c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 2c-.55 0-1 .45-1 1s.45 1 1 1 1-.45 1-1-.45-1-1-1z"/></symbol>
+    <symbol id="icon-chart-outline" viewBox="0 0 24 24"><path fill="currentColor" d="M20.25 4.96C20.01 3.83 18.98 3 17.81 3H6.2C5.03 3 4 3.82 3.76 4.96c-1 4.67-1 9.41 0 14.09.24 1.13 1.27 1.96 2.44 1.96h11.61c1.17 0 2.2-.82 2.44-1.96 1-4.67 1-9.41 0-14.09m-1.96 13.67c-.05.22-.25.37-.49.37H6.2c-.24 0-.44-.16-.49-.37-.94-4.4-.94-8.86 0-13.25.05-.22.25-.37.49-.37h11.61c.24 0 .44.16.49.37.94 4.4.94 8.86 0 13.25z"/><path fill="currentColor" d="m15.19 8.92-1.94 2.71-2.19-1.46a1 1 0 0 0-1.37.25l-2.5 3.5A1.007 1.007 0 0 0 8 15.51c.31 0 .62-.15.81-.42l1.94-2.71 2.19 1.46c.45.3 1.05.19 1.37-.25l2.5-3.5c.32-.45.22-1.07-.23-1.4-.45-.32-1.07-.22-1.4.23z"/></symbol>
+    <symbol id="icon-shield-outline" viewBox="0 0 24 24"><path fill="currentColor" d="M12 7.88a1 1 0 0 1 1 1v2h2a1 1 0 1 1 0 2h-2v2a1 1 0 0 1-2 0v-2H9a1 1 0 0 1 0-2h2v-2a1 1 0 0 1 1-1"/><path fill="currentColor" d="M3.74 5.11a17.18 17.18 0 0 1 16.51 0c.46.25.74.73.74 1.26v3.88a12 12 0 0 1-6.23 10.52l-1.81.99a2 2 0 0 1-1.92 0l-1.81-.99A12 12 0 0 1 3 10.24V6.37c0-.52.29-1 .74-1.26M19 6.71a15.18 15.18 0 0 0-14 0v3.53a10 10 0 0 0 5.2 8.77l1.8.99 1.8-.99A10 10 0 0 0 19 10.24z"/></symbol>
+    <symbol id="icon-flame-outline" viewBox="0 0 24 24"><path fill="currentColor" d="M10.71 21.92c.4.06.8.08 1.2.08 2.2 0 4.3-.85 5.79-2.38 2.13-2.18 3.23-6.73 1.31-10.28-.2-.36-.6-.57-1.01-.52a.99.99 0 0 0-.84.76c-.35 1.48-1.02 2.63-1.76 3-.06.03-.13.06-.19.08.48-2.64.68-7.81-4.22-10.53a1 1 0 0 0-1.04.04c-.31.2-.48.56-.45.94.17 1.71-1.09 3.29-2.42 4.96-1.96 2.46-4.41 5.53-2.27 9.83 1.17 2.19 3.32 3.65 5.89 4.02zM8.65 9.31c1.11-1.4 2.26-2.83 2.69-4.48 2.91 2.69 2.07 7.02 1.7 8.42-.13.48.11.98.56 1.17.91.4 1.84.38 2.7-.04.64-.32 1.21-.86 1.69-1.59.18 2.1-.55 4.25-1.71 5.44-1.32 1.35-3.29 1.99-5.28 1.71-1.94-.27-3.54-1.36-4.4-2.95-1.56-3.13.11-5.24 2.05-7.67z"/></symbol>
+  </svg>
+
+  <div class="page-container">
+    <div id="mainNavContainer"></div>
+
+    <main class="de-main">
+      <!-- Breadcrumb -->
+      <div class="de-breadcrumb">
+        <a href="index.html">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        </a>
+        <span class="de-breadcrumb-sep">/</span>
+        <a href="index.html">Data Exploration</a>
+        <span class="de-breadcrumb-sep">/</span>
+        <span class="de-breadcrumb-current" id="breadcrumbDocName">Untitled Doc</span>
+      </div>
+
+      <!-- Doc Header -->
+      <div class="de-doc-header">
+        <div class="de-doc-header-left">
+          <a href="index.html" class="de-doc-back-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+          </a>
+          <div class="de-doc-title-area">
+            <div class="de-doc-title-row">
+              <h1 class="de-doc-title" id="docTitle" onclick="startEditingDocName()">Untitled Doc</h1>
+              <button class="de-doc-edit-btn" onclick="startEditingDocName()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
+              </button>
+              <input type="text" class="de-doc-title-input" id="docTitleInput" style="display: none;" onblur="saveDocName()" onkeydown="handleDocNameKeydown(event)" />
+            </div>
+            <div class="de-doc-meta">
+              <span id="docCreatedAt">Created Jan 23, 2026</span>
+              <span>•</span>
+              <span>Owner: <span id="docOwner">Christian Gin</span></span>
+            </div>
+          </div>
+        </div>
+        <div class="de-doc-header-right">
+          <button class="ask-opsmate-btn" onclick="openOpsmate()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path fill-rule="evenodd" clip-rule="evenodd" d="M10.0206 15.0256C10.3164 15.8619 11.1136 16.4613 12.0513 16.4615C12.9891 16.4613 13.7863 15.8619 14.0821 15.0256H15.1493C14.8242 16.4359 13.5606 17.4872 12.0514 17.4872C10.5427 17.4872 9.27906 16.4359 8.95341 15.0256H10.0206Z" fill="currentColor"/>
+              <path fill-rule="evenodd" clip-rule="evenodd" d="M8.12879 7.38461C9.61545 7.38462 10.8211 8.59026 10.8211 10.0769C10.8211 11.5636 9.61545 12.7692 8.12879 12.7692C6.64213 12.7692 5.43649 11.5636 5.43649 10.0769C5.43649 8.59026 6.64213 7.38461 8.12879 7.38461Z" fill="currentColor"/>
+              <path fill-rule="evenodd" clip-rule="evenodd" d="M15.8724 7.38461C17.359 7.38462 18.5647 8.59026 18.5647 10.0769C18.5647 11.5636 17.359 12.7692 15.8724 12.7692C14.3857 12.7692 13.1801 11.5636 13.1801 10.0769C13.1801 8.59026 14.3857 7.38461 15.8724 7.38461Z" fill="currentColor"/>
+              <path fill-rule="evenodd" clip-rule="evenodd" d="M14.6673 0C15.177 0 15.5903 0.413337 15.5903 0.923077V5.22922C15.9447 5.2087 16.2862 5.18513 16.616 5.16001V0.98152L18.7175 1.42874C20.2498 1.75489 21.3893 3.00361 21.6047 4.51848L22.439 4.34049C22.4529 4.33742 22.4631 4.33487 22.4693 4.33333H22.476C22.8877 4.22614 23.3067 4.47435 23.4123 4.88562C23.517 5.29741 23.2688 5.71642 22.8575 5.82206L22.6534 5.87079C22.5247 5.90002 22.3354 5.94154 22.0888 5.99129C21.9442 6.02 21.7795 6.05179 21.5954 6.08564C21.6252 6.27487 21.6411 6.46923 21.6411 6.66667V17.7436C21.6411 19.7667 20.0139 21.4103 17.9965 21.4359H14.9744C14.7406 21.7472 14.3683 21.9487 13.9488 21.9487H10.0514C9.63189 21.9487 9.25958 21.7472 9.02573 21.4359H6.00364C3.98621 21.4108 2.35906 19.7672 2.35906 17.7441V6.66717C2.35906 6.46922 2.37494 6.27536 2.40469 6.08614C2.22058 6.05229 2.05596 6.02102 1.91135 5.99179L1.34674 5.87129C1.28213 5.85642 1.23287 5.84459 1.19851 5.83639L1.14262 5.82257C0.731345 5.71692 0.483149 5.29744 0.58878 4.88617C0.694421 4.47489 1.1139 4.2267 1.52518 4.33233H1.52573L1.56214 4.34105C1.58983 4.34771 1.63291 4.35796 1.69084 4.37129C1.80623 4.39796 1.98213 4.43641 2.21443 4.48307L2.39647 4.51898C2.61186 3.00411 3.75134 1.75539 5.28364 1.42924L7.3852 0.982071V5.16051C7.71494 5.18563 8.05649 5.20925 8.41085 5.22977V0.923077C8.41085 0.413333 8.82418 0 9.33392 0H14.6673ZM19.9411 6.35181C18.076 6.61233 15.3739 6.87179 12.0011 6.87179C8.62827 6.87179 5.9257 6.61284 4.06109 6.35181L3.92417 6.33233C3.90673 6.44104 3.89803 6.55283 3.89803 6.66667V17.7436C3.89803 18.9333 4.86213 19.8974 6.05187 19.8974H9.02623C9.26008 19.5862 9.63239 19.3846 10.0519 19.3846H13.9493C14.3688 19.3846 14.7411 19.5862 14.9749 19.8974H17.9493C19.139 19.8974 20.1032 18.9333 20.1032 17.7436V6.66667C20.1042 6.55283 20.0949 6.44155 20.078 6.33233L19.9411 6.35181ZM10.616 1.4359C10.3611 1.4359 10.1544 1.64256 10.1544 1.89744V2.14874C10.1544 3.06155 10.5601 3.92771 11.2616 4.51232L11.7052 4.88206C11.7909 4.95333 11.896 4.98923 12.0006 4.98923C12.1052 4.98923 12.2103 4.95334 12.296 4.88206L12.7396 4.51232C13.4411 3.92771 13.8467 3.06206 13.8467 2.14874V1.89744C13.8467 1.64257 13.6401 1.4359 13.3852 1.4359H10.616Z" fill="currentColor"/>
+            </svg>
+            Ask Opsmate
+          </button>
+          <button class="de-doc-action-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          </button>
+          <button class="de-doc-action-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            <span>Share</span>
+          </button>
+          <div class="de-doc-add-widget-wrapper">
+            <button class="de-doc-add-widget-btn" onclick="toggleDataSourceDropdown(event)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              <span>Add Widget</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <div class="de-datasource-dropdown" id="dataSourceDropdown">
+              <div class="de-datasource-grid">
+                <button class="de-datasource-item" onclick="selectDataSource('landline')">
+                  <span class="de-datasource-name">Landline</span>
+                  <span class="de-datasource-desc">Event discovery tool for root-causing issues</span>
+                </button>
+                <button class="de-datasource-item" onclick="selectDataSource('ods')">
+                  <span class="de-datasource-name">ODS</span>
+                  <span class="de-datasource-desc">Monitoring and alerting timeseries data source</span>
+                </button>
+                <button class="de-datasource-item" onclick="selectDataSource('scuba-lite')">
+                  <span class="de-datasource-badge"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg> Early Access</span>
+                  <span class="de-datasource-name">Scuba Lite</span>
+                  <span class="de-datasource-desc">Interactive real-time data for debugging</span>
+                </button>
+                <button class="de-datasource-item" onclick="selectDataSource('logarithm')">
+                  <span class="de-datasource-name">Logarithm</span>
+                  <span class="de-datasource-desc">Unstructured logs viewer with search</span>
+                </button>
+                <button class="de-datasource-item" onclick="selectDataSource('ods3')">
+                  <span class="de-datasource-name">ODS3</span>
+                  <span class="de-datasource-desc">Next-gen monitoring timeseries</span>
+                </button>
+                <button class="de-datasource-item" onclick="selectDataSource('scuba')">
+                  <span class="de-datasource-name">Scuba</span>
+                  <span class="de-datasource-desc">Real-time data exploration</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Time Bar -->
+      <div class="de-doc-timebar">
+        <div class="de-doc-time-range">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          <span>3 hours ago</span>
+        </div>
+        <span class="de-doc-time-sep">—</span>
+        <div class="de-doc-time-range">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          <span>now</span>
+        </div>
+        <div class="de-doc-time-pills">
+          <button class="de-doc-time-pill">30M</button>
+          <button class="de-doc-time-pill">1H</button>
+          <button class="de-doc-time-pill active">3H</button>
+          <button class="de-doc-time-pill">6H</button>
+          <button class="de-doc-time-pill">12H</button>
+          <button class="de-doc-time-pill">1D</button>
+          <button class="de-doc-time-pill">3D</button>
+          <button class="de-doc-time-pill">7D</button>
+          <button class="de-doc-time-pill">14D</button>
+          <button class="de-doc-time-pill">30D</button>
+        </div>
+        <button class="de-doc-refresh-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+          <span>Refresh</span>
+        </button>
+      </div>
+
+      <!-- Content Wrapper -->
+      <div class="de-content-wrapper">
+        <!-- Doc View (queries/charts) -->
+        <div class="de-doc-view" id="docView">
+          <!-- Empty state -->
+          <div class="de-doc-empty" id="docEmpty">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+            <h3>No queries yet</h3>
+            <p>Add a widget to start exploring data</p>
+            <button class="de-doc-empty-btn" onclick="openQueryBuilder()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              <span>Add Widget</span>
+            </button>
+          </div>
+          <!-- Query cards container -->
+          <div id="queryCardsContainer"></div>
+        </div>
+
+        <!-- Query Builder Panel -->
+        <div class="de-qb-panel hidden" id="queryBuilderPanel">
+          <div class="de-qb-header">
+            <div class="de-qb-header-left">
+              <div class="de-qb-header-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+                <span id="qbDataSourceName">ODS</span>
+              </div>
+            </div>
+            <button class="de-qb-close-btn" onclick="closeQueryBuilder()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+          </div>
+          
+          <div class="de-qb-fields">
+            <div class="de-qb-field-wrapper">
+              <div class="de-qb-field">
+                <div class="de-qb-field-label">
+                  <span class="de-qb-field-badge">?</span>
+                  <span class="de-qb-field-q">Q</span>
+                  <span>Entities</span>
+                </div>
+                <div class="de-qb-field-input">
+                  <div class="de-qb-pills" id="entitiesPills"></div>
+                  <input type="text" placeholder="Add entity..." id="entitiesInput" autocomplete="off" />
+                </div>
+              </div>
+              <div class="de-qb-dropdown" id="entitiesDropdown"></div>
+            </div>
+            <div class="de-qb-field-wrapper">
+              <div class="de-qb-field">
+                <div class="de-qb-field-label">
+                  <span class="de-qb-field-badge">?</span>
+                  <span class="de-qb-field-q">Q</span>
+                  <span>Keys</span>
+                </div>
+                <div class="de-qb-field-input">
+                  <div class="de-qb-pills" id="keysPills"></div>
+                  <input type="text" placeholder="Add key..." id="keysInput" autocomplete="off" />
+                </div>
+              </div>
+              <div class="de-qb-dropdown" id="keysDropdown"></div>
+            </div>
+            <div class="de-qb-field-wrapper">
+              <div class="de-qb-field">
+                <div class="de-qb-field-label">
+                  <span class="de-qb-field-badge">?</span>
+                  <span class="de-qb-field-q">Q</span>
+                  <span>Transform</span>
+                </div>
+                <div class="de-qb-field-input">
+                  <div class="de-qb-pills" id="transformPills"></div>
+                  <input type="text" placeholder="Add transform..." id="transformInput" autocomplete="off" />
+                </div>
+              </div>
+              <div class="de-qb-dropdown" id="transformDropdown"></div>
+            </div>
+            <div class="de-qb-field-wrapper">
+              <div class="de-qb-field">
+                <div class="de-qb-field-label">
+                  <span class="de-qb-field-badge">?</span>
+                  <span class="de-qb-field-q">Q</span>
+                  <span>Reduce</span>
+                </div>
+                <div class="de-qb-field-input">
+                  <div class="de-qb-pills" id="reducePills"></div>
+                  <input type="text" placeholder="Add reduce..." id="reduceInput" autocomplete="off" />
+                </div>
+              </div>
+              <div class="de-qb-dropdown" id="reduceDropdown"></div>
+            </div>
+          </div>
+          
+          <div class="de-qb-footer">
+            <button class="de-qb-run-btn" id="runQueryBtn" onclick="runQuery()" disabled>Run Query (⌘ ↵)</button>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Opsmate Panel -->
+  <div class="opsmate-panel-overlay" id="opsmatePanelOverlay" onclick="closeOpsmatePanel()"></div>
+  <div class="opsmate-panel" id="opsmatePanel">
+    <iframe id="opsmatePanelFrame" src="" frameborder="0"></iframe>
+  </div>
+
+  <script>
+    // State
+    let currentDoc = null;
+    let docQueries = [];
+    let currentDataSource = 'ods';
+    const chartInstances = {};
+    
+    // Pills state
+    const fieldPills = { entities: [], keys: [], transform: [], reduce: [] };
+    
+    // Init
+    document.addEventListener('DOMContentLoaded', function() {
+      LeftNav.activePage = 'Data Exploration';
+      LeftNav.render('mainNavContainer');
+      
+      // Load doc from URL params
+      const params = new URLSearchParams(window.location.search);
+      const docId = params.get('doc');
+      const dataSourceType = params.get('type');
+      
+      if (docId) {
+        loadDoc(parseInt(docId));
+      }
+      
+      if (dataSourceType) {
+        currentDataSource = dataSourceType;
+        openQueryBuilder();
+      }
+      
+      setupAutocomplete();
+      setupTimePills();
+      
+      // Keyboard shortcut for run
+      document.addEventListener('keydown', function(e) {
+        if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+          const runBtn = document.getElementById('runQueryBtn');
+          if (runBtn && !runBtn.disabled) runQuery();
+        }
+      });
+    });
+    
+    // LocalStorage helpers
+    function getSavedDocs() {
+      try {
+        return JSON.parse(localStorage.getItem('dataExplorationDocs') || '[]');
+      } catch (e) { return []; }
+    }
+    
+    function saveDocs(docs) {
+      localStorage.setItem('dataExplorationDocs', JSON.stringify(docs));
+    }
+    
+    function saveCurrentDoc() {
+      if (!currentDoc) return;
+      currentDoc.updatedAt = new Date().toISOString();
+      currentDoc.queries = [...docQueries];
+      const docs = getSavedDocs();
+      const idx = docs.findIndex(d => d.id === currentDoc.id);
+      if (idx >= 0) docs[idx] = currentDoc;
+      else docs.push(currentDoc);
+      saveDocs(docs);
+    }
+    
+    // Load doc
+    function loadDoc(docId) {
+      const docs = getSavedDocs();
+      const doc = docs.find(d => d.id === docId);
+      if (doc) {
+        currentDoc = doc;
+        docQueries = doc.queries || [];
+        updateDocUI();
+        renderQueryCards();
+      }
+    }
+    
+    // Update UI
+    function updateDocUI() {
+      if (!currentDoc) return;
+      document.getElementById('docTitle').textContent = currentDoc.name;
+      document.getElementById('breadcrumbDocName').textContent = currentDoc.name;
+      document.getElementById('docOwner').textContent = currentDoc.owner;
+      const date = new Date(currentDoc.createdAt);
+      document.getElementById('docCreatedAt').textContent = 'Created ' + date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    }
+    
+    // Doc name editing
+    function startEditingDocName() {
+      const titleEl = document.getElementById('docTitle');
+      const inputEl = document.getElementById('docTitleInput');
+      titleEl.style.display = 'none';
+      document.querySelector('.de-doc-edit-btn').style.display = 'none';
+      inputEl.style.display = 'block';
+      inputEl.value = currentDoc ? currentDoc.name : 'Untitled Doc';
+      inputEl.focus();
+      inputEl.select();
+    }
+    
+    function saveDocName() {
+      const titleEl = document.getElementById('docTitle');
+      const inputEl = document.getElementById('docTitleInput');
+      if (currentDoc) {
+        currentDoc.name = inputEl.value || 'Untitled Doc';
+        saveCurrentDoc();
+      }
+      titleEl.textContent = inputEl.value || 'Untitled Doc';
+      document.getElementById('breadcrumbDocName').textContent = inputEl.value || 'Untitled Doc';
+      titleEl.style.display = 'block';
+      document.querySelector('.de-doc-edit-btn').style.display = 'flex';
+      inputEl.style.display = 'none';
+    }
+    
+    function handleDocNameKeydown(e) {
+      if (e.key === 'Enter') saveDocName();
+      if (e.key === 'Escape') {
+        document.getElementById('docTitleInput').value = currentDoc ? currentDoc.name : 'Untitled Doc';
+        saveDocName();
+      }
+    }
+    
+    // Data source dropdown
+    function toggleDataSourceDropdown(event) {
+      event.stopPropagation();
+      document.getElementById('dataSourceDropdown').classList.toggle('open');
+    }
+    
+    function selectDataSource(source) {
+      currentDataSource = source;
+      document.getElementById('dataSourceDropdown').classList.remove('open');
+      document.getElementById('qbDataSourceName').textContent = source.toUpperCase();
+      openQueryBuilder();
+    }
+    
+    document.addEventListener('click', function(e) {
+      if (!e.target.closest('.de-doc-add-widget-wrapper')) {
+        document.getElementById('dataSourceDropdown').classList.remove('open');
+      }
+    });
+    
+    // Query Builder
+    function openQueryBuilder() {
+      document.getElementById('queryBuilderPanel').classList.remove('hidden');
+      clearAllFields();
+    }
+    
+    function closeQueryBuilder() {
+      document.getElementById('queryBuilderPanel').classList.add('hidden');
+    }
+    
+    // Autocomplete
+    function generateSuggestions(input) {
+      if (input.length < 2) return [];
+      return [
+        input + '_m819217776',
+        input + '_c821f3',
+        input + '_elastic_m' + Math.floor(Math.random() * 999),
+        input + '-mtia-local-ct59-ct44-s' + Math.floor(Math.random() * 99) + '.online-serving',
+        input.toUpperCase() + Math.floor(Math.random() * 99999),
+      ];
+    }
+    
+    function createPill(value, fieldName) {
+      const pill = document.createElement('div');
+      pill.className = 'de-qb-tile';
+      pill.innerHTML = `<span>${value}</span><button onclick="removePill('${fieldName}', '${value}')">&times;</button>`;
+      return pill;
+    }
+    
+    function addPill(fieldName, value) {
+      if (fieldPills[fieldName].includes(value)) return;
+      fieldPills[fieldName].push(value);
+      document.getElementById(fieldName + 'Pills').appendChild(createPill(value, fieldName));
+      document.getElementById(fieldName + 'Input').value = '';
+      hideDropdown(fieldName);
+      updateRunButtonState();
+    }
+    
+    function removePill(fieldName, value) {
+      const idx = fieldPills[fieldName].indexOf(value);
+      if (idx > -1) fieldPills[fieldName].splice(idx, 1);
+      const container = document.getElementById(fieldName + 'Pills');
+      container.innerHTML = '';
+      fieldPills[fieldName].forEach(v => container.appendChild(createPill(v, fieldName)));
+      updateRunButtonState();
+    }
+    
+    function updateRunButtonState() {
+      const runBtn = document.getElementById('runQueryBtn');
+      const hasPills = Object.values(fieldPills).some(arr => arr.length > 0);
+      runBtn.disabled = !hasPills;
+    }
+    
+    function showDropdown(fieldName, suggestions) {
+      const dropdown = document.getElementById(fieldName + 'Dropdown');
+      dropdown.innerHTML = suggestions.map((s, i) => 
+        `<div class="de-qb-dropdown-item${i === 0 ? ' selected' : ''}" onmousedown="event.preventDefault(); addPill('${fieldName}', '${s}')">${s}</div>`
+      ).join('');
+      dropdown.classList.add('visible');
+    }
+    
+    function hideDropdown(fieldName) {
+      const dropdown = document.getElementById(fieldName + 'Dropdown');
+      if (dropdown) dropdown.classList.remove('visible');
+    }
+    
+    function setupAutocomplete() {
+      ['entities', 'keys', 'transform', 'reduce'].forEach(fieldName => {
+        const input = document.getElementById(fieldName + 'Input');
+        if (!input) return;
+        
+        input.oninput = function(e) {
+          const value = e.target.value.trim();
+          if (value.length >= 2) showDropdown(fieldName, generateSuggestions(value));
+          else hideDropdown(fieldName);
+        };
+        
+        input.onkeydown = function(e) {
+          const dropdown = document.getElementById(fieldName + 'Dropdown');
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            const selected = dropdown.querySelector('.de-qb-dropdown-item.selected');
+            if (selected) addPill(fieldName, selected.textContent);
+            else if (input.value.trim().length >= 2) addPill(fieldName, input.value.trim());
+          } else if (e.key === 'Escape') {
+            hideDropdown(fieldName);
+          } else if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+            e.preventDefault();
+            const items = dropdown.querySelectorAll('.de-qb-dropdown-item');
+            const selected = dropdown.querySelector('.de-qb-dropdown-item.selected');
+            if (!selected || items.length === 0) return;
+            const idx = Array.from(items).indexOf(selected);
+            const next = e.key === 'ArrowDown' ? Math.min(idx + 1, items.length - 1) : Math.max(idx - 1, 0);
+            selected.classList.remove('selected');
+            items[next].classList.add('selected');
+          }
+        };
+        
+        input.onblur = function() { setTimeout(() => hideDropdown(fieldName), 200); };
+      });
+    }
+    
+    function clearAllFields() {
+      ['entities', 'keys', 'transform', 'reduce'].forEach(fieldName => {
+        fieldPills[fieldName] = [];
+        const container = document.getElementById(fieldName + 'Pills');
+        if (container) container.innerHTML = '';
+        const input = document.getElementById(fieldName + 'Input');
+        if (input) input.value = '';
+      });
+      updateRunButtonState();
+    }
+    
+    // Time pills
+    function setupTimePills() {
+      document.querySelectorAll('.de-doc-time-pill').forEach(pill => {
+        pill.addEventListener('click', function() {
+          document.querySelectorAll('.de-doc-time-pill').forEach(p => p.classList.remove('active'));
+          this.classList.add('active');
+        });
+      });
+    }
+    
+    // Run Query
+    function runQuery() {
+      const runBtn = document.getElementById('runQueryBtn');
+      runBtn.classList.add('loading');
+      runBtn.innerHTML = '<span class="spinner"></span>Running...';
+      
+      setTimeout(() => {
+        runBtn.classList.remove('loading');
+        runBtn.innerHTML = 'Run Query (⌘ ↵)';
+        
+        // Save query
+        const query = {
+          id: Date.now(),
+          dataSource: currentDataSource,
+          entities: [...fieldPills.entities],
+          keys: [...fieldPills.keys],
+          transform: [...fieldPills.transform],
+          reduce: [...fieldPills.reduce]
+        };
+        docQueries.push(query);
+        saveCurrentDoc();
+        
+        // Render and close panel
+        renderQueryCards();
+        closeQueryBuilder();
+        clearAllFields();
+      }, 2000);
+    }
+    
+    // Render query cards
+    function renderQueryCards() {
+      const container = document.getElementById('queryCardsContainer');
+      const emptyState = document.getElementById('docEmpty');
+      
+      if (docQueries.length === 0) {
+        emptyState.style.display = 'flex';
+        container.innerHTML = '';
+        return;
+      }
+      
+      emptyState.style.display = 'none';
+      container.innerHTML = docQueries.map((query, idx) => `
+        <div class="de-doc-query-card">
+          <div class="de-doc-query-header">
+            <div class="de-doc-query-header-left">
+              <span class="de-doc-query-type">${query.dataSource || 'ODS'}</span>
+              <span class="de-doc-query-name">Query ${idx + 1}</span>
+            </div>
+            <div class="de-doc-query-header-right">
+              <label class="de-doc-query-checkbox"><input type="checkbox" /> Start at 0</label>
+              <label class="de-doc-query-checkbox"><input type="checkbox" /> Log Y-axis</label>
+              <button class="de-doc-query-menu" onclick="deleteQuery(${idx})">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              </button>
+            </div>
+          </div>
+          <div class="de-doc-query-info">
+            Entities: ${query.entities.join(', ') || 'None'} • Keys: ${query.keys.join(', ') || 'None'}
+          </div>
+          <div class="de-doc-query-chart" id="chart${query.id}"></div>
+        </div>
+      `).join('');
+      
+      // Init charts
+      docQueries.forEach(query => {
+        setTimeout(() => initChart(query.id, query), 100);
+      });
+    }
+    
+    function deleteQuery(idx) {
+      docQueries.splice(idx, 1);
+      saveCurrentDoc();
+      renderQueryCards();
+    }
+    
+    // Chart rendering
+    function initChart(queryId, query) {
+      const el = document.getElementById('chart' + queryId);
+      if (!el) return;
+      
+      const chart = echarts.init(el);
+      chartInstances[queryId] = chart;
+      
+      const now = Date.now();
+      const data = [];
+      for (let i = 0; i < 180; i++) {
+        const time = now - (180 - i) * 60000;
+        const value = 40 + Math.random() * 20 + Math.sin(i / 10) * 15 + (i > 120 ? Math.random() * 20 : 0);
+        data.push([time, Math.round(value)]);
+      }
+      
+      const seriesName = query.entities[0] || 'Query';
+      
+      chart.setOption({
+        tooltip: {
+          trigger: 'axis',
+          backgroundColor: 'rgba(255, 255, 255, 0.95)',
+          borderColor: '#e5e7eb',
+          borderWidth: 1,
+          textStyle: { color: '#1f2937', fontSize: 12 }
+        },
+        grid: { left: 50, right: 20, top: 20, bottom: 30 },
+        xAxis: {
+          type: 'time',
+          axisLine: { lineStyle: { color: '#e5e7eb' } },
+          axisTick: { show: false },
+          axisLabel: { color: '#6b7280', fontSize: 11, formatter: '{HH}:{mm}' },
+          splitLine: { show: false }
+        },
+        yAxis: {
+          type: 'value',
+          axisLine: { show: false },
+          axisTick: { show: false },
+          axisLabel: { color: '#6b7280', fontSize: 11 },
+          splitLine: { lineStyle: { color: '#f3f4f6', type: 'dashed' } }
+        },
+        series: [{
+          name: seriesName,
+          type: 'line',
+          smooth: true,
+          symbol: 'none',
+          lineStyle: { width: 2, color: '#3b82f6' },
+          areaStyle: {
+            color: { type: 'linear', x: 0, y: 0, x2: 0, y2: 1,
+              colorStops: [
+                { offset: 0, color: 'rgba(59, 130, 246, 0.15)' },
+                { offset: 1, color: 'rgba(59, 130, 246, 0)' }
+              ]
+            }
+          },
+          data: data
+        }],
+        animation: true,
+        animationDuration: 2000
+      });
+      
+      window.addEventListener('resize', () => chart.resize());
+    }
+    
+    // Opsmate
+    function openOpsmate() {
+      const panel = document.getElementById('opsmatePanel');
+      const iframe = document.getElementById('opsmatePanelFrame');
+      if (panel.classList.contains('open')) {
+        panel.classList.remove('open');
+        setTimeout(() => iframe.src = '', 300);
+      } else {
+        iframe.src = '../opsmate-app/index.html?chatOnly=true&page=data-exploration';
+        panel.classList.add('open');
+      }
+    }
+    
+    function closeOpsmatePanel() {
+      document.getElementById('opsmatePanel').classList.remove('open');
+      setTimeout(() => document.getElementById('opsmatePanelFrame').src = '', 300);
+    }
+    
+    window.addEventListener('message', (e) => { if (e.data === 'closeOpsmate') closeOpsmatePanel(); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeOpsmatePanel(); });
+  </script>
+</body>
+</html>

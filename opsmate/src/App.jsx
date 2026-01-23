@@ -10,6 +10,8 @@ import Toast from './components/Toast'
 import LeftNav from './components/LeftNav'
 import TaskPanel from './components/TaskPanel'
 import Feed from './components/Feed'
+import EntitiesPage from './components/EntitiesPage'
+import MetricsPage from './components/MetricsPage'
 
 function App() {
   // Check for chat-only mode, sev mode, investigation mode, and protection mode
@@ -18,6 +20,8 @@ function App() {
   const isSevMode = params.get('page') === 'sev'  // Show SEV investigation canvas
   const isInvestigationMode = params.get('page') === 'investigation'
   const isProtectionMode = params.get('mode') === 'protection'
+  const isEntitiesPage = params.get('page') === 'entities'
+  const isMetricsPage = params.get('page') === 'metrics'
   
   // Investigation params from Quality Home
   const investigationType = params.get('type') || 'detection'
@@ -26,11 +30,14 @@ function App() {
   const investigationAction = params.get('action') || 'manual-review'
   
   // Recommendation context params (for chatOnly mode from Quality Home)
+  // Also support generic 'context' param for pre-filled messages from Feed
+  const feedContext = params.get('context')
   const recommendationContext = isChatOnlyMode ? {
     type: params.get('recommendationType'),
     title: params.get('recommendationTitle'),
     priority: params.get('recommendationPriority'),
     action: params.get('recommendationAction'),
+    feedContext: feedContext, // Generic context from Feed page
   } : null
   
   const [showSources, setShowSources] = useState(false)
@@ -397,71 +404,72 @@ function App() {
     title: 'Taylor Swift - Life of a Showgirl - Only In Polish',
     sections: [
       {
-        id: 'protection-plan',
+        id: 'hypothesis',
         type: 'hypothesis',
-        title: 'Protection Plan',
+        title: 'Hypothesis',
         createdBy: 'Opsmate',
         priority: 'High',
         isExpanded: true,
         content: {
-          summary: 'Opsmate has created a comprehensive protection plan with quality metrics, backtesting analysis, and threshold configurations:',
+          summary: 'Taylor Swift\'s "Life of a Showgirl" content is only being distributed to Polish language users, affecting global reach. Opsmate has identified three potential root causes for investigation:',
           hypotheses: [
             {
-              id: 'quality-summary',
-              title: 'Quality Summary',
-              rationale: 'Current precision is 50% over the last 30 days. If the recommendation is applied, precision could improve to 80%. Last 30 days show 20 stops out of 100 runs.',
+              id: 'locale-routing',
+              title: 'Content Locale Routing Misconfiguration',
+              rationale: 'The content distribution pipeline may have an incorrect locale filter applied. Recent changes to the Creator distribution service (D892341) modified locale routing logic. This could explain why content is exclusively reaching pl_PL locale users while being filtered out for all other regions.',
               detailedSteps: [
                 {
-                  title: 'Review Precision Metrics',
-                  tableName: 'quality_metrics_cube',
+                  title: 'Check Locale Filter Configuration',
+                  tableName: 'content_distribution_cube',
                   query: {
-                    table: 'precision_tracking_raw',
-                    filters: 'time_range = last_30_days',
-                    groupBy: 'metric_type, recommendation_status',
-                    lookFor: 'Precision improvement from 50% to 80% with recommendation applied',
+                    table: 'distribution_routing_raw',
+                    filters: 'creator_id = taylor_swift, content_type = album_announcement',
+                    groupBy: 'target_locale, routing_rule, filter_status',
+                    lookFor: 'Locale filters showing pl_PL as only active target, missing en_US, es_ES, etc.',
                   },
                 },
               ],
             },
             {
-              id: 'backtesting',
-              title: 'Backtesting',
-              rationale: 'Backtesting view shows true positive stops, false positive stops, and SEV correlation over time. Chart view displays metric trends from 07:00 to 16:00.',
+              id: 'experiment-holdout',
+              title: 'Experiment Holdout Group Overlap',
+              rationale: 'An active A/B experiment (EXP-445892) for creator content localization may have incorrectly assigned Taylor Swift\'s content to a test group. The experiment\'s holdout logic could be filtering non-Polish audiences, causing SEV S448319. Similar issues occurred with S412847 last month.',
               detailedSteps: [
                 {
-                  title: 'Analyze Backtesting Results',
-                  tableName: 'backtesting_results_cube',
+                  title: 'Analyze Experiment Assignment',
+                  tableName: 'experiment_assignments_cube',
                   query: {
-                    table: 'backtest_runs_raw',
-                    filters: 'view_type = chart_view',
-                    groupBy: 'stop_type, timestamp',
-                    lookFor: 'True positive stops at 10:00 and 14:00, SEV correlation at 11:00',
+                    table: 'creator_experiment_raw',
+                    filters: 'experiment_id = EXP-445892, creator_id = taylor_swift',
+                    groupBy: 'variant_id, audience_segment, distribution_status',
+                    lookFor: 'Creator incorrectly assigned to Polish-only test variant',
                   },
                 },
               ],
             },
             {
-              id: 'thresholds',
-              title: 'Thresholds',
-              rationale: 'An incident task with High priority will be assigned to the designated user once the difference between control vs. test is 3% or more.',
+              id: 'cdn-propagation',
+              title: 'CDN Content Propagation Failure',
+              rationale: 'Content may have been uploaded with correct metadata but CDN propagation failed for non-Polish regions. Edge cache invalidation issues in D891203 deployment could cause regional content availability gaps. CDN logs show 403 errors for content requests outside pl_PL.',
               detailedSteps: [
                 {
-                  title: 'Configure Threshold Settings',
-                  tableName: 'threshold_config_cube',
+                  title: 'Review CDN Propagation Status',
+                  tableName: 'cdn_distribution_cube',
                   query: {
-                    table: 'threshold_settings_raw',
-                    filters: 'priority = high',
-                    groupBy: 'threshold_type, assignee',
-                    lookFor: 'Control vs test difference >= 3% triggers high priority incident task',
+                    table: 'cdn_edge_logs_raw',
+                    filters: 'content_id = life_of_showgirl, time_range = last_6h',
+                    groupBy: 'edge_location, response_code, cache_status',
+                    lookFor: 'Non-Polish edge locations showing cache misses or 403 responses',
                   },
                 },
               ],
             },
           ],
           nextSteps: [
-            'Review quality summary and backtesting results above',
-            'Verify thresholds are configured correctly for your use case',
-            'Execute protection to enable automated incident detection',
+            'Investigate locale routing configuration in the distribution service for Taylor Swift\'s content',
+            'Check if EXP-445892 experiment is affecting this creator\'s audience targeting',
+            'Review CDN propagation logs for regional availability issues',
+            'Coordinate with Creator Forensics team on T234502850 findings',
           ],
         },
       },
@@ -917,7 +925,6 @@ function App() {
           }}
           onAddChart={isReadOnlySharedMode ? undefined : (activeCanvasTab === 'personal' ? handleAddChart : handleAddSharedChart)}
           onRemove={isReadOnlySharedMode ? undefined : (activeCanvasTab === 'shared' ? handleRemoveSection : handleRemoveBranchSection)}
-          onTriggerProactiveRun={isReadOnlySharedMode ? undefined : handleTriggerProactiveRun}
           onCopy={isReadOnlySharedMode ? undefined : (section) => {
             setToast({
               isOpen: true,
@@ -926,6 +933,7 @@ function App() {
             })
           }}
           onReferenceInSEVChat={!isReadOnlySharedMode && activeCanvasTab === 'shared' ? handleReferenceInSEVChat : undefined}
+          hideProactiveRun={true}
         />
         {activeBranchId && !isReadOnlySharedMode && (
           <>
@@ -955,6 +963,16 @@ function App() {
       </div>
     </div>
     )
+  }
+
+  // Entities page
+  if (isEntitiesPage) {
+    return <EntitiesPage />
+  }
+
+  // Metrics page
+  if (isMetricsPage) {
+    return <MetricsPage />
   }
 
   // Default: Feed is the home page

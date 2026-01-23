@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Metrics - OneMonitoring</title>
+  <link rel="icon" type="image/svg+xml" href="../favicon.svg?v=2">
+  <link rel="stylesheet" href="../styles.css?v=58">
+  <!-- Left Nav Component -->
+  <script src="../components/left-nav.js"></script>
+  <style>
+    /* Metrics Page Styles - Following Feed pattern */
+    .metrics-header {
+      background: white;
+      border-bottom: 1px solid var(--color-border);
+      padding: 16px 24px;
+    }
+
+    .metrics-header-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .metrics-header h1 {
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--color-text-primary);
+      margin: 0;
+    }
+
+    .create-metric-btn-group {
+      display: flex;
+      align-items: stretch;
+    }
+
+    .create-metric-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 10px 16px;
+      font-size: 14px;
+      font-weight: 600;
+      color: white;
+      background: #1B873F;
+      border: none;
+      border-radius: 6px 0 0 6px;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .create-metric-btn:hover {
+      background: #157a35;
+    }
+
+    .create-metric-dropdown {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 12px;
+      background: #1B873F;
+      border: none;
+      border-left: 1px solid rgba(255,255,255,0.2);
+      border-radius: 0 6px 6px 0;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .create-metric-dropdown:hover {
+      background: #157a35;
+    }
+
+    /* Filter Row */
+    .metrics-filters {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .metrics-filters-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .metrics-filters-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .filter-label {
+      font-size: 13px;
+      color: var(--color-text-secondary);
+    }
+
+    .filter-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--color-text-primary);
+      background: #F3F4F6;
+      border: 1px solid var(--color-border);
+      border-radius: 6px;
+    }
+
+    .filter-pill strong {
+      font-weight: 600;
+    }
+
+    .filter-pill .remove-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 16px;
+      height: 16px;
+      border: none;
+      background: transparent;
+      color: var(--color-text-secondary);
+      cursor: pointer;
+      padding: 0;
+      border-radius: 2px;
+      margin-left: 2px;
+    }
+
+    .filter-pill .remove-btn:hover {
+      background: rgba(0,0,0,0.1);
+    }
+
+    .filter-results {
+      font-size: 13px;
+      color: var(--color-text-secondary);
+    }
+
+    .save-search-link {
+      font-size: 13px;
+      color: var(--color-text-secondary);
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .save-search-link:hover {
+      color: var(--color-text-primary);
+    }
+
+    .filter-icon-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      border: 1px solid var(--color-border);
+      border-radius: 6px;
+      background: white;
+      cursor: pointer;
+      color: var(--color-text-secondary);
+      transition: all 0.15s;
+    }
+
+    .filter-icon-btn:hover {
+      background: var(--color-bg-secondary);
+    }
+
+    .view-options-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--color-text-primary);
+      background: white;
+      border: 1px solid var(--color-border);
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .view-options-btn:hover {
+      background: var(--color-bg-secondary);
+    }
+
+    .results-count {
+      margin-top: 12px;
+      font-size: 13px;
+      color: var(--color-text-secondary);
+    }
+
+    /* Table Container */
+    .metrics-table-wrapper {
+      flex: 1;
+      overflow: auto;
+      padding: 16px 24px;
+    }
+
+    .metrics-table-container {
+      background: white;
+      border-radius: 12px;
+      border: 1px solid var(--color-border);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+      overflow: hidden;
+    }
+
+    .metrics-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .metrics-table thead tr {
+      background: #F9FAFB;
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    .metrics-table th {
+      text-align: left;
+      padding: 12px 16px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--color-text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      white-space: nowrap;
+    }
+
+    .metrics-table th .sort-icon {
+      display: inline-flex;
+      align-items: center;
+      margin-left: 4px;
+      vertical-align: middle;
+    }
+
+    .metrics-table th .sort-icon svg {
+      width: 12px;
+      height: 12px;
+      opacity: 0.5;
+    }
+
+    .metrics-table tbody tr {
+      border-bottom: 1px solid #F3F4F6;
+      transition: background 0.15s;
+    }
+
+    .metrics-table tbody tr:last-child {
+      border-bottom: none;
+    }
+
+    .metrics-table tbody tr:hover {
+      background: #FAFBFC;
+    }
+
+    .metrics-table td {
+      padding: 16px;
+      font-size: 14px;
+      color: var(--color-text-primary);
+      vertical-align: middle;
+    }
+
+    /* Name Cell */
+    .metric-name-cell {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    .metric-icon {
+      width: 20px;
+      height: 20px;
+      color: var(--color-text-tertiary);
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .metric-name-content {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .metric-name {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--color-text-primary);
+    }
+
+    .metric-badges {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .metric-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 12px;
+      color: #1877F2;
+      text-decoration: none;
+      padding: 2px 8px;
+      background: #EBF5FF;
+      border-radius: 4px;
+    }
+
+    .metric-link:hover {
+      background: #DBEAFE;
+    }
+
+    .metric-link svg {
+      width: 10px;
+      height: 10px;
+    }
+
+    .badge-followed {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 12px;
+      color: var(--color-text-secondary);
+      padding: 2px 8px;
+      background: #F3F4F6;
+      border-radius: 4px;
+    }
+
+    .badge-followed svg {
+      width: 12px;
+      height: 12px;
+    }
+
+    /* Prevention Cell */
+    .prevention-text {
+      font-size: 13px;
+      color: var(--color-text-secondary);
+    }
+
+    /* Detection Cell */
+    .detection-cell {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .detection-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 10px;
+      font-size: 12px;
+      font-weight: 500;
+      color: #1B873F;
+      background: #E6F4EA;
+      border-radius: 4px;
+    }
+
+    .detection-badge svg {
+      width: 12px;
+      height: 12px;
+    }
+
+    .add-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 24px;
+      height: 24px;
+      border: 1px solid var(--color-border);
+      border-radius: 4px;
+      background: white;
+      color: var(--color-text-secondary);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .add-btn:hover {
+      background: var(--color-bg-secondary);
+      color: var(--color-text-primary);
+    }
+
+    /* Number Cells */
+    .number-cell {
+      font-size: 14px;
+      color: var(--color-text-primary);
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* Trend Cell */
+    .trend-sparkline {
+      width: 100px;
+      height: 28px;
+    }
+
+    .trend-sparkline path {
+      fill: none;
+      stroke: #1877F2;
+      stroke-width: 1.5;
+    }
+
+    /* Actions Cell */
+    .actions-cell {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .summarize-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--color-text-primary);
+      background: #E6EBEF;
+      border: 1px solid var(--color-border);
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .summarize-btn:hover {
+      background: #D8DEE4;
+    }
+
+    .summarize-btn svg {
+      width: 14px;
+      height: 14px;
+    }
+
+    .action-icon-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      border: none;
+      border-radius: 4px;
+      background: transparent;
+      color: var(--color-text-secondary);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .action-icon-btn:hover {
+      background: var(--color-bg-secondary);
+      color: var(--color-text-primary);
+    }
+  </style>
+</head>
+<body>
+  <!-- Inline SVG Sprite for instant icon loading -->
+  <svg xmlns="http://www.w3.org/2000/svg" style="display:none">
+    <symbol id="icon-house-outline" viewBox="0 0 24 24">
+      <path fill="currentColor" d="M14.39 3.87a3.507 3.507 0 0 0-4.79 0L4.26 8.88C3.46 9.63 3 10.7 3 11.8v6.5c0 1.18.82 2.21 1.96 2.45.91.19 1.86.35 2.81.47.08.01.16.02.24.02.48 0 .95-.17 1.31-.5.43-.38.68-.93.68-1.51V16c0-.55.45-1 1-1h2c.55 0 1 .45 1 1v3.23c0 .58.25 1.12.68 1.51.43.38.99.55 1.56.48.95-.12 1.9-.28 2.81-.47 1.13-.24 1.96-1.27 1.96-2.45v-6.5c0-1.1-.46-2.17-1.26-2.92l-5.34-5.01zM19 18.3c0 .24-.16.45-.38.49-.86.18-1.74.33-2.62.44V16c0-1.65-1.35-3-3-3h-2c-1.65 0-3 1.35-3 3v3.24c-.88-.11-1.77-.26-2.63-.45A.49.49 0 0 1 5 18.3v-6.5c0-.55.23-1.08.63-1.46l5.34-5.01c.29-.27.66-.4 1.03-.4s.74.13 1.03.4l5.34 5.01c.4.38.63.91.63 1.46z"/>
+    </symbol>
+    <symbol id="icon-circles-outline" viewBox="0 0 24 24">
+      <path fill="currentColor" d="M12 2C6.49 2 2 6.49 2 12s4.49 10 10 10 10-4.49 10-10S17.51 2 12 2m0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8"/><path fill="currentColor" d="M12 6c-3.31 0-6 2.69-6 6s2.69 6 6 6 6-2.69 6-6-2.69-6-6-6m0 10c-2.21 0-4-1.79-4-4s1.79-4 4-4 4 1.79 4 4-1.79 4-4 4"/><path fill="currentColor" d="M12 14a2 2 0 1 0 0-4 2 2 0 0 0 0 4"/>
+    </symbol>
+    <symbol id="icon-dots-lines-outline" viewBox="0 0 24 24">
+      <path fill="currentColor" d="M6.23 10.42c.5.36 1.11.58 1.77.58l.14-.01-1.37 4.59c-.5-.36-1.11-.58-1.77-.58l-.14.01 1.37-4.59zm8.48 2.88c-.62.3-1.12.8-1.42 1.42l-4-4c.62-.3 1.12-.8 1.42-1.42l4 4zm2.52-4.88c.5.36 1.11.58 1.77.58l.14-.01-1.37 4.59c-.5-.36-1.11-.58-1.77-.58l-.15.01 1.38-4.59zM5 15c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 2c-.55 0-1 .45-1 1s.45 1 1 1 1-.45 1-1-.45-1-1-1zm11-4c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 2c-.55 0-1 .45-1 1s.45 1 1 1 1-.45 1-1-.45-1-1-1zM8 5c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 2c-.55 0-1 .45-1 1s.45 1 1 1 1-.45 1-1-.45-1-1-1zm11-4c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 2c-.55 0-1 .45-1 1s.45 1 1 1 1-.45 1-1-.45-1-1-1z"/>
+    </symbol>
+    <symbol id="icon-shield-outline" viewBox="0 0 24 24">
+      <path fill="currentColor" d="M12 7.88a1 1 0 0 1 1 1v2h2a1 1 0 1 1 0 2h-2v2a1 1 0 0 1-2 0v-2H9a1 1 0 0 1 0-2h2v-2a1 1 0 0 1 1-1"/><path fill="currentColor" d="M3.74 5.11a17.18 17.18 0 0 1 16.51 0c.46.25.74.73.74 1.26v3.88a12 12 0 0 1-6.23 10.52l-1.81.99a2 2 0 0 1-1.92 0l-1.81-.99A12 12 0 0 1 3 10.24V6.37c0-.52.29-1 .74-1.26M19 6.71a15.18 15.18 0 0 0-14 0v3.53a10 10 0 0 0 5.2 8.77l1.8.99 1.8-.99A10 10 0 0 0 19 10.24z"/>
+    </symbol>
+    <symbol id="icon-flame-outline" viewBox="0 0 24 24">
+      <path fill="currentColor" d="M10.71 21.92c.4.06.8.08 1.2.08 2.2 0 4.3-.85 5.79-2.38 2.13-2.18 3.23-6.73 1.31-10.28-.2-.36-.6-.57-1.01-.52a.99.99 0 0 0-.84.76c-.35 1.48-1.02 2.63-1.76 3-.06.03-.13.06-.19.08.48-2.64.68-7.81-4.22-10.53a1 1 0 0 0-1.04.04c-.31.2-.48.56-.45.94.17 1.71-1.09 3.29-2.42 4.96-1.96 2.46-4.41 5.53-2.27 9.83 1.17 2.19 3.32 3.65 5.89 4.02zM8.65 9.31c1.11-1.4 2.26-2.83 2.69-4.48 2.91 2.69 2.07 7.02 1.7 8.42-.13.48.11.98.56 1.17.91.4 1.84.38 2.7-.04.64-.32 1.21-.86 1.69-1.59.18 2.1-.55 4.25-1.71 5.44-1.32 1.35-3.29 1.99-5.28 1.71-1.94-.27-3.54-1.36-4.4-2.95-1.56-3.13.11-5.24 2.05-7.67z"/>
+    </symbol>
+    <symbol id="icon-chart-outline" viewBox="0 0 24 24">
+      <path fill="currentColor" d="M20.25 4.96C20.01 3.83 18.98 3 17.81 3H6.2C5.03 3 4 3.82 3.76 4.96c-1 4.67-1 9.41 0 14.09.24 1.13 1.27 1.96 2.44 1.96h11.61c1.17 0 2.2-.82 2.44-1.96 1-4.67 1-9.41 0-14.09m-1.96 13.67c-.05.22-.25.37-.49.37H6.2c-.24 0-.44-.16-.49-.37-.94-4.4-.94-8.86 0-13.25.05-.22.25-.37.49-.37h11.61c.24 0 .44.16.49.37.94 4.4.94 8.86 0 13.25z"/><path fill="currentColor" d="m15.19 8.92-1.94 2.71-2.19-1.46a1 1 0 0 0-1.37.25l-2.5 3.5A1.007 1.007 0 0 0 8 15.51c.31 0 .62-.15.81-.42l1.94-2.71 2.19 1.46c.45.3 1.05.19 1.37-.25l2.5-3.5c.32-.45.22-1.07-.23-1.4-.45-.32-1.07-.22-1.4.23z"/>
+    </symbol>
+    <symbol id="icon-dot-double-arcs-outline" viewBox="0 0 24 24"><path fill="currentColor" d="M4.929 4.929a1 1 0 0 1 1.414 1.414 8 8 0 0 0 0 11.314 1 1 0 0 1-1.414 1.414c-3.905-3.906-3.905-10.237 0-14.142m12.728 0a1 1 0 0 1 1.338-.068l.076.068.355.373c3.546 3.925 3.428 9.985-.355 13.769a1 1 0 0 1-1.414-1.415 8 8 0 0 0 .283-11.014l-.283-.299-.07-.076a1 1 0 0 1 .07-1.338m-9.9 2.83a1 1 0 0 1 1.415 1.413 4 4 0 0 0-.143 5.508l.143.15.068.075a1.001 1.001 0 0 1-1.407 1.407l-.075-.069-.213-.223a6 6 0 0 1 .213-8.262m7.071 0a1 1 0 0 1 1.414 0 6 6 0 0 1 0 8.484 1 1 0 0 1-1.414-1.414 4 4 0 0 0 0-5.657 1 1 0 0 1 0-1.414M12 10a2 2 0 1 1 0 4 2 2 0 0 1 0-4"/></symbol>
+    <symbol id="icon-feed-rss-outline" viewBox="0 0 24 24"><path fill="currentColor" d="M6.18 15.64a2.18 2.18 0 1 1 0 4.36 2.18 2.18 0 0 1 0-4.36M4 4.44A15.56 15.56 0 0 1 19.56 20h-2.83A12.73 12.73 0 0 0 4 7.27V4.44m0 5.66a9.9 9.9 0 0 1 9.9 9.9h-2.83A7.07 7.07 0 0 0 4 12.93V10.1"/></symbol>
+  </svg>
+
+  <!-- Main Sidebar Container - Rendered by LeftNav component -->
+  <div id="mainNavContainer"></div>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <!-- Header -->
+    <div class="metrics-header">
+      <div class="metrics-header-top">
+        <h1>Metrics</h1>
+        <div class="create-metric-btn-group">
+          <button class="create-metric-btn">Create Metric</button>
+          <button class="create-metric-dropdown">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5">
+              <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Filter Row -->
+      <div class="metrics-filters">
+        <div class="metrics-filters-left">
+          <span class="filter-label">Filters:</span>
+          <div class="filter-pill">
+            Oncall Rotation is <strong>2 items</strong>
+            <button class="remove-btn" title="Remove filter">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </button>
+          </div>
+        </div>
+        <div class="metrics-filters-right">
+          <span class="filter-results">3 results</span>
+          <a href="#" class="save-search-link">Save Search</a>
+          <button class="filter-icon-btn" title="More filters">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="4" y1="21" x2="4" y2="14"></line>
+              <line x1="4" y1="10" x2="4" y2="3"></line>
+              <line x1="12" y1="21" x2="12" y2="12"></line>
+              <line x1="12" y1="8" x2="12" y2="3"></line>
+              <line x1="20" y1="21" x2="20" y2="16"></line>
+              <line x1="20" y1="12" x2="20" y2="3"></line>
+              <line x1="1" y1="14" x2="7" y2="14"></line>
+              <line x1="9" y1="8" x2="15" y2="8"></line>
+              <line x1="17" y1="16" x2="23" y2="16"></line>
+            </svg>
+          </button>
+          <button class="view-options-btn">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="4" y1="21" x2="4" y2="14"></line>
+              <line x1="4" y1="10" x2="4" y2="3"></line>
+              <line x1="12" y1="21" x2="12" y2="12"></line>
+              <line x1="12" y1="8" x2="12" y2="3"></line>
+              <line x1="20" y1="21" x2="20" y2="16"></line>
+              <line x1="20" y1="12" x2="20" y2="3"></line>
+              <line x1="1" y1="14" x2="7" y2="14"></line>
+              <line x1="9" y1="8" x2="15" y2="8"></line>
+              <line x1="17" y1="16" x2="23" y2="16"></line>
+            </svg>
+            View options
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="results-count">3 results</div>
+    </div>
+
+    <!-- Table -->
+    <div class="metrics-table-wrapper">
+      <div class="metrics-table-container">
+        <table class="metrics-table">
+          <thead>
+            <tr>
+              <th style="width: 35%;">
+                TITLE
+                <span class="sort-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="6 9 12 15 18 9"></polyline>
+                  </svg>
+                </span>
+              </th>
+              <th style="width: 18%;">
+                PREVENTION
+                <span class="sort-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="6 9 12 15 18 9"></polyline>
+                  </svg>
+                </span>
+              </th>
+              <th style="width: 12%;">
+                DETECTION
+                <span class="sort-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="6 9 12 15 18 9"></polyline>
+                  </svg>
+                </span>
+              </th>
+              <th style="width: 10%;">ROLLOUT STOPS</th>
+              <th style="width: 10%;">LINKED SEVS</th>
+              <th style="width: 15%;">ACTIONS</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Row 1 -->
+            <tr>
+              <td>
+                <div class="metric-name-cell">
+                  <svg class="metric-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="3"></circle>
+                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                  </svg>
+                  <div class="metric-name-content">
+                    <span class="metric-name">[TEST] ODS based detector/observer</span>
+                    <div class="metric-badges">
+                      <a href="#" class="metric-link">
+                        OneDetection
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                          <polyline points="15 3 21 3 21 9"></polyline>
+                          <line x1="10" y1="14" x2="21" y2="3"></line>
+                        </svg>
+                      </a>
+                      <span class="badge-followed">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                          <circle cx="12" cy="12" r="3"></circle>
+                        </svg>
+                        Followed
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </td>
+              <td><span class="prevention-text">Not eligible for prevention</span></td>
+              <td>
+                <div class="detection-cell">
+                  <span class="detection-badge">
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M12 2L9.19 8.62 2 9.24l5.45 4.73L5.82 21 12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.62L12 2z"/>
+                    </svg>
+                    Detection
+                  </span>
+                  <button class="add-btn" title="Add">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <line x1="12" y1="5" x2="12" y2="19"></line>
+                      <line x1="5" y1="12" x2="19" y2="12"></line>
+                    </svg>
+                  </button>
+                </div>
+              </td>
+              <td class="number-cell">0</td>
+              <td class="number-cell">0</td>
+              <td>
+                <div class="actions-cell">
+                  <button class="summarize-btn">
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M12 2L9.19 8.62 2 9.24l5.45 4.73L5.82 21 12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.62L12 2z"/>
+                    </svg>
+                    Summarize
+                  </button>
+                  <button class="action-icon-btn">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+                      <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+                    </svg>
+                  </button>
+                  <button class="action-icon-btn">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <circle cx="12" cy="12" r="1"></circle>
+                      <circle cx="19" cy="12" r="1"></circle>
+                      <circle cx="5" cy="12" r="1"></circle>
+                    </svg>
+                  </button>
+                </div>
+              </td>
+            </tr>
+            <!-- Row 2 -->
+            <tr>
+              <td>
+                <div class="metric-name-cell">
+                  <svg class="metric-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="3"></circle>
+                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                  </svg>
+                  <div class="metric-name-content">
+                    <span class="metric-name">[Test] Core Viz Errors</span>
+                    <div class="metric-badges">
+                      <a href="#" class="metric-link">
+                        OneDetection
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                          <polyline points="15 3 21 3 21 9"></polyline>
+                          <line x1="10" y1="14" x2="21" y2="3"></line>
+                        </svg>
+                      </a>
+                      <span class="badge-followed">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                          <circle cx="12" cy="12" r="3"></circle>
+                        </svg>
+                        Followed
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </td>
+              <td><span class="prevention-text">Not eligible for prevention</span></td>
+              <td>
+                <div class="detection-cell">
+                  <span class="detection-badge">
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M12 2L9.19 8.62 2 9.24l5.45 4.73L5.82 21 12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.62L12 2z"/>
+                    </svg>
+                    Detection
+                  </span>
+                  <button class="add-btn" title="Add">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <line x1="12" y1="5" x2="12" y2="19"></line>
+                      <line x1="5" y1="12" x2="19" y2="12"></line>
+                    </svg>
+                  </button>
+                </div>
+              </td>
+              <td class="number-cell">0</td>
+              <td class="number-cell">0</td>
+              <td>
+                <div class="actions-cell">
+                  <button class="summarize-btn">
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M12 2L9.19 8.62 2 9.24l5.45 4.73L5.82 21 12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.62L12 2z"/>
+                    </svg>
+                    Summarize
+                  </button>
+                  <button class="action-icon-btn">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+                      <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+                    </svg>
+                  </button>
+                  <button class="action-icon-btn">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <circle cx="12" cy="12" r="1"></circle>
+                      <circle cx="19" cy="12" r="1"></circle>
+                      <circle cx="5" cy="12" r="1"></circle>
+                    </svg>
+                  </button>
+                </div>
+              </td>
+            </tr>
+            <!-- Row 3 -->
+            <tr>
+              <td>
+                <div class="metric-name-cell">
+                  <svg class="metric-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="3"></circle>
+                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                  </svg>
+                  <div class="metric-name-content">
+                    <span class="metric-name">[Test] Oswavalos Tests</span>
+                    <div class="metric-badges">
+                      <a href="#" class="metric-link">
+                        OneDetection
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                          <polyline points="15 3 21 3 21 9"></polyline>
+                          <line x1="10" y1="14" x2="21" y2="3"></line>
+                        </svg>
+                      </a>
+                      <span class="badge-followed">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                          <circle cx="12" cy="12" r="3"></circle>
+                        </svg>
+                        Followed
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </td>
+              <td><span class="prevention-text">Not eligible for prevention</span></td>
+              <td>
+                <div class="detection-cell">
+                  <span class="detection-badge">
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M12 2L9.19 8.62 2 9.24l5.45 4.73L5.82 21 12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.62L12 2z"/>
+                    </svg>
+                    Detection
+                  </span>
+                  <button class="add-btn" title="Add">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <line x1="12" y1="5" x2="12" y2="19"></line>
+                      <line x1="5" y1="12" x2="19" y2="12"></line>
+                    </svg>
+                  </button>
+                </div>
+              </td>
+              <td class="number-cell">0</td>
+              <td class="number-cell">0</td>
+              <td>
+                <div class="actions-cell">
+                  <button class="summarize-btn">
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M12 2L9.19 8.62 2 9.24l5.45 4.73L5.82 21 12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.62L12 2z"/>
+                    </svg>
+                    Summarize
+                  </button>
+                  <button class="action-icon-btn">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+                      <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+                    </svg>
+                  </button>
+                  <button class="action-icon-btn">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <circle cx="12" cy="12" r="1"></circle>
+                      <circle cx="19" cy="12" r="1"></circle>
+                      <circle cx="5" cy="12" r="1"></circle>
+                    </svg>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    // Initialize LeftNav with Metrics as active page
+    document.addEventListener('DOMContentLoaded', function() {
+      LeftNav.activePage = 'Metrics';
+      LeftNav.render('mainNavContainer');
+    });
+  </script>
+</body>
+</html>
