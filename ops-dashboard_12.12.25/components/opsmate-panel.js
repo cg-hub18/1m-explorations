@@ -9,7 +9,7 @@
   // Configuration
   const CONFIG = {
     panelWidth: 420,
-    iframeSrc: '../opsmate/dist/index.html?chatOnly=true',
+    iframeSrc: '../opsmate-app/index.html?chatOnly=true',
     animationDuration: 300
   };
 

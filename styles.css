@@ -8126,7 +8126,7 @@ body {
 
 /* Ask Opsmate Button - DE Page Styled */
 .de-doc-header-right .ask-opsmate-btn.de-ask-opsmate {
-  display: flex;
+  display: none;
   align-items: center;
   gap: 8px;
   padding: 8px 16px;
