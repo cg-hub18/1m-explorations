@@ -1,0 +1,15 @@
+{
+  "redirects": [
+    {
+      "source": "/",
+      "destination": "/feed.html",
+      "permanent": false
+    },
+    {
+      "source": "/index.html",
+      "destination": "/feed.html",
+      "permanent": false
+    }
+  ]
+}
+
