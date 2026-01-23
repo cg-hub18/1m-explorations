@@ -59,8 +59,9 @@
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
   
   /* Typography */
-  --font-header: 'Optimistic', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  --font-body: 'SF Pro', 'SF Pro Text', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-header: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-body: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-mono: ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, monospace;
   
   /* Typography Scale */
   --text-xs: 11px;
@@ -2329,7 +2330,16 @@ body {
   align-items: center;
   gap: 4px;
   flex: 1;
-  overflow: visible;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none; /* Hide scrollbar Firefox */
+  -ms-overflow-style: none; /* Hide scrollbar IE/Edge */
+  mask-image: linear-gradient(to right, black 90%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to right, black 90%, transparent 100%);
+}
+
+.panel-tabs::-webkit-scrollbar {
+  display: none; /* Hide scrollbar Chrome/Safari */
 }
 
 .panel-tab {
@@ -2999,7 +3009,7 @@ body {
 .code-link {
   color: var(--color-primary);
   text-decoration: none;
-  font-family: monospace;
+  font-family: var(--font-mono);
 }
 
 .code-link:hover {
@@ -3388,7 +3398,7 @@ body {
 
 .code-block pre {
   margin: 0;
-  font-family: 'SF Mono', 'Consolas', 'Monaco', monospace;
+  font-family: var(--font-mono);
   font-size: 12px;
   line-height: 1.6;
   white-space: pre-wrap;
@@ -4888,7 +4898,7 @@ body {
   border-left: 1px solid var(--color-border);
   transform: translateX(100%);
   transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-  z-index: 50;
+  z-index: 2100;
   will-change: transform;
 }
 
@@ -4948,7 +4958,7 @@ body {
   left: 0;
   right: 0;
   bottom: 0;
-  background: transparent;
+  background: rgba(0, 0, 0, 0.8);
   z-index: 9999;
   opacity: 0;
   visibility: hidden;
@@ -6877,11 +6887,17 @@ body {
 .de-breadcrumb {
   display: flex;
   align-items: center;
-  gap: 8px;
+  justify-content: space-between;
   padding: 12px 24px;
   background: #fff;
   border-bottom: 1px solid var(--color-border);
   font-size: 14px;
+}
+
+.de-breadcrumb-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .de-breadcrumb a {
@@ -7429,7 +7445,7 @@ body {
   border-radius: 4px;
   font-size: 12px;
   color: var(--color-primary);
-  font-family: monospace;
+  font-family: var(--font-mono);
 }
 
 .de-qb-tile button {
@@ -7475,7 +7491,7 @@ body {
 .de-qb-dropdown-item {
   padding: 10px 12px;
   font-size: 13px;
-  font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
+  font-family: var(--font-mono);
   color: var(--color-text-primary);
   cursor: pointer;
   border-bottom: 1px solid var(--color-border);
@@ -8183,11 +8199,12 @@ body {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 10px 16px;
+  height: 28px;
+  padding: 0 12px;
   background: var(--color-primary);
   border: none;
-  border-radius: 8px;
-  font-size: 14px;
+  border-radius: 6px;
+  font-size: 13px;
   font-weight: 500;
   color: #fff;
   cursor: pointer;
@@ -8199,12 +8216,12 @@ body {
 }
 
 .de-doc-add-widget-btn svg {
-  width: 16px;
-  height: 16px;
+  width: 14px;
+  height: 14px;
 }
 
 .de-doc-add-widget-btn .dropdown-chevron {
-  margin-left: 4px;
+  margin-left: 2px;
 }
 
 /* Data Source Dropdown */
