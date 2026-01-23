@@ -19,36 +19,124 @@ function OpsmateLogo({ className }) {
   )
 }
 
-const Copilot = forwardRef(function Copilot({ onOpenSources, onOpenSteps, onAddSection, onViewSharedCanvas }, ref) {
+const Copilot = forwardRef(function Copilot({ onOpenSources, onOpenSteps, onAddSection, onViewSharedCanvas, recommendationContext }, ref) {
   const [message, setMessage] = useState('')
   const [activeTab, setActiveTab] = useState('runbook')
   const [isThinking, setIsThinking] = useState(false)
   const [referencedSection, setReferencedSection] = useState(null)
   const chatContainerRef = useRef(null)
-  const [chatMessages, setChatMessages] = useState([
-    {
-      id: 'initial',
-      type: 'assistant',
-      content: "Hi! I'm Opsmate. I can help you investigate this SEV, find relevant data, and explore potential solutions.",
-      followUp: 'What would you like to explore?',
-      quickActions: [
-        { id: 'summarize', label: 'Summarize SEV' },
-        { id: 'datasets', label: 'Find relevant datasets' },
-        { id: 'recovery', label: 'Find recovery metric' },
-        { id: 'similar', label: 'Find similar SEVs' },
-      ],
-    },
-  ])
+  
+  // Check if we're in protection mode
+  const isProtectionMode = new URLSearchParams(window.location.search).get('mode') === 'protection'
+  
+  // Generate initial message based on recommendation context
+  const getInitialMessages = () => {
+    if (recommendationContext?.title) {
+      const typeLabels = {
+        detection: 'Detection',
+        prevention: 'Prevention',
+        quality: 'Quality',
+      }
+      const typeLabel = typeLabels[recommendationContext.type] || 'Recommendation'
+      const isAutoApply = recommendationContext.action === 'auto-apply'
+      
+      return [
+        {
+          id: 'initial',
+          type: 'assistant',
+          content: `Hi! I'm Opsmate. I see you're looking at a ${typeLabel.toLowerCase()} recommendation:`,
+          followUp: null,
+        },
+        {
+          id: 'recommendation-context',
+          type: 'assistant',
+          header: {
+            icon: 'opsmate',
+            title: 'Opsmate',
+            badge: {
+              type: recommendationContext.type,
+              label: typeLabel,
+            },
+            priority: recommendationContext.priority,
+          },
+          recommendationCard: {
+            title: recommendationContext.title,
+            type: typeLabel,
+            priority: recommendationContext.priority,
+            action: recommendationContext.action,
+          },
+          content: isAutoApply 
+            ? `This recommendation is set for auto-apply. I can help you apply it now, review the changes first, or explain what will happen.`
+            : `This recommendation requires manual review. I can help you understand the changes, walk you through the implementation steps, or apply it for you.`,
+          quickActions: isAutoApply
+            ? [
+                { id: 'apply-now', label: 'Apply now' },
+                { id: 'preview-changes', label: 'Preview changes' },
+                { id: 'explain-recommendation', label: 'Explain this' },
+                { id: 'skip-recommendation', label: 'Skip for now' },
+              ]
+            : [
+                { id: 'start-review', label: 'Start review' },
+                { id: 'explain-recommendation', label: 'Explain this' },
+                { id: 'show-implementation', label: 'Show implementation steps' },
+                { id: 'skip-recommendation', label: 'Skip for now' },
+              ],
+        },
+      ]
+    }
+    
+    // Protection mode - show protection-focused copy
+    if (isProtectionMode) {
+      return [
+        {
+          id: 'initial',
+          type: 'assistant',
+          content: "Hi! I'm Opsmate. I can help you configure this protection, analyze its effectiveness, and optimize your thresholds.",
+          followUp: 'What would you like to explore?',
+          quickActions: [
+            { id: 'execute-protection', label: 'Execute protection', primary: true },
+            { id: 'summarize', label: 'Summarize protection' },
+            { id: 'datasets', label: 'Analyze effectiveness' },
+            { id: 'recovery', label: 'Optimize thresholds' },
+            { id: 'similar', label: 'Find similar protections' },
+          ],
+        },
+      ]
+    }
+    
+    // Default initial message when no recommendation context
+    return [
+      {
+        id: 'initial',
+        type: 'assistant',
+        content: "Hi! I'm Opsmate. I can help you investigate this SEV, find relevant data, and explore potential solutions.",
+        followUp: 'What would you like to explore?',
+        quickActions: [
+          { id: 'summarize', label: 'Summarize SEV' },
+          { id: 'datasets', label: 'Find relevant datasets' },
+          { id: 'recovery', label: 'Find recovery metric' },
+          { id: 'similar', label: 'Find similar SEVs' },
+        ],
+      },
+    ]
+  }
+  
+  const [chatMessages, setChatMessages] = useState(getInitialMessages())
   const [stepCount, setStepCount] = useState(3) // Start with some initial steps
   const MAX_STEPS = 19 // Must match allSteps array length in StepsPanel
   
   // Generate random steps between min and max (inclusive)
   const getRandomSteps = (min = 1, max = 4) => Math.floor(Math.random() * (max - min + 1)) + min
 
-  const tabs = [
-    { id: 'runbook', label: 'Runbook', icon: FileText },
-    { id: 'sev', label: 'SEV', icon: Clock },
-  ]
+  const tabs = isProtectionMode 
+    ? [
+        { id: 'runbook', label: 'Config', icon: FileText },
+        { id: 'sev', label: 'History', icon: Clock },
+      ]
+    : [
+        { id: 'runbook', label: 'Runbook', icon: FileText },
+        { id: 'sev', label: 'SEV', icon: Clock },
+      ]
 
   // Scroll to bottom when new messages are added or when thinking starts
   useEffect(() => {
@@ -186,6 +274,217 @@ const Copilot = forwardRef(function Copilot({ onOpenSources, onOpenSteps, onAddS
     // Handle view shared canvas action immediately
     if (actionId === 'view-shared') {
       onViewSharedCanvas?.()
+      return
+    }
+
+    // Handle execute protection action
+    if (actionId === 'execute-protection') {
+      setIsThinking(true)
+      await new Promise(resolve => setTimeout(resolve, 2500))
+      setIsThinking(false)
+
+      const executeSteps = getRandomSteps(3, 5)
+      const executeMessage = {
+        id: `msg-${Date.now()}`,
+        type: 'assistant',
+        header: {
+          icon: 'opsmate',
+          title: 'Opsmate',
+          steps: executeSteps,
+        },
+        content: `✓ Protection executed successfully!\n\nThe protection is now active and monitoring your service. Here's what's been configured:\n\n• **Detection**: Anomaly detection enabled with configured thresholds\n• **Alerting**: High priority incidents will be auto-assigned\n• **Monitoring**: Real-time tracking is now active\n\nYou'll receive notifications when the protection triggers.`,
+        quickActions: [
+          { id: 'view-status', label: 'View protection status' },
+          { id: 'modify-config', label: 'Modify configuration' },
+        ],
+      }
+
+      setChatMessages(prev => [...prev, executeMessage])
+      setStepCount(prev => Math.min(prev + executeSteps, MAX_STEPS))
+      return
+    }
+
+    // Handle recommendation-specific actions
+    if (actionId === 'apply-now') {
+      setIsThinking(true)
+      await new Promise(resolve => setTimeout(resolve, 3000))
+      setIsThinking(false)
+
+      const applySteps = getRandomSteps(2, 4)
+      const applyMessage = {
+        id: `msg-${Date.now()}`,
+        type: 'assistant',
+        header: {
+          icon: 'opsmate',
+          title: 'Opsmate',
+          steps: applySteps,
+        },
+        content: `Done! I've applied the recommendation. The changes are now active and monitoring is in place. You can track the impact in your Quality Home dashboard.`,
+        quickActions: [
+          { id: 'view-changes', label: 'View changes' },
+          { id: 'undo-apply', label: 'Undo' },
+        ],
+      }
+
+      setChatMessages(prev => [...prev, applyMessage])
+      setStepCount(prev => Math.min(prev + applySteps, MAX_STEPS))
+      return
+    }
+
+    if (actionId === 'preview-changes') {
+      setIsThinking(true)
+      await new Promise(resolve => setTimeout(resolve, 2500))
+      setIsThinking(false)
+
+      const previewSteps = getRandomSteps(1, 3)
+      const previewMessage = {
+        id: `msg-${Date.now()}`,
+        type: 'assistant',
+        header: {
+          icon: 'opsmate',
+          title: 'Opsmate',
+          steps: previewSteps,
+        },
+        content: `Here's what will change when you apply this recommendation:\n\n• A new detector will be added to monitor the specified metric\n• Alert thresholds will be set based on historical data analysis\n• Notifications will be routed to your team's on-call channel\n\nNo existing configurations will be modified.`,
+        quickActions: [
+          { id: 'apply-now', label: 'Apply now' },
+          { id: 'modify-config', label: 'Modify configuration' },
+        ],
+      }
+
+      setChatMessages(prev => [...prev, previewMessage])
+      setStepCount(prev => Math.min(prev + previewSteps, MAX_STEPS))
+      return
+    }
+
+    if (actionId === 'explain-recommendation') {
+      setIsThinking(true)
+      await new Promise(resolve => setTimeout(resolve, 4000))
+      setIsThinking(false)
+
+      const explainSteps = getRandomSteps(2, 4)
+      const explainMessage = {
+        id: `msg-${Date.now()}`,
+        type: 'assistant',
+        header: {
+          icon: 'opsmate',
+          title: 'Opsmate',
+          steps: explainSteps,
+        },
+        content: `This recommendation was generated based on:\n\n1. **Gap Analysis**: Your current monitoring coverage was analyzed against best practices for your service type\n\n2. **Historical SEVs**: Similar services that lacked this detection experienced 23% more incidents\n\n3. **Team Patterns**: Other teams in your org have successfully implemented similar detectors\n\nApplying this recommendation typically takes 2-3 minutes and has shown to reduce incident response time by up to 40%.`,
+        quickActions: recommendationContext?.action === 'auto-apply'
+          ? [
+              { id: 'apply-now', label: 'Apply now' },
+              { id: 'preview-changes', label: 'Preview changes' },
+            ]
+          : [
+              { id: 'start-review', label: 'Start review' },
+              { id: 'show-implementation', label: 'Show implementation steps' },
+            ],
+      }
+
+      setChatMessages(prev => [...prev, explainMessage])
+      setStepCount(prev => Math.min(prev + explainSteps, MAX_STEPS))
+      return
+    }
+
+    if (actionId === 'start-review') {
+      setIsThinking(true)
+      await new Promise(resolve => setTimeout(resolve, 3500))
+      setIsThinking(false)
+
+      const reviewSteps = getRandomSteps(3, 5)
+      const reviewMessage = {
+        id: `msg-${Date.now()}`,
+        type: 'assistant',
+        header: {
+          icon: 'opsmate',
+          title: 'Opsmate',
+          steps: reviewSteps,
+        },
+        content: `Let's review this recommendation together.\n\n**Current State:**\nThis metric currently has no automated detection, meaning issues must be discovered manually or through downstream effects.\n\n**Proposed Change:**\nAdd an anomaly detector with smart thresholds based on 30 days of historical data.\n\n**Impact Assessment:**\n• Estimated alert volume: 2-3 alerts/week\n• False positive rate: <5% based on similar configurations\n• Coverage improvement: +8% for your service`,
+        quickActions: [
+          { id: 'approve-and-apply', label: 'Approve & Apply' },
+          { id: 'request-changes', label: 'Request changes' },
+          { id: 'skip-recommendation', label: 'Skip for now' },
+        ],
+      }
+
+      setChatMessages(prev => [...prev, reviewMessage])
+      setStepCount(prev => Math.min(prev + reviewSteps, MAX_STEPS))
+      return
+    }
+
+    if (actionId === 'show-implementation') {
+      setIsThinking(true)
+      await new Promise(resolve => setTimeout(resolve, 3000))
+      setIsThinking(false)
+
+      const implSteps = getRandomSteps(2, 4)
+      const implMessage = {
+        id: `msg-${Date.now()}`,
+        type: 'assistant',
+        header: {
+          icon: 'opsmate',
+          title: 'Opsmate',
+          steps: implSteps,
+        },
+        content: `Here are the implementation steps:\n\n**Step 1:** Configure metric source\n→ Connect to your existing data pipeline\n\n**Step 2:** Set detection thresholds\n→ I'll suggest optimal values based on historical patterns\n\n**Step 3:** Configure alerting\n→ Route to your team's preferred channels\n\n**Step 4:** Validate & activate\n→ Test with historical data before going live\n\nWould you like me to guide you through each step?`,
+        quickActions: [
+          { id: 'start-guided-setup', label: 'Start guided setup' },
+          { id: 'apply-with-defaults', label: 'Apply with defaults' },
+        ],
+      }
+
+      setChatMessages(prev => [...prev, implMessage])
+      setStepCount(prev => Math.min(prev + implSteps, MAX_STEPS))
+      return
+    }
+
+    if (actionId === 'skip-recommendation') {
+      const skipMessage = {
+        id: `msg-${Date.now()}`,
+        type: 'assistant',
+        content: `No problem! I've noted that you're skipping this recommendation for now. It will remain in your Quality Home for future consideration.\n\nIs there anything else I can help you with?`,
+        quickActions: [
+          { id: 'summarize', label: 'Explore other recommendations' },
+          { id: 'close-panel', label: 'Close' },
+        ],
+      }
+
+      setChatMessages(prev => [...prev, skipMessage])
+      return
+    }
+
+    if (actionId === 'close-panel') {
+      // Send message to parent to close the panel
+      window.parent.postMessage('closeOpsmate', '*')
+      return
+    }
+
+    if (actionId === 'approve-and-apply') {
+      setIsThinking(true)
+      await new Promise(resolve => setTimeout(resolve, 3000))
+      setIsThinking(false)
+
+      const approveSteps = getRandomSteps(2, 4)
+      const approveMessage = {
+        id: `msg-${Date.now()}`,
+        type: 'assistant',
+        header: {
+          icon: 'opsmate',
+          title: 'Opsmate',
+          steps: approveSteps,
+        },
+        content: `Excellent! The recommendation has been approved and applied. Here's a summary:\n\n✓ Detector configured and active\n✓ Alert thresholds set\n✓ Notifications configured\n\nYou'll see this reflected in your Quality Home dashboard within a few minutes.`,
+        quickActions: [
+          { id: 'view-changes', label: 'View in dashboard' },
+          { id: 'close-panel', label: 'Done' },
+        ],
+      }
+
+      setChatMessages(prev => [...prev, approveMessage])
+      setStepCount(prev => Math.min(prev + approveSteps, MAX_STEPS))
       return
     }
 
@@ -438,9 +737,9 @@ Monitors keanu service metrics related to SEV owner's area of responsibility.`,
   }
 
   return (
-    <div className="w-[380px] bg-white border-l border-gray-200 flex flex-col">
-      {/* Chat Content */}
-      <div ref={chatContainerRef} className="flex-1 overflow-y-auto p-5 space-y-6">
+    <div className="w-[380px] bg-white border-l border-gray-200 flex flex-col h-full overflow-hidden">
+      {/* Chat Content - shrinks to make room for composer */}
+      <div ref={chatContainerRef} className="flex-1 overflow-y-auto p-5 space-y-6 min-h-0 shrink">
         {/* Initial Header - Scrolls with content */}
         <div className="pb-4 border-b border-gray-100">
           <div className="flex items-center justify-between mb-4">
@@ -480,7 +779,7 @@ Monitors keanu service metrics related to SEV owner's area of responsibility.`,
           </div>
         </div>
         {chatMessages.map((msg, msgIndex) => (
-          <div key={msg.id} className="animate-fade-in" style={{ opacity: 0, animationDelay: '0.1s' }}>
+          <div key={msg.id}>
             {/* User Message */}
             {msg.type === 'user' && (
               <div className="flex flex-col items-end">
@@ -505,14 +804,81 @@ Monitors keanu service metrics related to SEV owner's area of responsibility.`,
                     <div className="flex items-center gap-2">
                       <OpsmateLogo className="w-5 h-5 text-gray-900" />
                       <span className="text-sm font-medium text-gray-900">{msg.header.title}</span>
+                      {msg.header.badge && (
+                        <span className={`px-2 py-0.5 rounded text-xs font-medium ${
+                          msg.header.badge.type === 'detection' ? 'bg-blue-100 text-blue-700' :
+                          msg.header.badge.type === 'prevention' ? 'bg-green-100 text-green-700' :
+                          'bg-amber-100 text-amber-700'
+                        }`}>
+                          {msg.header.badge.label}
+                        </span>
+                      )}
+                      {msg.header.priority && (
+                        <span className={`px-2 py-0.5 rounded text-xs font-medium ${
+                          msg.header.priority === 'High' ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-600'
+                        }`}>
+                          {msg.header.priority}
+                        </span>
+                      )}
                     </div>
-                    <button 
-                      onClick={() => onOpenSteps(msg.header.steps)}
-                      className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-gray-700 transition-colors"
-                    >
-                      <List className="w-3.5 h-3.5" />
-                      <span>{msg.header.steps} steps</span>
-                    </button>
+                    {msg.header.steps && (
+                      <button 
+                        onClick={() => onOpenSteps(msg.header.steps)}
+                        className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-gray-700 transition-colors"
+                      >
+                        <List className="w-3.5 h-3.5" />
+                        <span>{msg.header.steps} steps</span>
+                      </button>
+                    )}
+                  </div>
+                )}
+                
+                {/* Recommendation Card */}
+                {msg.recommendationCard && (
+                  <div className="mb-4 p-4 rounded-xl bg-gradient-to-br from-slate-50 to-blue-50 border border-slate-200">
+                    <div className="flex items-start gap-3">
+                      <div className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 ${
+                        msg.recommendationCard.type === 'Detection' ? 'bg-blue-100' :
+                        msg.recommendationCard.type === 'Prevention' ? 'bg-green-100' :
+                        'bg-amber-100'
+                      }`}>
+                        {msg.recommendationCard.type === 'Detection' && (
+                          <svg className="w-5 h-5 text-blue-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <circle cx="12" cy="12" r="10"/>
+                            <circle cx="12" cy="12" r="6"/>
+                            <circle cx="12" cy="12" r="2"/>
+                          </svg>
+                        )}
+                        {msg.recommendationCard.type === 'Prevention' && (
+                          <svg className="w-5 h-5 text-green-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                          </svg>
+                        )}
+                        {msg.recommendationCard.type === 'Quality' && (
+                          <svg className="w-5 h-5 text-amber-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                          </svg>
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="text-xs font-medium text-gray-500">{msg.recommendationCard.type}</span>
+                        </div>
+                        <h4 className="text-sm font-semibold text-gray-900 leading-snug">
+                          {msg.recommendationCard.title}
+                        </h4>
+                        <div className="flex items-center gap-2 mt-2">
+                          <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
+                            msg.recommendationCard.priority === 'High' ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-600'
+                          }`}>
+                            {msg.recommendationCard.priority}
+                          </span>
+                          <span className="text-xs text-gray-500">
+                            {msg.recommendationCard.action === 'auto-apply' ? '• Auto-apply ready' : '• Manual review required'}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 )}
 
@@ -598,7 +964,11 @@ Monitors keanu service metrics related to SEV owner's area of responsibility.`,
                         key={action.id}
                         onClick={() => handleQuickAction(action.id, action.label)}
                         disabled={isThinking}
-                        className="px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-700 hover:bg-gray-50 hover:border-gray-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        className={`px-3 py-2 rounded-lg text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
+                          action.primary 
+                            ? 'bg-blue-500 hover:bg-blue-600 text-white font-medium' 
+                            : 'bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-gray-300'
+                        }`}
                       >
                         {action.label}
                       </button>
@@ -624,8 +994,8 @@ Monitors keanu service metrics related to SEV owner's area of responsibility.`,
         )}
       </div>
 
-      {/* Input Area */}
-      <div className="p-4 border-t border-gray-100">
+      {/* Input Area - pinned to bottom */}
+      <div className="px-4 pt-4 pb-5 border-t border-gray-100 bg-white shrink-0">
         <div className="bg-gray-50 rounded-xl border border-gray-200 focus-within:border-blue-400 focus-within:bg-white transition-colors overflow-hidden">
           {/* Referenced Section */}
           {referencedSection && (

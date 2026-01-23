@@ -20,7 +20,7 @@ export default {
           accent: '#2563eb',
         },
         badge: {
-          high: '#16a34a',
+          high: '#0D8626',
         },
         action: {
           primary: '#2563eb',

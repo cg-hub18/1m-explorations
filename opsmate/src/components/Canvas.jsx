@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { List, FileText, AlertTriangle, Lightbulb, Shield, PlusCircle, Send, BarChart3, Play } from 'lucide-react'
 import SectionCard from './SectionCard'
 
-export default function Canvas({ sections, isSharedView = false, isReadOnly = false, onMitigate, onAskOpsmate, onAddChart, onRemove, onTriggerProactiveRun, onCopy, onReferenceInSEVChat }) {
+export default function Canvas({ sections, isSharedView = false, isReadOnly = false, onMitigate, onAskOpsmate, onAddChart, onRemove, onTriggerProactiveRun, onCopy, onReferenceInSEVChat, onOpenTask, isSevMitigated, hideProactiveRun = false, investigationMode = null }) {
   const [expandedSections, setExpandedSections] = useState({})
   const [animatedSections, setAnimatedSections] = useState(new Set())
   const [initialLoadComplete, setInitialLoadComplete] = useState(false)
@@ -11,6 +11,9 @@ export default function Canvas({ sections, isSharedView = false, isReadOnly = fa
   const prevSectionsRef = useRef([])
   const scrollRef = useRef(null)
   const sectionRefs = useRef({})
+  
+  // Check if we're in protection mode
+  const isProtectionMode = new URLSearchParams(window.location.search).get('mode') === 'protection'
 
   const handleAddChart = () => {
     if (!chartInput.trim()) return
@@ -126,10 +129,37 @@ export default function Canvas({ sections, isSharedView = false, isReadOnly = fa
     }))
   }
 
+  // Get badge color based on investigation type
+  const getTypeBadgeColor = (type) => {
+    switch (type) {
+      case 'detection': return 'bg-blue-100 text-blue-700'
+      case 'prevention': return 'bg-green-100 text-green-700'
+      case 'quality': return 'bg-amber-100 text-amber-700'
+      default: return 'bg-gray-100 text-gray-700'
+    }
+  }
+
   return (
     <div className="flex-1 flex flex-col overflow-hidden relative">
+      {/* Investigation Mode Header */}
+      {investigationMode && (
+        <div className="bg-white border-b border-gray-200 px-6 py-4 shrink-0">
+          <div className="flex items-center gap-3">
+            <span className={`px-2.5 py-1 rounded-md text-xs font-semibold uppercase tracking-wide ${getTypeBadgeColor(investigationMode.type)}`}>
+              {investigationMode.type}
+            </span>
+            <h1 className="text-lg font-semibold text-gray-900">{investigationMode.title}</h1>
+            <span className={`px-2 py-0.5 rounded text-xs font-medium ${
+              investigationMode.priority === 'High' ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-600'
+            }`}>
+              {investigationMode.priority}
+            </span>
+          </div>
+        </div>
+      )}
+
       {/* Shared Canvas Banner */}
-      {isSharedView && !isReadOnly && (
+      {isSharedView && !isReadOnly && !investigationMode && (
         <div className="bg-blue-50 border-b border-blue-100 px-6 py-3 shrink-0">
           <p className="text-sm text-gray-700">
             Shared Investigation is <span className="underline">visible to all</span>. All users can paste widgets and share directly to SEVchat.
@@ -138,8 +168,8 @@ export default function Canvas({ sections, isSharedView = false, isReadOnly = fa
       )}
 
       <div className="flex-1 flex overflow-hidden relative">
-      {/* Outline Button - show on all canvases (except read-only) */}
-      {!isReadOnly && (
+      {/* Outline Button - show on all canvases (except read-only and protection mode) */}
+      {!isReadOnly && !isProtectionMode && (
       <div className="absolute top-6 left-6 z-10">
         <button 
           onClick={() => setShowOutline(!showOutline)}
@@ -197,8 +227,6 @@ export default function Canvas({ sections, isSharedView = false, isReadOnly = fa
               <div 
                 key={section.id}
                 ref={(el) => { sectionRefs.current[section.id] = el }}
-                className={isNew ? 'animate-slide-up' : (shouldAnimate ? 'animate-fade-in' : '')}
-                style={shouldAnimate && !isNew ? { opacity: 0, animationDelay: `${0.05 * (index + 1)}s` } : {}}
               >
                 <SectionCard
                   section={section}
@@ -211,6 +239,8 @@ export default function Canvas({ sections, isSharedView = false, isReadOnly = fa
                   onRemove={onRemove}
                   onCopy={onCopy}
                   onReferenceInSEVChat={onReferenceInSEVChat}
+                  onOpenTask={onOpenTask}
+                  isSevMitigated={isSevMitigated}
                 />
                 {/* Add extra space below new alert sections */}
                 {isLastDynamicSection && (
@@ -222,8 +252,8 @@ export default function Canvas({ sections, isSharedView = false, isReadOnly = fa
         </div>
       </div>
 
-      {/* Bottom Left - Trigger proactive run button (hide in read-only mode) */}
-      {!isReadOnly && onTriggerProactiveRun && (
+      {/* Bottom Left - Trigger proactive run button (hide in read-only mode, investigation mode, and protection mode) */}
+      {!isReadOnly && !hideProactiveRun && !isProtectionMode && onTriggerProactiveRun && (
         <div className="absolute bottom-6 left-6 z-10">
           <button 
             type="button"
@@ -236,8 +266,8 @@ export default function Canvas({ sections, isSharedView = false, isReadOnly = fa
         </div>
       )}
 
-      {/* Bottom Chart Input Bar (hide in read-only mode) */}
-      {!isReadOnly && (
+      {/* Bottom Chart Input Bar (hide in read-only mode and protection mode) */}
+      {!isReadOnly && !isProtectionMode && (
         <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-[#f0f2f5] via-[#f0f2f5] to-transparent pt-8">
           <div className="max-w-2xl mx-auto">
             <div className="flex items-center gap-3 px-4 py-2.5 bg-white rounded-xl border border-gray-200 shadow-card">

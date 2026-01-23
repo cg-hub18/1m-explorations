@@ -32,10 +32,11 @@ const participants = [
   { id: 'sarah', name: 'Sarah Kim', avatar: null, initials: 'SK', color: 'bg-orange-500' },
 ]
 
-const SEVChat = forwardRef(function SEVChat({ isOpen, onClose }, ref) {
+const SEVChat = forwardRef(function SEVChat({ isOpen, onClose, investigationContext = null }, ref) {
   const [message, setMessage] = useState('')
   const [quotedSection, setQuotedSection] = useState(null)
   const inputRef = useRef(null)
+  
   const sevManagerMessage = `This is a group thread for discussing SEV2 S553136 "Taylor Swift - Life of a Showgirl - Only In Polish". All comments, photos etc in this thread will be visible via SEVManager's UI for this SEV. The SEV URL is available in the chat description.
 
 here is a list of SEV Manager Bot commands:
@@ -48,32 +49,59 @@ here is a list of SEV Manager Bot commands:
 🤖 #sevmate - Runs auto root cause analysis
 📝 #sev_summarize - Generates a summary of the SEV and sends it as a private message to you only`
 
-  const [messages, setMessages] = useState([
-    {
-      id: 1,
-      sender: participants[1], // SEV Manager
-      content: sevManagerMessage,
-      timestamp: '8:42 AM',
-    },
-    {
-      id: 2,
-      sender: participants[2], // Jamie
-      content: "Hey team, looking into this now. Seems like a localization issue with the content feed.",
-      timestamp: '8:45 AM',
-    },
-    {
-      id: 3,
-      sender: participants[3], // Alex
-      content: "I can confirm - seeing users in multiple regions only getting Polish audio/subtitles. Let me check the CDN configs.",
-      timestamp: '8:47 AM',
-    },
-    {
-      id: 4,
-      sender: participants[4], // Sarah
-      content: "I'll check if there were any recent content publishing changes that could have caused this.",
-      timestamp: '8:48 AM',
-    },
-  ])
+  const opsmateAssistantMessage = investigationContext 
+    ? `I'm here to help you with "${investigationContext.title}". This ${investigationContext.type} recommendation will help improve your monitoring coverage.
+
+Here are some things I can help with:
+📋 Explain the implementation steps
+🔍 Analyze impact and dependencies  
+⚡ Generate configuration code
+📊 Review similar implementations
+💡 Answer questions about this ${investigationContext.type}
+
+What would you like to know?`
+    : ''
+
+  const getInitialMessages = () => {
+    if (investigationContext) {
+      return [
+        {
+          id: 1,
+          sender: { ...participants[1], name: 'Opsmate', initials: '🤖' },
+          content: opsmateAssistantMessage,
+          timestamp: new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }),
+        },
+      ]
+    }
+    return [
+      {
+        id: 1,
+        sender: participants[1], // SEV Manager
+        content: sevManagerMessage,
+        timestamp: '8:42 AM',
+      },
+      {
+        id: 2,
+        sender: participants[2], // Jamie
+        content: "Hey team, looking into this now. Seems like a localization issue with the content feed.",
+        timestamp: '8:45 AM',
+      },
+      {
+        id: 3,
+        sender: participants[3], // Alex
+        content: "I can confirm - seeing users in multiple regions only getting Polish audio/subtitles. Let me check the CDN configs.",
+        timestamp: '8:47 AM',
+      },
+      {
+        id: 4,
+        sender: participants[4], // Sarah
+        content: "I'll check if there were any recent content publishing changes that could have caused this.",
+        timestamp: '8:48 AM',
+      },
+    ]
+  }
+
+  const [messages, setMessages] = useState(getInitialMessages())
   const chatContainerRef = useRef(null)
 
   // Expose addReference method to parent - now sets quote instead of sending

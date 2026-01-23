@@ -25,7 +25,7 @@ const OpsmateLogo = () => (
   </svg>
 )
 
-export default function SectionCard({ section, isExpanded, onToggle, onMitigate, isSharedView = false, isReadOnly = false, onAskOpsmate, onRemove, onCopy, onReferenceInSEVChat }) {
+export default function SectionCard({ section, isExpanded, onToggle, onMitigate, isSharedView = false, isReadOnly = false, onAskOpsmate, onRemove, onCopy, onReferenceInSEVChat, onOpenTask, isSevMitigated }) {
   const [showMarkDropdown, setShowMarkDropdown] = useState(false)
   const [showMoreMenu, setShowMoreMenu] = useState(false)
   const [markedAs, setMarkedAs] = useState(null)
@@ -76,7 +76,7 @@ export default function SectionCard({ section, isExpanded, onToggle, onMitigate,
       case 'root-cause':
         return <RootCauseContent content={section.content} />
       case 'mitigation':
-        return <MitigationContent content={section.content} onMitigate={onMitigate} />
+        return <MitigationContent content={section.content} onMitigate={onMitigate} onOpenTask={onOpenTask} isSevMitigated={isSevMitigated} />
       case 'alert':
         return <AlertContent content={section.content} />
       case 'chart':

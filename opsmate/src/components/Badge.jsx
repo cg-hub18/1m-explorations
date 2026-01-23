@@ -5,6 +5,9 @@ export default function Badge({ children, variant = 'default' }) {
   const [showTooltip, setShowTooltip] = useState(false)
   const [tooltipPosition, setTooltipPosition] = useState({ top: 0, left: 0 })
   const badgeRef = useRef(null)
+  
+  // Check if we're in protection mode
+  const isProtectionMode = new URLSearchParams(window.location.search).get('mode') === 'protection'
 
   const variants = {
     high: 'bg-green-100 text-green-700 border border-green-200',
@@ -71,7 +74,10 @@ export default function Badge({ children, variant = 'default' }) {
 
           {/* Description */}
           <p className="text-sm text-gray-600 mb-4">
-            Opsmate's confidence score shows how strongly the root cause matches operational criteria.
+            {isProtectionMode 
+              ? "Opsmate's confidence score shows how effectively this protection will prevent incidents."
+              : "Opsmate's confidence score shows how strongly the root cause matches operational criteria."
+            }
           </p>
 
           {/* Slider */}

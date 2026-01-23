@@ -1,8 +1,26 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Star, ChevronDown, MoreHorizontal, User, Link2, ChevronUp } from 'lucide-react'
 
-const TaskPanel = ({ isOpen, onClose }) => {
-  const [taskTitle, setTaskTitle] = useState('S448319: fwefewf')
+const TaskPanel = ({ isOpen, onClose, task, isSevMitigated }) => {
+  const [taskTitle, setTaskTitle] = useState(task ? `${task.id}: ${task.title}` : 'S448319: fwefewf')
+  const [progressStatus, setProgressStatus] = useState('No Progress')
+
+  // Update progress status when task changes
+  // Hardcode T251794065 to show as "Closed"
+  useEffect(() => {
+    if (task?.id === 'T251794065') {
+      setProgressStatus('Closed')
+    } else {
+      setProgressStatus('No Progress')
+    }
+  }, [task])
+
+  // Update task title when task prop changes
+  useEffect(() => {
+    if (task) {
+      setTaskTitle(`${task.id}: ${task.title}`)
+    }
+  }, [task])
   const [isEditingTitle, setIsEditingTitle] = useState(false)
   const [contentText, setContentText] = useState(`Criticality: Medium Term
 12133 13e1e3e e 3 e 1e1e1121 dedw e ewd wedwedwed w12133 13e1e3e e 3 e 1e1e
@@ -54,14 +72,20 @@ Description
       {/* Panel Header */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 flex-shrink-0">
         <div className="flex items-center gap-3">
-          <button className="flex items-center gap-2 px-3 py-1.5 text-sm text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors">
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            No Progress
-            <ChevronDown size={14} />
-          </button>
-          <span className="text-sm font-medium text-gray-700">T251794064</span>
+          {progressStatus === 'Closed' ? (
+            <span className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-white bg-[#5C6670] rounded-full">
+              Closed
+            </span>
+          ) : (
+            <button className="flex items-center gap-2 px-3 py-1.5 text-sm rounded-md transition-colors text-gray-600 bg-gray-100 hover:bg-gray-200">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              {progressStatus}
+              <ChevronDown size={14} />
+            </button>
+          )}
+          <span className="text-sm font-medium text-gray-700">{task?.id || 'T251794064'}</span>
           <button className="p-1 text-gray-400 hover:text-yellow-500 transition-colors">
             <Star size={16} />
           </button>
@@ -256,8 +280,14 @@ Description
                 </>
               )}
             </div>
-            <button className="px-3 py-1 text-sm font-medium text-orange-700 bg-orange-100 rounded hover:bg-orange-200 transition-colors flex items-center gap-1">
-              Mid
+            <button className={`px-3 py-1 text-sm font-medium rounded transition-colors flex items-center gap-1 ${
+              task?.criticality === 'Short Term' 
+                ? 'text-green-700 bg-green-100 hover:bg-green-200'
+                : task?.criticality === 'Long Term'
+                ? 'text-purple-700 bg-purple-100 hover:bg-purple-200'
+                : 'text-orange-700 bg-orange-100 hover:bg-orange-200'
+            }`}>
+              {task?.criticality === 'Short Term' ? 'Short' : task?.criticality === 'Long Term' ? 'Long' : 'Mid'}
               <ChevronDown size={12} />
             </button>
             <button className="flex items-center gap-1 px-2 py-1 text-sm text-gray-600 border border-gray-200 rounded hover:bg-gray-50 transition-colors">
@@ -339,7 +369,13 @@ Description
                   <a href="#" className="text-sm text-blue-600 hover:underline">jpeg Test SEV</a>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="px-3 py-1 text-xs font-medium text-blue-700 bg-blue-50 border border-blue-200 rounded">Medium Term</span>
+                  <span className={`px-3 py-1 text-xs font-medium rounded border ${
+                    task?.criticality === 'Short Term' 
+                      ? 'text-green-700 bg-green-100 border-green-200'
+                      : task?.criticality === 'Long Term'
+                      ? 'text-purple-700 bg-purple-50 border-purple-200'
+                      : 'text-blue-700 bg-blue-50 border-blue-200'
+                  }`}>{task?.criticality || 'Medium Term'}</span>
                   <span className="px-3 py-1 text-xs font-medium text-amber-800 bg-amber-100 rounded">DETECTION</span>
                   <button className="p-1 text-gray-400 hover:text-gray-600 transition-colors">
                     <MoreHorizontal size={16} />
@@ -429,7 +465,7 @@ Description
                 <button className="hover:text-gray-900">×</button>
               </span>
               <span className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium text-gray-700 bg-gray-100 rounded">
-                SEV Task: Medium-term
+                SEV Task: {task?.criticality?.replace(' Term', '-term') || 'Medium-term'}
                 <button className="hover:text-gray-900">×</button>
               </span>
               <span className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium text-gray-700 bg-gray-100 rounded">
@@ -587,4 +623,5 @@ Description
 }
 
 export default TaskPanel
+
 

@@ -9,8 +9,30 @@ import ShareModal from './components/ShareModal'
 import Toast from './components/Toast'
 import LeftNav from './components/LeftNav'
 import TaskPanel from './components/TaskPanel'
+import Feed from './components/Feed'
 
 function App() {
+  // Check for chat-only mode, sev mode, investigation mode, and protection mode
+  const params = new URLSearchParams(window.location.search)
+  const isChatOnlyMode = params.get('chatOnly') === 'true'
+  const isSevMode = params.get('page') === 'sev'  // Show SEV investigation canvas
+  const isInvestigationMode = params.get('page') === 'investigation'
+  const isProtectionMode = params.get('mode') === 'protection'
+  
+  // Investigation params from Quality Home
+  const investigationType = params.get('type') || 'detection'
+  const investigationTitle = params.get('title') || 'Recommendation'
+  const investigationPriority = params.get('priority') || 'High'
+  const investigationAction = params.get('action') || 'manual-review'
+  
+  // Recommendation context params (for chatOnly mode from Quality Home)
+  const recommendationContext = isChatOnlyMode ? {
+    type: params.get('recommendationType'),
+    title: params.get('recommendationTitle'),
+    priority: params.get('recommendationPriority'),
+    action: params.get('recommendationAction'),
+  } : null
+  
   const [showSources, setShowSources] = useState(false)
   const [showSteps, setShowSteps] = useState(false)
   const [showShareModal, setShowShareModal] = useState(false)
@@ -29,6 +51,8 @@ function App() {
   const [activeBranchId, setActiveBranchId] = useState(null)
   const [hasNavNotification, setHasNavNotification] = useState(false)
   const [isTaskPanelOpen, setIsTaskPanelOpen] = useState(false)
+  const [selectedTask, setSelectedTask] = useState(null)
+  const [isSevMitigated, setIsSevMitigated] = useState(false)
   const [analyses, setAnalyses] = useState([
     { id: 'analysis-1', title: 'Shared Investigation', isNew: false, branches: [] }
   ])
@@ -369,57 +393,75 @@ function App() {
   }
 
   const [investigation, setInvestigation] = useState({
-    id: 'S553136',
+    id: 'S448319',
     title: 'Taylor Swift - Life of a Showgirl - Only In Polish',
     sections: [
       {
-        id: 'hypothesis',
+        id: 'protection-plan',
         type: 'hypothesis',
-        title: 'Hypothesis',
+        title: 'Protection Plan',
         createdBy: 'Opsmate',
         priority: 'High',
-        isExpanded: false,
+        isExpanded: true,
         content: {
-          summary: 'Opsmate has created a comprehensive investigation plan with 3 main hypotheses to explore:',
+          summary: 'Opsmate has created a comprehensive protection plan with quality metrics, backtesting analysis, and threshold configurations:',
           hypotheses: [
             {
-              id: 'h1',
-              title: 'Authorization Service Database Overload',
-              rationale: "Based on similar SEV S559486 and Meta's common auth service failure patterns, authorization service database overload is a frequent cause of slow loading and permission errors in internal tools like SEVManager.",
+              id: 'quality-summary',
+              title: 'Quality Summary',
+              rationale: 'Current precision is 50% over the last 30 days. If the recommendation is applied, precision could improve to 80%. Last 30 days show 20 stops out of 100 runs.',
               detailedSteps: [
                 {
-                  title: 'Check Authorization Service Health',
-                  tableName: 'metamate_users_growth_accounting_cube',
+                  title: 'Review Precision Metrics',
+                  tableName: 'quality_metrics_cube',
                   query: {
-                    table: 'authorization_service_server_requests_raw',
-                    filters: 'time_range = SEV timeframe',
-                    groupBy: 'exception_class, method_name, error_type',
-                    lookFor: 'High error rates, timeout exceptions, database connection failures',
+                    table: 'precision_tracking_raw',
+                    filters: 'time_range = last_30_days',
+                    groupBy: 'metric_type, recommendation_status',
+                    lookFor: 'Precision improvement from 50% to 80% with recommendation applied',
                   },
                 },
               ],
             },
             {
-              id: 'h2',
-              title: 'Upstream Dependency Failure',
-              rationale: 'The SEV context explicitly mentions being impacted by S568713.',
+              id: 'backtesting',
+              title: 'Backtesting',
+              rationale: 'Backtesting view shows true positive stops, false positive stops, and SEV correlation over time. Chart view displays metric trends from 07:00 to 16:00.',
               detailedSteps: [
                 {
-                  title: 'Review S568713 Timeline',
-                  tableName: 'sev_timeline_events',
+                  title: 'Analyze Backtesting Results',
+                  tableName: 'backtesting_results_cube',
                   query: {
-                    table: 'sev_timeline_events',
-                    filters: 'sev_id = "S568713"',
-                    groupBy: 'event_type, timestamp',
-                    lookFor: 'Correlation with SEVManager errors',
+                    table: 'backtest_runs_raw',
+                    filters: 'view_type = chart_view',
+                    groupBy: 'stop_type, timestamp',
+                    lookFor: 'True positive stops at 10:00 and 14:00, SEV correlation at 11:00',
+                  },
+                },
+              ],
+            },
+            {
+              id: 'thresholds',
+              title: 'Thresholds',
+              rationale: 'An incident task with High priority will be assigned to the designated user once the difference between control vs. test is 3% or more.',
+              detailedSteps: [
+                {
+                  title: 'Configure Threshold Settings',
+                  tableName: 'threshold_config_cube',
+                  query: {
+                    table: 'threshold_settings_raw',
+                    filters: 'priority = high',
+                    groupBy: 'threshold_type, assignee',
+                    lookFor: 'Control vs test difference >= 3% triggers high priority incident task',
                   },
                 },
               ],
             },
           ],
           nextSteps: [
-            'Start with Hypothesis 2 since S568713 is explicitly mentioned as the cause',
-            'If S568713 correlation is confirmed, focus on understanding the dependency chain',
+            'Review quality summary and backtesting results above',
+            'Verify thresholds are configured correctly for your use case',
+            'Execute protection to enable automated incident detection',
           ],
         },
       },
@@ -454,6 +496,40 @@ function App() {
       },
     ],
   })
+
+  // Auto-create branch for protection mode (skip shared investigation view)
+  useEffect(() => {
+    if (isProtectionMode && !activeBranchId) {
+      // Clone only the hypothesis section for protection mode (exclude root-cause and mitigation)
+      const clonedSections = JSON.parse(JSON.stringify(
+        investigation.sections.filter(s => s.type === 'hypothesis')
+      ))
+      
+      // Create a branch immediately without the loading delay
+      const newBranch = {
+        id: `branch-protection-${Date.now()}`,
+        name: 'Opsmate Protection',
+        createdAt: new Date().toLocaleString('en-US', { 
+          month: 'short', 
+          day: 'numeric', 
+          year: 'numeric',
+          hour: 'numeric',
+          minute: '2-digit',
+          hour12: true 
+        }),
+        sections: clonedSections,
+      }
+      
+      setAnalyses(prev => prev.map(analysis => 
+        analysis.id === 'analysis-1' 
+          ? { ...analysis, branches: [newBranch] }
+          : analysis
+      ))
+      
+      setActiveBranchId(newBranch.id)
+      setActiveCanvasTab('personal')
+    }
+  }, [isProtectionMode])
 
   const addSection = (newSection) => {
     // If on a branch, add to that branch's sections
@@ -569,7 +645,193 @@ function App() {
     ? sharedSectionsFromUrl 
     : (activeCanvasTab === 'shared' ? sharedSections : branchSections)
 
-  return (
+  // Investigation mode - from Quality Home recommendations
+  if (isInvestigationMode) {
+    console.log('Investigation mode active:', { investigationType, investigationTitle, investigationPriority })
+    console.log('URL params:', window.location.search)
+    
+    // Generate investigation content based on type
+    const getInvestigationContent = () => {
+      const baseContent = {
+        detection: {
+          sections: [
+            {
+              id: 'overview',
+              type: 'root-cause',
+              title: 'Overview',
+              createdBy: 'Opsmate',
+              priority: investigationPriority,
+              isExpanded: true,
+              content: {
+                summary: `This detection recommendation will help improve monitoring coverage for your service. ${investigationTitle} is currently missing and could help catch issues before they become SEVs.`,
+                hasDetailedAnalysis: true,
+              },
+            },
+            {
+              id: 'implementation',
+              type: 'mitigation',
+              title: 'Implementation Steps',
+              createdBy: 'Opsmate',
+              priority: investigationPriority,
+              isExpanded: true,
+              content: {
+                summary: 'Follow these steps to implement the recommended detection:',
+                actions: [
+                  { id: 1, text: 'Review the metric definition and thresholds', completed: false },
+                  { id: 2, text: 'Configure the detector with appropriate alerting rules', completed: false },
+                  { id: 3, text: 'Set up notification channels for alerts', completed: false },
+                  { id: 4, text: 'Test the detector with historical data', completed: false },
+                ],
+              },
+            },
+          ],
+        },
+        prevention: {
+          sections: [
+            {
+              id: 'overview',
+              type: 'root-cause',
+              title: 'Overview',
+              createdBy: 'Opsmate',
+              priority: investigationPriority,
+              isExpanded: true,
+              content: {
+                summary: `This prevention measure will help protect your service from potential failures. ${investigationTitle} adds an additional layer of safety to your infrastructure.`,
+                hasDetailedAnalysis: true,
+              },
+            },
+            {
+              id: 'implementation',
+              type: 'mitigation',
+              title: 'Implementation Steps',
+              createdBy: 'Opsmate',
+              priority: investigationPriority,
+              isExpanded: true,
+              content: {
+                summary: 'Follow these steps to implement the prevention measure:',
+                actions: [
+                  { id: 1, text: 'Review the prevention requirements and scope', completed: false },
+                  { id: 2, text: 'Identify affected services and dependencies', completed: false },
+                  { id: 3, text: 'Implement the protection mechanism', completed: false },
+                  { id: 4, text: 'Validate the prevention is working correctly', completed: false },
+                ],
+              },
+            },
+          ],
+        },
+        quality: {
+          sections: [
+            {
+              id: 'overview',
+              type: 'root-cause',
+              title: 'Overview',
+              createdBy: 'Opsmate',
+              priority: investigationPriority,
+              isExpanded: true,
+              content: {
+                summary: `This quality improvement will enhance the reliability and observability of your service. ${investigationTitle} helps ensure better monitoring practices.`,
+                hasDetailedAnalysis: true,
+              },
+            },
+            {
+              id: 'implementation',
+              type: 'mitigation',
+              title: 'Implementation Steps',
+              createdBy: 'Opsmate',
+              priority: investigationPriority,
+              isExpanded: true,
+              content: {
+                summary: 'Follow these steps to implement the quality improvement:',
+                actions: [
+                  { id: 1, text: 'Assess current monitoring coverage', completed: false },
+                  { id: 2, text: 'Define quality metrics and targets', completed: false },
+                  { id: 3, text: 'Implement the monitoring improvements', completed: false },
+                  { id: 4, text: 'Set up dashboards and alerts', completed: false },
+                ],
+              },
+            },
+          ],
+        },
+      }
+      return baseContent[investigationType] || baseContent.detection
+    }
+
+    const investigationContent = getInvestigationContent()
+    console.log('Investigation content:', investigationContent)
+    console.log('Sections:', investigationContent?.sections)
+
+    return (
+      <div className="h-screen flex flex-col bg-[#f0f2f5]">
+        {/* Debug: Header to confirm render */}
+        <div className="bg-white border-b border-gray-200 px-6 py-4 flex items-center gap-3">
+          <span className={`px-2.5 py-1 rounded-md text-xs font-semibold uppercase tracking-wide ${
+            investigationType === 'detection' ? 'bg-blue-100 text-blue-700' :
+            investigationType === 'prevention' ? 'bg-green-100 text-green-700' :
+            'bg-amber-100 text-amber-700'
+          }`}>
+            {investigationType}
+          </span>
+          <h1 className="text-lg font-semibold text-gray-900">{investigationTitle}</h1>
+          <span className={`px-2 py-0.5 rounded text-xs font-medium ${
+            investigationPriority === 'High' ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-600'
+          }`}>
+            {investigationPriority}
+          </span>
+        </div>
+        
+        <div className="flex-1 flex overflow-hidden">
+          <Canvas 
+            sections={investigationContent.sections} 
+            isSharedView={true}
+            isReadOnly={false}
+            onMitigate={() => {}}
+            onOpenTask={() => {}}
+            isSevMitigated={false}
+            hideProactiveRun={true}
+          />
+          <Copilot 
+            ref={copilotRef}
+            onOpenSources={() => setShowSources(true)} 
+            onOpenSteps={(count) => {
+              setStepsToShow(count)
+              setShowSteps(true)
+            }}
+            onAddSection={() => {}}
+            onViewSharedCanvas={() => {}}
+          />
+        </div>
+        <SourcesPanel isOpen={showSources} onClose={() => setShowSources(false)} />
+        <StepsPanel isOpen={showSteps} onClose={() => setShowSteps(false)} stepsToShow={stepsToShow} />
+      </div>
+    )
+  }
+
+  // Chat-only mode - just render the Copilot component full width
+  if (isChatOnlyMode) {
+    return (
+      <div className="h-screen w-full bg-white overflow-hidden">
+        <div className="h-full w-full [&>div]:w-full [&>div]:border-l-0 [&>div]:h-full">
+          <Copilot 
+            ref={copilotRef}
+            onOpenSources={() => setShowSources(true)} 
+            onOpenSteps={(count) => {
+              setStepsToShow(count)
+              setShowSteps(true)
+            }}
+            onAddSection={() => {}}
+            onViewSharedCanvas={() => {}}
+            recommendationContext={recommendationContext}
+          />
+        </div>
+        <SourcesPanel isOpen={showSources} onClose={() => setShowSources(false)} />
+        <StepsPanel isOpen={showSteps} onClose={() => setShowSteps(false)} stepsToShow={stepsToShow} />
+      </div>
+    )
+  }
+
+  // SEV investigation mode - show the full investigation canvas (accessed via ?page=sev)
+  if (isSevMode || isProtectionMode) {
+    return (
     <div className="h-screen flex flex-col bg-[#f0f2f5]">
       
       <Header 
@@ -592,6 +854,7 @@ function App() {
         sharedIsBranch={sharedIsBranch}
         onToggleSEVChat={() => setIsSEVChatOpen(!isSEVChatOpen)}
         isSEVChatOpen={isSEVChatOpen}
+        hideCreateBranch={isProtectionMode}
       />
       <LeftNav 
         isOpen={isNavOpen} 
@@ -619,7 +882,12 @@ function App() {
       />
       <TaskPanel 
         isOpen={isTaskPanelOpen} 
-        onClose={() => setIsTaskPanelOpen(false)} 
+        onClose={() => {
+          setIsTaskPanelOpen(false)
+          setSelectedTask(null)
+        }}
+        task={selectedTask}
+        isSevMitigated={isSevMitigated}
       />
       
       {/* Read-only shared mode banner */}
@@ -636,7 +904,12 @@ function App() {
           sections={displaySections} 
           isSharedView={activeCanvasTab === 'shared'}
           isReadOnly={isReadOnlySharedMode}
-          onMitigate={undefined}
+          onMitigate={() => setIsSevMitigated(true)}
+          onOpenTask={(task) => {
+            setSelectedTask(task)
+            setIsTaskPanelOpen(true)
+          }}
+          isSevMitigated={isSevMitigated}
           onAskOpsmate={isReadOnlySharedMode ? undefined : (section) => {
             if (copilotRef.current) {
               copilotRef.current.setReference(section)
@@ -681,7 +954,11 @@ function App() {
         )}
       </div>
     </div>
-  )
+    )
+  }
+
+  // Default: Feed is the home page
+  return <Feed onAskOpsmate={() => {}} />
 }
 
 export default App

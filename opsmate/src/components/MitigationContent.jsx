@@ -1,10 +1,18 @@
 import { useState } from 'react'
-import { ChevronDown, ChevronUp } from 'lucide-react'
+import { ChevronDown, ChevronUp, MoreHorizontal } from 'lucide-react'
 
-export default function MitigationContent({ content, onMitigate }) {
+export default function MitigationContent({ content, onMitigate, onOpenTask, isSevMitigated }) {
   const [mitigationStarted, setMitigationStarted] = useState(false)
   const [mitigationComplete, setMitigationComplete] = useState(false)
   const [showDetails, setShowDetails] = useState(false)
+
+  // Tasks that will be shown when mitigation is complete
+  const tasks = [
+    { id: 'T251794065', title: 'Add retry logic to auth service calls', criticality: 'Short Term' },
+    { id: 'T251794066', title: 'Implement circuit breaker pattern', criticality: 'Short Term' },
+    { id: 'T251794067', title: 'Add comprehensive logging for auth failures', criticality: 'Medium Term' },
+    { id: 'T251794068', title: 'Review and update SLO thresholds', criticality: 'Long Term' },
+  ]
 
   const handleMitigate = async () => {
     setMitigationStarted(true)
@@ -23,6 +31,25 @@ export default function MitigationContent({ content, onMitigate }) {
     // Then show the detailed steps
     setMitigationComplete(true)
     setShowDetails(true)
+  }
+
+  const handleTaskClick = (task) => {
+    if (onOpenTask) {
+      onOpenTask(task)
+    }
+  }
+
+  const getCriticalityBadgeStyles = (criticality) => {
+    switch (criticality) {
+      case 'Short Term':
+        return 'text-green-700 bg-green-100 border-green-200'
+      case 'Medium Term':
+        return 'text-blue-700 bg-blue-50 border-blue-200'
+      case 'Long Term':
+        return 'text-purple-700 bg-purple-50 border-purple-200'
+      default:
+        return 'text-gray-700 bg-gray-100 border-gray-200'
+    }
   }
 
   // Parse and render text with SEV links
@@ -146,6 +173,41 @@ export default function MitigationContent({ content, onMitigate }) {
               </div>
             </div>
           )}
+        </div>
+      )}
+
+      {/* Follow-up Tasks - shown when mitigation is complete */}
+      {mitigationComplete && (
+        <div className="mt-4 border border-gray-200 rounded-lg overflow-hidden">
+          <div className="px-4 py-3 bg-gray-50 border-b border-gray-200">
+            <h5 className="text-sm font-semibold text-gray-900">Follow-up Tasks</h5>
+          </div>
+          <div className="divide-y divide-gray-100">
+            {tasks.map((task) => (
+              <div 
+                key={task.id}
+                onClick={() => handleTaskClick(task)}
+                className="flex items-center justify-between px-4 py-3 hover:bg-gray-50 cursor-pointer transition-colors group border-l-4 border-l-indigo-500"
+              >
+                <div className="flex items-center gap-3">
+                  <span className={`px-2.5 py-1 text-xs font-medium rounded border ${getCriticalityBadgeStyles(task.criticality)}`}>
+                    {task.criticality}
+                  </span>
+                  <img src="/opsmate-logo.svg" alt="Opsmate" className="w-4 h-4" />
+                  <span className="text-sm font-medium text-gray-700">{task.id}</span>
+                  <span className="text-sm text-gray-600">{task.title}</span>
+                </div>
+                <button 
+                  onClick={(e) => {
+                    e.stopPropagation()
+                  }}
+                  className="p-1 text-gray-400 hover:text-gray-600 transition-colors opacity-0 group-hover:opacity-100"
+                >
+                  <MoreHorizontal size={16} />
+                </button>
+              </div>
+            ))}
+          </div>
         </div>
       )}
     </div>

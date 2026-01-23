@@ -1,0 +1,2248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Feed - OneMonitoring</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg?v=2">
+  <link rel="stylesheet" href="styles.css?v=58">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <!-- Left Nav Component -->
+  <script src="components/left-nav.js"></script>
+  <style>
+    /* Feed Page Specific Styles */
+    .feed-header {
+      background: white;
+      border-bottom: 1px solid var(--color-border);
+      padding: 16px 24px;
+    }
+
+    .feed-header-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .feed-header h1 {
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--color-text-primary);
+      margin: 0;
+    }
+
+    .feed-filters {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .feed-filters-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .feed-filters-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .filter-label {
+      font-size: 13px;
+      color: var(--color-text-secondary);
+    }
+
+    .filter-pill {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      background: #EBF5FF;
+      border: 1px solid #BFDBFE;
+      border-radius: 6px;
+      font-size: 13px;
+      color: #1D4ED8;
+      cursor: pointer;
+    }
+
+    .filter-pill .remove-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 16px;
+      height: 16px;
+      border: none;
+      background: transparent;
+      color: #1D4ED8;
+      cursor: pointer;
+      padding: 0;
+      border-radius: 2px;
+    }
+
+    .filter-pill .remove-btn:hover {
+      background: rgba(0,0,0,0.1);
+    }
+
+    .type-filter-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      font-size: 13px;
+      font-weight: 500;
+      border: none;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .type-filter-btn.active {
+      background: #EBF5FF;
+      color: #1D4ED8;
+      border: 1px solid #BFDBFE;
+    }
+
+    .type-filter-btn:not(.active) {
+      background: #F3F4F6;
+      color: #4B5563;
+      border: 1px solid transparent;
+    }
+
+    .type-filter-btn:not(.active):hover {
+      background: #E5E7EB;
+    }
+
+    .type-filter-btn .remove-x {
+      display: none;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      align-items: center;
+      justify-content: center;
+      margin-left: 2px;
+      transition: background 0.15s;
+    }
+
+    .type-filter-btn.active .remove-x {
+      display: inline-flex;
+    }
+
+    .type-filter-btn .remove-x:hover {
+      background: rgba(29, 78, 216, 0.15);
+    }
+
+    .toggle-btn {
+      padding: 6px 12px;
+      font-size: 13px;
+      font-weight: 500;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.15s;
+      background: var(--color-btn-gray);
+      color: var(--color-text-primary);
+    }
+
+    .toggle-btn:hover {
+      background: var(--color-btn-gray-hover);
+    }
+
+    .toggle-btn.active {
+      background: #111827;
+      color: white;
+    }
+
+    .icon-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      border: none;
+      background: var(--color-btn-gray);
+      border-radius: 6px;
+      cursor: pointer;
+      color: var(--color-text-secondary);
+    }
+
+    .icon-btn:hover {
+      background: var(--color-btn-gray-hover);
+    }
+
+    .feed-results-count {
+      font-size: 13px;
+      color: var(--color-text-secondary);
+      margin-left: 12px;
+    }
+
+    .feed-table-container {
+      flex: 1;
+      padding: 16px 24px 24px;
+      overflow: auto;
+    }
+
+    .feed-table-wrapper {
+      background: white;
+      border-radius: 12px;
+      border: 1px solid var(--color-border);
+      overflow: hidden;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+
+    .feed-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .feed-table th {
+      text-align: left;
+      padding: 12px 16px;
+      font-size: 11px;
+      font-weight: 600;
+      color: #6B7280;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      background: #F9FAFB;
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    .feed-table th .th-content {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .feed-table td {
+      padding: 12px 16px;
+      font-size: 13px;
+      color: var(--color-text-primary);
+      border-bottom: 1px solid #F3F4F6;
+      vertical-align: middle;
+    }
+
+    .feed-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .feed-table tbody tr:hover {
+      background: #F9FAFB;
+    }
+
+    /* Title cell */
+    .title-cell {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    .type-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      flex-shrink: 0;
+    }
+
+    .type-icon svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    .type-icon.sev {
+      background: transparent;
+      color: #C44646;
+    }
+
+    .type-icon.alert {
+      background: transparent;
+      color: #8B5CF6;
+    }
+
+    .type-icon.task {
+      background: transparent;
+      color: #14B8A6;
+      width: 20px;
+      height: 20px;
+    }
+
+    .type-icon.task svg {
+      width: 14px;
+      height: 14px;
+    }
+
+    .type-icon.regression {
+      background: transparent;
+      color: #F59E0B;
+    }
+
+    .type-icon.recommendation {
+      background: transparent;
+      color: #6B7280;
+    }
+
+    .title-content {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .title-text {
+      font-size: 14px;
+      font-weight: 500;
+      color: #111827;
+    }
+
+    .title-link {
+      font-size: 14px;
+      font-weight: 500;
+      color: #111827;
+      text-decoration: none;
+    }
+
+    .title-link:hover {
+      text-decoration: underline;
+    }
+
+    .title-link:visited {
+      color: #111827;
+    }
+
+    .title-meta {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-top: 4px;
+    }
+
+    .meta-item {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 12px;
+      color: #6B7280;
+    }
+
+    .meta-item.new {
+      color: #2563EB;
+    }
+
+    .meta-item.acked {
+      color: #16A34A;
+    }
+
+    .meta-item svg {
+      width: 14px;
+      height: 14px;
+    }
+
+    .bot-indicator {
+      color: #16A34A;
+    }
+
+    /* Priority badge */
+    .priority-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      font-size: 12px;
+      font-weight: 500;
+      border-radius: 9999px;
+      border: 1px solid;
+      cursor: pointer;
+    }
+
+    .priority-badge.high {
+      background: #FEF2F2;
+      color: #B91C1C;
+      border-color: #FECACA;
+    }
+
+    .priority-badge.medium {
+      background: #FFFBEB;
+      color: #B45309;
+      border-color: #FDE68A;
+    }
+
+    .priority-badge.low {
+      background: #F0FDF4;
+      color: #15803D;
+      border-color: #BBF7D0;
+    }
+
+    .priority-badge svg {
+      width: 12px;
+      height: 12px;
+    }
+
+    /* Status */
+    .status-cell {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+
+    .status-dot.investigating { background: #3B82F6; }
+    .status-dot.active { background: #EF4444; }
+    .status-dot.mitigating { background: #F97316; }
+    .status-dot.acknowledged { background: #9CA3AF; }
+    .status-dot.in-progress { background: #3B82F6; }
+    .status-dot.to-do { background: #9CA3AF; }
+    .status-dot.auto-apply { background: #9CA3AF; }
+
+    .status-text {
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    .status-text.investigating { color: #2563EB; }
+    .status-text.active { color: #DC2626; }
+    .status-text.mitigating { color: #EA580C; }
+    .status-text.acknowledged { color: #4B5563; }
+    .status-text.in-progress { color: #2563EB; }
+    .status-text.to-do { color: #4B5563; }
+    .status-text.auto-apply { color: #4B5563; }
+
+    /* Owner link */
+    .owner-link {
+      font-size: 13px;
+      font-weight: 500;
+      color: #2563EB;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .owner-link:hover {
+      text-decoration: underline;
+    }
+
+    /* Actions */
+    .actions-cell {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .start-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      font-size: 13px;
+      font-weight: 500;
+      color: #15803D;
+      background: #F0FDF4;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .start-btn:hover {
+      background: #DCFCE7;
+    }
+
+    .start-btn .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #22C55E;
+    }
+
+    .start-btn svg {
+      width: 12px;
+      height: 12px;
+    }
+
+    .action-icon-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      border: none;
+      background: transparent;
+      border-radius: 4px;
+      cursor: pointer;
+      color: #9CA3AF;
+      transition: all 0.15s;
+    }
+
+    .action-icon-btn:hover {
+      background: #F3F4F6;
+      color: #4B5563;
+    }
+
+    .action-icon-btn svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    /* Flyout Panel Styles */
+    .page-wrapper {
+      display: flex;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    .main-content-wrapper {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      transition: margin-right 0.3s ease;
+    }
+
+    .flyout-panel {
+      position: fixed;
+      top: 0;
+      right: 0;
+      width: 580px;
+      height: 100vh;
+      background: #F9FAFB;
+      border-left: 1px solid var(--color-border);
+      transform: translateX(100%);
+      transition: transform 0.3s ease;
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+      box-shadow: -4px 0 24px rgba(0,0,0,0.08);
+    }
+
+    .flyout-panel.open {
+      transform: translateX(0);
+    }
+
+    /* Flyout Header Bar */
+    .flyout-header-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 20px;
+      background: white;
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    .flyout-header-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .flyout-sev-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 4px 10px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    .flyout-sev-badge.sev-1 { background: #DC2626; color: white; }
+    .flyout-sev-badge.sev-2 { background: #F97316; color: white; }
+    .flyout-sev-badge.sev-3 { background: #EAB308; color: #422006; }
+    .flyout-sev-badge.sev-4 { background: #3B82F6; color: white; }
+
+    .flyout-status-badges {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .flyout-live-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 8px;
+      background: #FEF2F2;
+      border: 1px solid #FECACA;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+      color: #DC2626;
+      text-transform: uppercase;
+    }
+
+    .flyout-live-badge::before {
+      content: '';
+      width: 6px;
+      height: 6px;
+      background: #DC2626;
+      border-radius: 50%;
+      animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    .flyout-progress-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 8px;
+      background: #ECFDF5;
+      border: 1px solid #A7F3D0;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 500;
+      color: #059669;
+    }
+
+    .flyout-header-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .flyout-action-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      font-size: 13px;
+      font-weight: 500;
+      border: 1px solid #E5E7EB;
+      background: white;
+      border-radius: 6px;
+      cursor: pointer;
+      color: #374151;
+      transition: all 0.15s;
+    }
+
+    .flyout-action-btn:hover {
+      background: #F3F4F6;
+      border-color: #D1D5DB;
+    }
+
+    .flyout-action-btn.primary {
+      background: #111827;
+      color: white;
+      border-color: #111827;
+    }
+
+    .flyout-action-btn.primary:hover {
+      background: #1F2937;
+    }
+
+    .flyout-close-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      border: none;
+      background: transparent;
+      border-radius: 8px;
+      cursor: pointer;
+      color: #9CA3AF;
+      transition: all 0.15s;
+    }
+
+    .flyout-close-btn:hover {
+      background: #F3F4F6;
+      color: #4B5563;
+    }
+
+    /* Flyout Title Section */
+    .flyout-title-section {
+      padding: 16px 20px;
+      background: white;
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    .flyout-title {
+      font-size: 17px;
+      font-weight: 600;
+      color: #111827;
+      margin: 0 0 10px 0;
+      line-height: 1.4;
+    }
+
+    .flyout-meta {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      font-size: 13px;
+      color: #6B7280;
+      flex-wrap: wrap;
+    }
+
+    .flyout-meta-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .flyout-meta-item svg {
+      width: 14px;
+      height: 14px;
+      flex-shrink: 0;
+    }
+
+    .flyout-meta-item img {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+
+    .flyout-meta-separator {
+      color: #D1D5DB;
+    }
+
+    /* Flyout Content */
+    .flyout-content {
+      flex: 1;
+      overflow: auto;
+      padding: 16px 20px;
+    }
+
+    /* Flyout Cards */
+    .flyout-card {
+      background: white;
+      border-radius: 10px;
+      border: 1px solid #E5E7EB;
+      margin-bottom: 12px;
+      overflow: hidden;
+    }
+
+    .flyout-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      border-bottom: 1px solid #F3F4F6;
+    }
+
+    .flyout-card-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #111827;
+    }
+
+    .flyout-card-title svg {
+      width: 16px;
+      height: 16px;
+      color: #6B7280;
+    }
+
+    .flyout-card-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 24px;
+      height: 24px;
+      border: none;
+      background: transparent;
+      border-radius: 4px;
+      cursor: pointer;
+      color: #9CA3AF;
+      transition: all 0.15s;
+    }
+
+    .flyout-card-toggle:hover {
+      background: #F3F4F6;
+      color: #4B5563;
+    }
+
+    .flyout-card-body {
+      padding: 12px 16px;
+    }
+
+    /* Opsmate Card in Flyout */
+    .flyout-opsmate-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .flyout-opsmate-icon {
+      width: 28px;
+      height: 28px;
+      background: #F3F4F6;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .flyout-opsmate-icon svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    .flyout-opsmate-info {
+      flex: 1;
+    }
+
+    .flyout-opsmate-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: #111827;
+      margin: 0;
+    }
+
+    .flyout-opsmate-subtitle {
+      font-size: 11px;
+      color: #9CA3AF;
+      margin: 2px 0 0 0;
+    }
+
+    .flyout-explore-btn {
+      padding: 4px 10px;
+      font-size: 12px;
+      font-weight: 500;
+      background: #EBF5FF;
+      color: #1D4ED8;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .flyout-explore-btn:hover {
+      background: #DBEAFE;
+    }
+
+    .flyout-resolution {
+      background: #F9FAFB;
+      border-radius: 6px;
+      padding: 12px;
+    }
+
+    .flyout-resolution-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: #6B7280;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 6px;
+    }
+
+    .flyout-resolution-text {
+      font-size: 13px;
+      color: #374151;
+      line-height: 1.5;
+      margin: 0;
+    }
+
+    /* Escalations in Flyout */
+    .flyout-escalation-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 0;
+    }
+
+    .flyout-escalation-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: #374151;
+    }
+
+    .flyout-escalation-left svg {
+      width: 16px;
+      height: 16px;
+      color: #9CA3AF;
+    }
+
+    .flyout-escalation-count {
+      font-size: 13px;
+      font-weight: 500;
+      color: #6B7280;
+    }
+
+    /* Summary Fields in Flyout */
+    .flyout-summary-field {
+      padding: 10px 0;
+      border-bottom: 1px solid #F3F4F6;
+    }
+
+    .flyout-summary-field:last-child {
+      border-bottom: none;
+    }
+
+    .flyout-summary-label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      font-weight: 500;
+      color: #6B7280;
+      margin-bottom: 4px;
+    }
+
+    .flyout-summary-label svg {
+      width: 14px;
+      height: 14px;
+    }
+
+    .flyout-summary-value {
+      font-size: 13px;
+      color: #374151;
+      padding-left: 20px;
+    }
+
+    .flyout-summary-value.placeholder {
+      color: #9CA3AF;
+      font-style: italic;
+    }
+
+    .flyout-summary-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 8px;
+      font-size: 12px;
+      background: #F3F4F6;
+      color: #4B5563;
+      border-radius: 4px;
+      margin-left: 20px;
+    }
+
+    /* Timeline in Flyout */
+    .flyout-timeline {
+      padding: 12px 16px;
+    }
+
+    .flyout-timeline-item {
+      display: flex;
+      gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid #F3F4F6;
+    }
+
+    .flyout-timeline-item:last-child {
+      border-bottom: none;
+    }
+
+    .flyout-timeline-avatar {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      object-fit: cover;
+      flex-shrink: 0;
+    }
+
+    .flyout-timeline-content {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .flyout-timeline-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 4px;
+    }
+
+    .flyout-timeline-author {
+      font-size: 13px;
+      font-weight: 600;
+      color: #111827;
+    }
+
+    .flyout-timeline-time {
+      font-size: 12px;
+      color: #9CA3AF;
+    }
+
+    .flyout-timeline-text {
+      font-size: 13px;
+      color: #374151;
+      line-height: 1.5;
+      margin: 0;
+    }
+
+    /* Open Full View Link */
+    .flyout-open-full {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 12px;
+      background: white;
+      border-top: 1px solid var(--color-border);
+      font-size: 13px;
+      font-weight: 500;
+      color: #2563EB;
+      text-decoration: none;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .flyout-open-full:hover {
+      background: #F9FAFB;
+    }
+
+    .flyout-open-full svg {
+      width: 14px;
+      height: 14px;
+    }
+
+    /* Hide flyout content for non-SEV items */
+    .flyout-panel[data-type="alert"] .flyout-card:first-child {
+      display: none;
+    }
+
+    /* Flyout responsive adjustments */
+    @media (max-width: 1200px) {
+      .flyout-panel {
+        width: 480px;
+      }
+    }
+
+    @media (max-width: 900px) {
+      .flyout-panel {
+        width: 100%;
+        max-width: 420px;
+      }
+    }
+
+    /* Clickable rows */
+    .feed-table tbody tr {
+      cursor: pointer;
+    }
+
+    .feed-table tbody tr.selected {
+      background: #EBF5FF;
+    }
+
+    .feed-table tbody tr.selected:hover {
+      background: #DBEAFE;
+    }
+  </style>
+</head>
+<body>
+  <!-- Inline SVG Sprite for instant icon loading -->
+  <svg xmlns="http://www.w3.org/2000/svg" style="display:none">
+    <symbol id="icon-house-outline" viewBox="0 0 24 24">
+      <path fill="currentColor" d="M14.39 3.87a3.507 3.507 0 0 0-4.79 0L4.26 8.88C3.46 9.63 3 10.7 3 11.8v6.5c0 1.18.82 2.21 1.96 2.45.91.19 1.86.35 2.81.47.08.01.16.02.24.02.48 0 .95-.17 1.31-.5.43-.38.68-.93.68-1.51V16c0-.55.45-1 1-1h2c.55 0 1 .45 1 1v3.23c0 .58.25 1.12.68 1.51.43.38.99.55 1.56.48.95-.12 1.9-.28 2.81-.47 1.13-.24 1.96-1.27 1.96-2.45v-6.5c0-1.1-.46-2.17-1.26-2.92l-5.34-5.01zM19 18.3c0 .24-.16.45-.38.49-.86.18-1.74.33-2.62.44V16c0-1.65-1.35-3-3-3h-2c-1.65 0-3 1.35-3 3v3.24c-.88-.11-1.77-.26-2.63-.45A.49.49 0 0 1 5 18.3v-6.5c0-.55.23-1.08.63-1.46l5.34-5.01c.29-.27.66-.4 1.03-.4s.74.13 1.03.4l5.34 5.01c.4.38.63.91.63 1.46z"/>
+    </symbol>
+    <symbol id="icon-house-filled" viewBox="0 0 24 24">
+      <path fill="currentColor" d="M14.39 3.87a3.507 3.507 0 0 0-4.79 0L4.26 8.88C3.46 9.63 3 10.7 3 11.8v6.5c0 1.18.82 2.21 1.96 2.45.91.19 1.86.35 2.81.47.08.01.16.02.24.02.48 0 .95-.17 1.31-.5.43-.38.68-.93.68-1.51V16c0-.55.45-1 1-1h2c.55 0 1 .45 1 1v3.23c0 .58.25 1.12.68 1.51.43.38.99.55 1.56.48.95-.12 1.9-.28 2.81-.47 1.13-.24 1.96-1.27 1.96-2.45v-6.5c0-1.1-.46-2.17-1.26-2.92l-5.34-5.01z"/>
+    </symbol>
+    <symbol id="icon-plus" viewBox="0 0 24 24">
+      <path fill="currentColor" d="M12 20c.55 0 1-.45 1-1v-6h6c.55 0 1-.45 1-1s-.45-1-1-1h-6V5c0-.55-.45-1-1-1s-1 .45-1 1v6H5c-.55 0-1 .45-1 1s.45 1 1 1h6v6c0 .55.45 1 1 1"/>
+    </symbol>
+    <symbol id="icon-circles-outline" viewBox="0 0 24 24">
+      <path fill="currentColor" d="M12 2C6.49 2 2 6.49 2 12s4.49 10 10 10 10-4.49 10-10S17.51 2 12 2m0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8"/><path fill="currentColor" d="M12 6c-3.31 0-6 2.69-6 6s2.69 6 6 6 6-2.69 6-6-2.69-6-6-6m0 10c-2.21 0-4-1.79-4-4s1.79-4 4-4 4 1.79 4 4-1.79 4-4 4"/><path fill="currentColor" d="M12 14a2 2 0 1 0 0-4 2 2 0 0 0 0 4"/>
+    </symbol>
+    <symbol id="icon-dots-lines-outline" viewBox="0 0 24 24">
+      <path fill="currentColor" d="M6.23 10.42c.5.36 1.11.58 1.77.58l.14-.01-1.37 4.59c-.5-.36-1.11-.58-1.77-.58l-.14.01 1.37-4.59zm8.48 2.88c-.62.3-1.12.8-1.42 1.42l-4-4c.62-.3 1.12-.8 1.42-1.42l4 4zm2.52-4.88c.5.36 1.11.58 1.77.58l.14-.01-1.37 4.59c-.5-.36-1.11-.58-1.77-.58l-.15.01 1.38-4.59zM5 15c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 2c-.55 0-1 .45-1 1s.45 1 1 1 1-.45 1-1-.45-1-1-1zm11-4c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 2c-.55 0-1 .45-1 1s.45 1 1 1 1-.45 1-1-.45-1-1-1zM8 5c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 2c-.55 0-1 .45-1 1s.45 1 1 1 1-.45 1-1-.45-1-1-1zm11-4c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 2c-.55 0-1 .45-1 1s.45 1 1 1 1-.45 1-1-.45-1-1-1z"/>
+    </symbol>
+    <symbol id="icon-target-outline" viewBox="0 0 24 24">
+      <path fill="currentColor" d="M12 2c.55 0 1 .45 1 1v1.06c3.62.45 6.49 3.32 6.94 6.94H21c.55 0 1 .45 1 1s-.45 1-1 1h-1.06c-.45 3.62-3.32 6.49-6.94 6.94V21c0 .55-.45 1-1 1s-1-.45-1-1v-1.06c-3.62-.45-6.49-3.32-6.94-6.94H3c-.55 0-1-.45-1-1s.45-1 1-1h1.06c.45-3.62 3.32-6.49 6.94-6.94V3c0-.55.45-1 1-1zm1 5c0 .55-.45 1-1 1s-1-.45-1-1v-.92c-2.51.42-4.49 2.4-4.92 4.92H7c.55 0 1 .45 1 1s-.45 1-1 1h-.92c.43 2.51 2.41 4.49 4.92 4.92V17c0-.55.45-1 1-1s1 .45 1 1v.92c2.51-.43 4.49-2.41 4.92-4.92H17c-.55 0-1-.45-1-1s.45-1 1-1h.92c-.43-2.52-2.41-4.5-4.92-4.92V7z"/>
+    </symbol>
+    <symbol id="icon-shield-outline" viewBox="0 0 24 24">
+      <path fill="currentColor" d="M12 7.88a1 1 0 0 1 1 1v2h2a1 1 0 1 1 0 2h-2v2a1 1 0 0 1-2 0v-2H9a1 1 0 0 1 0-2h2v-2a1 1 0 0 1 1-1"/><path fill="currentColor" d="M3.74 5.11a17.18 17.18 0 0 1 16.51 0c.46.25.74.73.74 1.26v3.88a12 12 0 0 1-6.23 10.52l-1.81.99a2 2 0 0 1-1.92 0l-1.81-.99A12 12 0 0 1 3 10.24V6.37c0-.52.29-1 .74-1.26M19 6.71a15.18 15.18 0 0 0-14 0v3.53a10 10 0 0 0 5.2 8.77l1.8.99 1.8-.99A10 10 0 0 0 19 10.24z"/>
+    </symbol>
+    <symbol id="icon-flame-outline" viewBox="0 0 24 24">
+      <path fill="currentColor" d="M10.71 21.92c.4.06.8.08 1.2.08 2.2 0 4.3-.85 5.79-2.38 2.13-2.18 3.23-6.73 1.31-10.28-.2-.36-.6-.57-1.01-.52a.99.99 0 0 0-.84.76c-.35 1.48-1.02 2.63-1.76 3-.06.03-.13.06-.19.08.48-2.64.68-7.81-4.22-10.53a1 1 0 0 0-1.04.04c-.31.2-.48.56-.45.94.17 1.71-1.09 3.29-2.42 4.96-1.96 2.46-4.41 5.53-2.27 9.83 1.17 2.19 3.32 3.65 5.89 4.02zM8.65 9.31c1.11-1.4 2.26-2.83 2.69-4.48 2.91 2.69 2.07 7.02 1.7 8.42-.13.48.11.98.56 1.17.91.4 1.84.38 2.7-.04.64-.32 1.21-.86 1.69-1.59.18 2.1-.55 4.25-1.71 5.44-1.32 1.35-3.29 1.99-5.28 1.71-1.94-.27-3.54-1.36-4.4-2.95-1.56-3.13.11-5.24 2.05-7.67z"/>
+    </symbol>
+    <symbol id="icon-chart-outline" viewBox="0 0 24 24">
+      <path fill="currentColor" d="M20.25 4.96C20.01 3.83 18.98 3 17.81 3H6.2C5.03 3 4 3.82 3.76 4.96c-1 4.67-1 9.41 0 14.09.24 1.13 1.27 1.96 2.44 1.96h11.61c1.17 0 2.2-.82 2.44-1.96 1-4.67 1-9.41 0-14.09m-1.96 13.67c-.05.22-.25.37-.49.37H6.2c-.24 0-.44-.16-.49-.37-.94-4.4-.94-8.86 0-13.25.05-.22.25-.37.49-.37h11.61c.24 0 .44.16.49.37.94 4.4.94 8.86 0 13.25z"/><path fill="currentColor" d="m15.19 8.92-1.94 2.71-2.19-1.46a1 1 0 0 0-1.37.25l-2.5 3.5A1.007 1.007 0 0 0 8 15.51c.31 0 .62-.15.81-.42l1.94-2.71 2.19 1.46c.45.3 1.05.19 1.37-.25l2.5-3.5c.32-.45.22-1.07-.23-1.4-.45-.32-1.07-.22-1.4.23z"/>
+    </symbol>
+    <symbol id="icon-exclamation-arcs-outline" viewBox="0 0 24 24"><path fill="currentColor" d="M12 18.25c1.083 0 1.625.55 1.625 1.375S13.083 21 12 21s-1.625-.55-1.625-1.375.542-1.375 1.625-1.375M12 7a1 1 0 0 1 1 1v8a1 1 0 1 1-2 0V8a1 1 0 0 1 1-1m-3 8.973q-.061.042-.11.08a3 3 0 0 0-.155.129l-.008.008-.021.018a1 1 0 0 1-1.413-1.415l.014-.014.023-.022q.027-.027.073-.067.092-.084.254-.211A6.8 6.8 0 0 1 9 13.664zm6.416-2.101c.4.218.71.437.927.607a5 5 0 0 1 .327.278l.023.022.014.014a1 1 0 1 1-1.414 1.414l-.028-.025a3 3 0 0 0-.155-.13l-.11-.08v-2.308q.222.103.416.208M9 10.933a9.7 9.7 0 0 0-1.722.702 8.5 8.5 0 0 0-1.208.767 6 6 0 0 0-.355.297l-.009.009a1 1 0 0 1-1.413-1.415l.025-.025a2 2 0 0 1 .135-.123 8 8 0 0 1 .399-.329 10.4 10.4 0 0 1 1.495-.95A11.8 11.8 0 0 1 9 8.86zm6-2.072c1.056.261 1.944.631 2.653 1.004.651.343 1.152.687 1.495.951a8 8 0 0 1 .534.452l.025.025a1 1 0 1 1-1.414 1.414l-.009-.008-.006-.006-.057-.052a6 6 0 0 0-.291-.239 8.5 8.5 0 0 0-1.208-.767A9.7 9.7 0 0 0 15 10.933z"/></symbol>
+    <symbol id="icon-dot-double-arcs-outline" viewBox="0 0 24 24"><path fill="currentColor" d="M4.929 4.929a1 1 0 0 1 1.414 1.414 8 8 0 0 0 0 11.314 1 1 0 0 1-1.414 1.414c-3.905-3.906-3.905-10.237 0-14.142m12.728 0a1 1 0 0 1 1.338-.068l.076.068.355.373c3.546 3.925 3.428 9.985-.355 13.769a1 1 0 0 1-1.414-1.415 8 8 0 0 0 .283-11.014l-.283-.299-.07-.076a1 1 0 0 1 .07-1.338m-9.9 2.83a1 1 0 0 1 1.415 1.413 4 4 0 0 0-.143 5.508l.143.15.068.075a1.001 1.001 0 0 1-1.407 1.407l-.075-.069-.213-.223a6 6 0 0 1 .213-8.262m7.071 0a1 1 0 0 1 1.414 0 6 6 0 0 1 0 8.484 1 1 0 0 1-1.414-1.414 4 4 0 0 0 0-5.657 1 1 0 0 1 0-1.414M12 10a2 2 0 1 1 0 4 2 2 0 0 1 0-4"/></symbol>
+    <symbol id="icon-exclamation-square-outline" viewBox="0 0 24 24"><path fill="currentColor" d="M12.03 15c-.83 0-1.25.4-1.25 1s.42 1 1.25 1 1.25-.4 1.25-1-.42-1-1.25-1m0-1.27c.48 0 .88-.39.88-.88V7.88c0-.48-.39-.88-.88-.88s-.88.39-.88.88v4.97c0 .48.39.88.88.88"/><path fill="currentColor" d="M19.99 3.77a42.1 42.1 0 0 0-15.98 0C2.84 3.99 2 5.03 2 6.23v11.55c0 1.2.85 2.23 2.01 2.46 2.65.51 5.32.77 7.99.77s5.34-.26 7.99-.77c1.17-.22 2.01-1.26 2.01-2.46V6.23c0-1.2-.85-2.23-2.01-2.46m.01 14c0 .24-.17.45-.39.49-5.05.97-10.17.97-15.22 0a.496.496 0 0 1-.39-.49V6.22c0-.24.17-.45.39-.49C6.91 5.24 9.46 5 12 5s5.09.24 7.61.73c.22.04.39.25.39.49z"/></symbol>
+  </svg>
+
+  <!-- Main Sidebar Container - Rendered by LeftNav component -->
+  <div id="mainNavContainer"></div>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <!-- Header -->
+    <div class="feed-header">
+      <div class="feed-header-top">
+        <h1>Feed</h1>
+        <button class="ask-opsmate-btn" onclick="openOpsmate()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path fill-rule="evenodd" clip-rule="evenodd" d="M10.0206 15.0256C10.3164 15.8619 11.1136 16.4613 12.0513 16.4615C12.9891 16.4613 13.7863 15.8619 14.0821 15.0256H15.1493C14.8242 16.4359 13.5606 17.4872 12.0514 17.4872C10.5427 17.4872 9.27906 16.4359 8.95341 15.0256H10.0206ZM12.0508 16.4615H12.0519C12.0517 16.4615 12.0515 16.4615 12.0513 16.4615C12.0512 16.4615 12.051 16.4615 12.0508 16.4615Z" fill="currentColor"/>
+            <path fill-rule="evenodd" clip-rule="evenodd" d="M8.12879 7.38461C9.61545 7.38462 10.8211 8.59026 10.8211 10.0769C10.8211 11.5636 9.61545 12.7692 8.12879 12.7692C6.64213 12.7692 5.43649 11.5636 5.43649 10.0769C5.43649 8.59026 6.64213 7.38461 8.12879 7.38461ZM8.12879 8.41026C7.20828 8.41026 6.46213 9.15641 6.46213 10.0769C6.46213 10.9974 7.20828 11.7436 8.12879 11.7436C9.0493 11.7436 9.79546 10.9974 9.79546 10.0769C9.79546 9.15641 9.0493 8.41026 8.12879 8.41026Z" fill="currentColor"/>
+            <path fill-rule="evenodd" clip-rule="evenodd" d="M15.8724 7.38461C17.359 7.38462 18.5647 8.59026 18.5647 10.0769C18.5647 11.5636 17.359 12.7692 15.8724 12.7692C14.3857 12.7692 13.1801 11.5636 13.1801 10.0769C13.1801 8.59026 14.3857 7.38461 15.8724 7.38461ZM15.8724 8.41026C14.9519 8.41026 14.2057 9.15641 14.2057 10.0769C14.2057 10.9974 14.9519 11.7436 15.8724 11.7436C16.7929 11.7436 17.5391 10.9974 17.5391 10.0769C17.5391 9.15641 16.7929 8.41026 15.8724 8.41026Z" fill="currentColor"/>
+            <path fill-rule="evenodd" clip-rule="evenodd" d="M14.6673 0C15.177 6.43207e-06 15.5903 0.413337 15.5903 0.923077V5.22922C15.9447 5.2087 16.2862 5.18513 16.616 5.16001V0.98152L18.7175 1.42874C20.2498 1.75489 21.3893 3.00361 21.6047 4.51848C21.6688 4.50617 21.7293 4.49385 21.7867 4.48257C22.019 4.43591 22.1944 4.39746 22.3103 4.37079C22.3683 4.35746 22.4114 4.34716 22.439 4.34049C22.4529 4.33742 22.4631 4.33487 22.4693 4.33333C22.4724 4.33282 22.4744 4.33178 22.4755 4.33178H22.476C22.8877 4.22614 23.3067 4.47435 23.4123 4.88562H23.4113C23.517 5.29741 23.2688 5.71642 22.8575 5.82206C22.8483 5.82463 22.8185 5.83178 22.8016 5.83589C22.7673 5.84409 22.718 5.85592 22.6534 5.87079C22.5247 5.90002 22.3354 5.94154 22.0888 5.99129C21.9442 6.02 21.7795 6.05179 21.5954 6.08564C21.6252 6.27487 21.6411 6.46923 21.6411 6.66667V17.7436C21.6411 19.7667 20.0139 21.4103 17.9965 21.4359H14.9744C14.7406 21.7472 14.3683 21.9487 13.9488 21.9487H10.0514C9.63189 21.9487 9.25958 21.7472 9.02573 21.4359H6.00364C3.98621 21.4108 2.35906 19.7672 2.35906 17.7441V6.66717C2.35906 6.46922 2.37494 6.27536 2.40469 6.08614C2.22058 6.05229 2.05596 6.02102 1.91135 5.99179C1.66469 5.94256 1.47597 5.90104 1.34674 5.87129C1.28213 5.85642 1.23287 5.84459 1.19851 5.83639C1.18158 5.83228 1.15184 5.82513 1.14262 5.82257C0.731345 5.71692 0.483149 5.29744 0.58878 4.88617C0.694421 4.47489 1.1139 4.2267 1.52518 4.33233H1.52573C1.52676 4.33235 1.5288 4.33332 1.53184 4.33383C1.53799 4.33537 1.54829 4.33746 1.56214 4.34105C1.58983 4.34771 1.63291 4.35796 1.69084 4.37129C1.80623 4.39796 1.98213 4.43641 2.21443 4.48307C2.27187 4.49487 2.33237 4.50667 2.39647 4.51898C2.61186 3.00411 3.75134 1.75539 5.28364 1.42924L7.3852 0.982071V5.16051C7.71494 5.18563 8.05649 5.20925 8.41085 5.22977V0.923077C8.41085 0.413333 8.82418 0 9.33392 0H14.6673ZM19.9411 6.35181C18.076 6.61233 15.3739 6.87179 12.0011 6.87179C8.62827 6.87179 5.9257 6.61284 4.06109 6.35181C4.01493 6.34515 3.96929 6.339 3.92417 6.33233C3.90673 6.44104 3.89803 6.55283 3.89803 6.66667V17.7436C3.89803 18.9333 4.86213 19.8974 6.05187 19.8974H9.02623C9.26008 19.5862 9.63239 19.3846 10.0519 19.3846H13.9493C14.3688 19.3846 14.7411 19.5862 14.9749 19.8974H17.9493C19.139 19.8974 20.1032 18.9333 20.1032 17.7436H20.1042V6.66667C20.1042 6.55283 20.0949 6.44155 20.078 6.33233C20.0329 6.339 19.9872 6.34515 19.9411 6.35181ZM10.616 1.4359C10.3611 1.4359 10.1544 1.64256 10.1544 1.89744V2.14874C10.1544 3.06155 10.5601 3.92771 11.2616 4.51232L11.7052 4.88206C11.7909 4.95333 11.896 4.98923 12.0006 4.98923C12.1052 4.98923 12.2103 4.95334 12.296 4.88206L12.7396 4.51232C13.4411 3.92771 13.8467 3.06206 13.8467 2.14874V1.89744C13.8467 1.64257 13.6401 1.4359 13.3852 1.4359H10.616Z" fill="currentColor"/>
+          </svg>
+          Ask Opsmate
+        </button>
+      </div>
+
+      <!-- Filters Row -->
+      <div class="feed-filters">
+        <div class="feed-filters-left">
+          <span class="filter-label">Filters:</span>
+          <div class="filter-pill">
+            <span>Oncall: MSE, DSE...</span>
+            <button class="remove-btn">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M18 6L6 18M6 6l12 12"/>
+              </svg>
+            </button>
+          </div>
+          
+          <span class="filter-label" style="margin-left: 8px;">Types:</span>
+          <button class="type-filter-btn active" data-filter="alerts" onclick="toggleTypeFilter(this)">
+            Alerts
+            <span class="remove-x">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <path d="M18 6L6 18M6 6l12 12"/>
+              </svg>
+            </span>
+          </button>
+          <button class="type-filter-btn active" data-filter="regressions" onclick="toggleTypeFilter(this)">
+            Regressions
+            <span class="remove-x">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <path d="M18 6L6 18M6 6l12 12"/>
+              </svg>
+            </span>
+          </button>
+          <button class="type-filter-btn active" data-filter="sevs" onclick="toggleTypeFilter(this)">
+            SEVs
+            <span class="remove-x">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <path d="M18 6L6 18M6 6l12 12"/>
+              </svg>
+            </span>
+          </button>
+          <button class="type-filter-btn active" data-filter="tasks" onclick="toggleTypeFilter(this)">
+            Tasks
+            <span class="remove-x">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <path d="M18 6L6 18M6 6l12 12"/>
+              </svg>
+            </span>
+          </button>
+          <span class="feed-results-count" id="resultsCount">12 results</span>
+        </div>
+
+        <div class="feed-filters-right">
+          <button class="toggle-btn">Unacknowledged</button>
+          <button class="toggle-btn">For me</button>
+          <button class="icon-btn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="4" y1="21" x2="4" y2="14"/>
+              <line x1="4" y1="10" x2="4" y2="3"/>
+              <line x1="12" y1="21" x2="12" y2="12"/>
+              <line x1="12" y1="8" x2="12" y2="3"/>
+              <line x1="20" y1="21" x2="20" y2="16"/>
+              <line x1="20" y1="12" x2="20" y2="3"/>
+              <line x1="1" y1="14" x2="7" y2="14"/>
+              <line x1="9" y1="8" x2="15" y2="8"/>
+              <line x1="17" y1="16" x2="23" y2="16"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="feed-table-container">
+      <div class="feed-table-wrapper">
+        <table class="feed-table">
+          <thead>
+            <tr>
+              <th style="width: 45%;">
+                <div class="th-content">
+                  Title
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="6 9 12 15 18 9"/>
+                  </svg>
+                </div>
+              </th>
+              <th style="width: 12%;">
+                <div class="th-content">
+                  Priority
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="6 9 12 15 18 9"/>
+                  </svg>
+                </div>
+              </th>
+              <th style="width: 15%;">
+                <div class="th-content">
+                  Status
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="6 9 12 15 18 9"/>
+                  </svg>
+                </div>
+              </th>
+              <th style="width: 15%;">
+                <div class="th-content">
+                  Owner
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="6 9 12 15 18 9"/>
+                  </svg>
+                </div>
+              </th>
+              <th style="width: 13%;">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Row 1: SEV3 -->
+            <tr data-type="sevs">
+              <td>
+                <div class="title-cell">
+                  <span class="type-icon sev"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M10.71 21.92c.4.06.8.08 1.2.08 2.2 0 4.3-.85 5.79-2.38 2.13-2.18 3.23-6.73 1.31-10.28-.2-.36-.6-.57-1.01-.52a.99.99 0 0 0-.84.76c-.35 1.48-1.02 2.63-1.76 3-.06.03-.13.06-.19.08.48-2.64.68-7.81-4.22-10.53a1 1 0 0 0-1.04.04c-.31.2-.48.56-.45.94.17 1.71-1.09 3.29-2.42 4.96-1.96 2.46-4.41 5.53-2.27 9.83 1.17 2.19 3.32 3.65 5.89 4.02zM8.65 9.31c1.11-1.4 2.26-2.83 2.69-4.48 2.91 2.69 2.07 7.02 1.7 8.42-.13.48.11.98.56 1.17.91.4 1.84.38 2.7-.04.64-.32 1.21-.86 1.69-1.59.18 2.1-.55 4.25-1.71 5.44-1.32 1.35-3.29 1.99-5.28 1.71-1.94-.27-3.54-1.36-4.4-2.95-1.56-3.13.11-5.24 2.05-7.67z"/></svg></span>
+                  <div class="title-content">
+                    <a href="sev-detail.html" class="title-link">S448319 Taylor Swift - Life of a Showgirl - Only In Polish</a>
+                    <div class="title-meta">
+                      <span class="meta-item new">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                        2 new
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <button class="priority-badge high">
+                  SEV 2
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                </button>
+              </td>
+              <td>
+                <div class="status-cell">
+                  <span class="status-dot investigating"></span>
+                  <span class="status-text investigating">Investigating</span>
+                </div>
+              </td>
+              <td><a class="owner-link">David Kim</a></td>
+              <td>
+                <div class="actions-cell">
+                  <button class="start-btn">
+                    <span class="dot"></span>
+                    Start
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                  </button>
+                  <button class="action-icon-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                  </button>
+                  <button class="action-icon-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+                  </button>
+                </div>
+              </td>
+            </tr>
+
+            <!-- Row 2: ALERT with Bot -->
+            <tr data-type="alerts">
+              <td>
+                <div class="title-cell">
+                  <span class="type-icon alert"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2zm-2 1H8v-6c0-2.48 1.51-4.5 4-4.5s4 2.02 4 4.5v6z"/></svg></span>
+                  <div class="title-content">
+                    <div class="title-text">High memory usage on cache cluster</div>
+                    <div class="title-meta">
+                      <span class="meta-item">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                        1
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <button class="priority-badge high">
+                  High
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                </button>
+              </td>
+              <td>
+                <div class="status-cell">
+                  <span class="status-dot active"></span>
+                  <span class="status-text active">Active</span>
+                </div>
+              </td>
+              <td><a class="owner-link">Sarah Miller</a></td>
+              <td>
+                <div class="actions-cell">
+                  <button class="start-btn">
+                    <span class="dot"></span>
+                    Start
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                  </button>
+                  <button class="action-icon-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                  </button>
+                  <button class="action-icon-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+                  </button>
+                </div>
+              </td>
+            </tr>
+
+            <!-- Row 3: SEV3 -->
+            <tr data-type="sevs">
+              <td>
+                <div class="title-cell">
+                  <span class="type-icon sev"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M10.71 21.92c.4.06.8.08 1.2.08 2.2 0 4.3-.85 5.79-2.38 2.13-2.18 3.23-6.73 1.31-10.28-.2-.36-.6-.57-1.01-.52a.99.99 0 0 0-.84.76c-.35 1.48-1.02 2.63-1.76 3-.06.03-.13.06-.19.08.48-2.64.68-7.81-4.22-10.53a1 1 0 0 0-1.04.04c-.31.2-.48.56-.45.94.17 1.71-1.09 3.29-2.42 4.96-1.96 2.46-4.41 5.53-2.27 9.83 1.17 2.19 3.32 3.65 5.89 4.02zM8.65 9.31c1.11-1.4 2.26-2.83 2.69-4.48 2.91 2.69 2.07 7.02 1.7 8.42-.13.48.11.98.56 1.17.91.4 1.84.38 2.7-.04.64-.32 1.21-.86 1.69-1.59.18 2.1-.55 4.25-1.71 5.44-1.32 1.35-3.29 1.99-5.28 1.71-1.94-.27-3.54-1.36-4.4-2.95-1.56-3.13.11-5.24 2.05-7.67z"/></svg></span>
+                  <div class="title-content">
+                    <div class="title-text">S512847 Super Bowl LVIII - Halftime Show - Audio Sync Failures</div>
+                    <div class="title-meta">
+                      <span class="meta-item new">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                        3 new
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <button class="priority-badge high">
+                  SEV 2
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                </button>
+              </td>
+              <td>
+                <div class="status-cell">
+                  <span class="status-dot mitigating"></span>
+                  <span class="status-text mitigating">Mitigating</span>
+                </div>
+              </td>
+              <td><a class="owner-link">Michael Chen</a></td>
+              <td>
+                <div class="actions-cell">
+                  <button class="start-btn">
+                    <span class="dot"></span>
+                    Start
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                  </button>
+                  <button class="action-icon-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                  </button>
+                  <button class="action-icon-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+                  </button>
+                </div>
+              </td>
+            </tr>
+
+            <!-- Row 4: ALERT -->
+            <tr data-type="alerts">
+              <td>
+                <div class="title-cell">
+                  <span class="type-icon alert"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2zm-2 1H8v-6c0-2.48 1.51-4.5 4-4.5s4 2.02 4 4.5v6z"/></svg></span>
+                  <div class="title-content">
+                    <div class="title-text">API latency threshold exceeded</div>
+                    <div class="title-meta">
+                      <span class="meta-item new">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                        4 new
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <button class="priority-badge high">
+                  High
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                </button>
+              </td>
+              <td>
+                <div class="status-cell">
+                  <span class="status-dot acknowledged"></span>
+                  <span class="status-text acknowledged">Acknowledged</span>
+                </div>
+              </td>
+              <td><a class="owner-link">Emily Rodriguez</a></td>
+              <td>
+                <div class="actions-cell">
+                  <button class="start-btn">
+                    <span class="dot"></span>
+                    Start
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                  </button>
+                  <button class="action-icon-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                  </button>
+                  <button class="action-icon-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+                  </button>
+                </div>
+              </td>
+            </tr>
+
+            <!-- Row 5: TASK -->
+            <tr data-type="tasks">
+              <td>
+                <div class="title-cell">
+                  <span class="type-icon task"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 12l2 2 4-4"/></svg></span>
+                  <div class="title-content">
+                    <div class="title-text">Task regression: Mobile Release protection setup</div>
+                    <div class="title-meta">
+                      <span class="meta-item">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                        5
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <button class="priority-badge high">
+                  High
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                </button>
+              </td>
+              <td>
+                <div class="status-cell">
+                  <span class="status-dot in-progress"></span>
+                  <span class="status-text in-progress">In Progress</span>
+                </div>
+              </td>
+              <td><a class="owner-link">Alex Kumar</a></td>
+              <td>
+                <div class="actions-cell">
+                  <button class="start-btn">
+                    <span class="dot"></span>
+                    Start
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                  </button>
+                  <button class="action-icon-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                  </button>
+                  <button class="action-icon-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+                  </button>
+                </div>
+              </td>
+            </tr>
+
+            <!-- Row 6: REGRESSION -->
+            <tr data-type="regressions">
+              <td>
+                <div class="title-cell">
+                  <span class="type-icon regression"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg></span>
+                  <div class="title-content">
+                    <div class="title-text">Performance degradation in checkout flow</div>
+                    <div class="title-meta">
+                      <span class="meta-item new">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                        2 new
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <button class="priority-badge medium">
+                  Medium
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                </button>
+              </td>
+              <td>
+                <div class="status-cell">
+                  <span class="status-dot investigating"></span>
+                  <span class="status-text investigating">Investigating</span>
+                </div>
+              </td>
+              <td><a class="owner-link">Lisa Wong</a></td>
+              <td>
+                <div class="actions-cell">
+                  <button class="start-btn">
+                    <span class="dot"></span>
+                    Start
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                  </button>
+                  <button class="action-icon-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                  </button>
+                  <button class="action-icon-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+                  </button>
+                </div>
+              </td>
+            </tr>
+
+            <!-- Row 7: ALERT with Acked -->
+            <tr data-type="alerts">
+              <td>
+                <div class="title-cell">
+                  <span class="type-icon alert"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2zm-2 1H8v-6c0-2.48 1.51-4.5 4-4.5s4 2.02 4 4.5v6z"/></svg></span>
+                  <div class="title-content">
+                    <div class="title-text">Disk space warning on analytics cluster</div>
+                    <div class="title-meta">
+                      <span class="meta-item">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                        1
+                      </span>
+                      <span class="meta-item acked">
+                        <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+                        Acked
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <button class="priority-badge medium">
+                  Medium
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                </button>
+              </td>
+              <td>
+                <div class="status-cell">
+                  <span class="status-dot active"></span>
+                  <span class="status-text active">Active</span>
+                </div>
+              </td>
+              <td><a class="owner-link">James Taylor</a></td>
+              <td>
+                <div class="actions-cell">
+                  <button class="start-btn">
+                    <span class="dot"></span>
+                    Start
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                  </button>
+                  <button class="action-icon-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                  </button>
+                  <button class="action-icon-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+                  </button>
+                </div>
+              </td>
+            </tr>
+
+            <!-- Row 8: SEV3 -->
+            <tr data-type="sevs">
+              <td>
+                <div class="title-cell">
+                  <span class="type-icon sev"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M10.71 21.92c.4.06.8.08 1.2.08 2.2 0 4.3-.85 5.79-2.38 2.13-2.18 3.23-6.73 1.31-10.28-.2-.36-.6-.57-1.01-.52a.99.99 0 0 0-.84.76c-.35 1.48-1.02 2.63-1.76 3-.06.03-.13.06-.19.08.48-2.64.68-7.81-4.22-10.53a1 1 0 0 0-1.04.04c-.31.2-.48.56-.45.94.17 1.71-1.09 3.29-2.42 4.96-1.96 2.46-4.41 5.53-2.27 9.83 1.17 2.19 3.32 3.65 5.89 4.02zM8.65 9.31c1.11-1.4 2.26-2.83 2.69-4.48 2.91 2.69 2.07 7.02 1.7 8.42-.13.48.11.98.56 1.17.91.4 1.84.38 2.7-.04.64-.32 1.21-.86 1.69-1.59.18 2.1-.55 4.25-1.71 5.44-1.32 1.35-3.29 1.99-5.28 1.71-1.94-.27-3.54-1.36-4.4-2.95-1.56-3.13.11-5.24 2.05-7.67z"/></svg></span>
+                  <div class="title-content">
+                    <div class="title-text">S623914 Grammy Awards - Live Stream - Buffer Overflow Issues</div>
+                    <div class="title-meta">
+                      <span class="meta-item new">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                        3 new
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <button class="priority-badge high">
+                  SEV 3
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                </button>
+              </td>
+              <td>
+                <div class="status-cell">
+                  <span class="status-dot investigating"></span>
+                  <span class="status-text investigating">Investigating</span>
+                </div>
+              </td>
+              <td><a class="owner-link">Nina Patel</a></td>
+              <td>
+                <div class="actions-cell">
+                  <button class="start-btn">
+                    <span class="dot"></span>
+                    Start
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                  </button>
+                  <button class="action-icon-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                  </button>
+                  <button class="action-icon-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+                  </button>
+                </div>
+              </td>
+            </tr>
+
+            <!-- Row 9: TASK -->
+            <tr data-type="tasks">
+              <td>
+                <div class="title-cell">
+                  <span class="type-icon task"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 12l2 2 4-4"/></svg></span>
+                  <div class="title-content">
+                    <div class="title-text">Update monitoring dashboard thresholds</div>
+                    <div class="title-meta">
+                      <span class="meta-item">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                        0
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <button class="priority-badge low">
+                  Low
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                </button>
+              </td>
+              <td>
+                <div class="status-cell">
+                  <span class="status-dot to-do"></span>
+                  <span class="status-text to-do">To Do</span>
+                </div>
+              </td>
+              <td><a class="owner-link">Rachel Park</a></td>
+              <td>
+                <div class="actions-cell">
+                  <button class="start-btn">
+                    <span class="dot"></span>
+                    Start
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                  </button>
+                  <button class="action-icon-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                  </button>
+                  <button class="action-icon-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+                  </button>
+                </div>
+              </td>
+            </tr>
+
+            <!-- Row 10: ALERT -->
+            <tr data-type="alerts">
+              <td>
+                <div class="title-cell">
+                  <span class="type-icon alert"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2zm-2 1H8v-6c0-2.48 1.51-4.5 4-4.5s4 2.02 4 4.5v6z"/></svg></span>
+                  <div class="title-content">
+                    <div class="title-text">SSL certificate expiring soon</div>
+                    <div class="title-meta">
+                      <span class="meta-item">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                        2
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <button class="priority-badge high">
+                  High
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                </button>
+              </td>
+              <td>
+                <div class="status-cell">
+                  <span class="status-dot active"></span>
+                  <span class="status-text active">Active</span>
+                </div>
+              </td>
+              <td><a class="owner-link">Tom Wilson</a></td>
+              <td>
+                <div class="actions-cell">
+                  <button class="start-btn">
+                    <span class="dot"></span>
+                    Start
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                  </button>
+                  <button class="action-icon-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                  </button>
+                  <button class="action-icon-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+                  </button>
+                </div>
+              </td>
+            </tr>
+
+            <!-- Row 11: TASK -->
+            <tr data-type="tasks">
+              <td>
+                <div class="title-cell">
+                  <span class="type-icon task"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 12l2 2 4-4"/></svg></span>
+                  <div class="title-content">
+                    <div class="title-text">Task regression: Database connection pool tuning</div>
+                    <div class="title-meta">
+                      <span class="meta-item">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                        0
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <button class="priority-badge high">
+                  High
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                </button>
+              </td>
+              <td>
+                <div class="status-cell">
+                  <span class="status-dot to-do"></span>
+                  <span class="status-text to-do">To Do</span>
+                </div>
+              </td>
+              <td><a class="owner-link">Maria Garcia</a></td>
+              <td>
+                <div class="actions-cell">
+                  <button class="start-btn">
+                    <span class="dot"></span>
+                    Start
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                  </button>
+                  <button class="action-icon-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                  </button>
+                  <button class="action-icon-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+                  </button>
+                </div>
+              </td>
+            </tr>
+
+            <!-- Row 12: RECOMMENDATION -->
+            <tr data-type="tasks">
+              <td>
+                <div class="title-cell">
+                  <span class="type-icon recommendation"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 21c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-1H9v1zm3-19C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7zm2.85 11.1l-.85.6V16h-4v-2.3l-.85-.6A4.997 4.997 0 0 1 7 9c0-2.76 2.24-5 5-5s5 2.24 5 5c0 1.63-.8 3.16-2.15 4.1z"/></svg></span>
+                  <div class="title-content">
+                    <a href="opsmate-protection/?mode=protection" class="title-link">Missing detector for rb_app_responsiveness</a>
+                    <div class="title-meta">
+                      <span class="meta-item">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                        0
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <button class="priority-badge high">
+                  High
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                </button>
+              </td>
+              <td>
+                <div class="status-cell">
+                  <span class="status-dot auto-apply"></span>
+                  <span class="status-text auto-apply">Auto-apply</span>
+                </div>
+              </td>
+              <td><a class="owner-link">System</a></td>
+              <td>
+                <div class="actions-cell">
+                  <button class="start-btn">
+                    <span class="dot"></span>
+                    Start
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                  </button>
+                  <button class="action-icon-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                  </button>
+                  <button class="action-icon-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <!-- Flyout Panel - SEV Preview -->
+  <div id="flyoutPanel" class="flyout-panel">
+    <!-- Header Bar -->
+    <div class="flyout-header-bar">
+      <div class="flyout-header-left">
+        <span id="flyoutSevBadge" class="flyout-sev-badge sev-2">SEV 2</span>
+        <div class="flyout-status-badges">
+          <span id="flyoutLiveBadge" class="flyout-live-badge">Live</span>
+          <span id="flyoutProgressBadge" class="flyout-progress-badge">In Progress</span>
+        </div>
+      </div>
+      <div class="flyout-header-actions">
+        <button class="flyout-action-btn primary" onclick="openFullSev()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+            <polyline points="15 3 21 3 21 9"/>
+            <line x1="10" y1="14" x2="21" y2="3"/>
+          </svg>
+          Open
+        </button>
+      <button class="flyout-close-btn" onclick="closeFlyout()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M18 6L6 18M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+    </div>
+
+    <!-- Title Section -->
+    <div class="flyout-title-section">
+      <h2 id="flyoutTitle" class="flyout-title">S448319 Taylor Swift - Life of a Showgirl - Only In Polish</h2>
+      <div class="flyout-meta">
+        <span class="flyout-meta-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+            <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+            <path d="M2 17l10 5 10-5"/>
+            <path d="M2 12l10 5 10-5"/>
+          </svg>
+          <span id="flyoutStack">Test</span>
+        </span>
+        <span class="flyout-meta-separator">·</span>
+        <span class="flyout-meta-item">
+          <img src="https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=100&h=100&fit=crop&crop=face" alt="" id="flyoutOwnerAvatar">
+          <span id="flyoutOwner">Jamie Gomez</span>
+        </span>
+        <span class="flyout-meta-separator">·</span>
+        <span class="flyout-meta-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          <span id="flyoutComments">0 New</span>
+        </span>
+      </div>
+    </div>
+
+    <!-- Scrollable Content -->
+    <div class="flyout-content">
+      <!-- Opsmate Card -->
+      <div class="flyout-card">
+        <div class="flyout-card-header">
+          <div class="flyout-opsmate-header">
+            <div class="flyout-opsmate-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M10.0206 15.0256C10.3164 15.8619 11.1136 16.4613 12.0513 16.4615C12.9891 16.4613 13.7863 15.8619 14.0821 15.0256H15.1493C14.8242 16.4359 13.5606 17.4872 12.0514 17.4872C10.5427 17.4872 9.27906 16.4359 8.95341 15.0256H10.0206ZM12.0508 16.4615H12.0519C12.0517 16.4615 12.0515 16.4615 12.0513 16.4615C12.0512 16.4615 12.051 16.4615 12.0508 16.4615Z" fill="#111827"/>
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M8.12879 7.38461C9.61545 7.38462 10.8211 8.59026 10.8211 10.0769C10.8211 11.5636 9.61545 12.7692 8.12879 12.7692C6.64213 12.7692 5.43649 11.5636 5.43649 10.0769C5.43649 8.59026 6.64213 7.38461 8.12879 7.38461ZM8.12879 8.41026C7.20828 8.41026 6.46213 9.15641 6.46213 10.0769C6.46213 10.9974 7.20828 11.7436 8.12879 11.7436C9.0493 11.7436 9.79546 10.9974 9.79546 10.0769C9.79546 9.15641 9.0493 8.41026 8.12879 8.41026Z" fill="#111827"/>
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M15.8724 7.38461C17.359 7.38462 18.5647 8.59026 18.5647 10.0769C18.5647 11.5636 17.359 12.7692 15.8724 12.7692C14.3857 12.7692 13.1801 11.5636 13.1801 10.0769C13.1801 8.59026 14.3857 7.38461 15.8724 7.38461ZM15.8724 8.41026C14.9519 8.41026 14.2057 9.15641 14.2057 10.0769C14.2057 10.9974 14.9519 11.7436 15.8724 11.7436C16.7929 11.7436 17.5391 10.9974 17.5391 10.0769C17.5391 9.15641 16.7929 8.41026 15.8724 8.41026Z" fill="#111827"/>
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M14.6673 0C15.177 6.43207e-06 15.5903 0.413337 15.5903 0.923077V5.22922C15.9447 5.2087 16.2862 5.18513 16.616 5.16001V0.98152L18.7175 1.42874C20.2498 1.75489 21.3893 3.00361 21.6047 4.51848C21.6688 4.50617 21.7293 4.49385 21.7867 4.48257C22.019 4.43591 22.1944 4.39746 22.3103 4.37079C22.3683 4.35746 22.4114 4.34716 22.439 4.34049C22.4529 4.33742 22.4631 4.33487 22.4693 4.33333C22.4724 4.33282 22.4744 4.33178 22.4755 4.33178H22.476C22.8877 4.22614 23.3067 4.47435 23.4123 4.88562H23.4113C23.517 5.29741 23.2688 5.71642 22.8575 5.82206C22.8483 5.82463 22.8185 5.83178 22.8016 5.83589C22.7673 5.84409 22.718 5.85592 22.6534 5.87079C22.5247 5.90002 22.3354 5.94154 22.0888 5.99129C21.9442 6.02 21.7795 6.05179 21.5954 6.08564C21.6252 6.27487 21.6411 6.46923 21.6411 6.66667V17.7436C21.6411 19.7667 20.0139 21.4103 17.9965 21.4359H14.9744C14.7406 21.7472 14.3683 21.9487 13.9488 21.9487H10.0514C9.63189 21.9487 9.25958 21.7472 9.02573 21.4359H6.00364C3.98621 21.4108 2.35906 19.7672 2.35906 17.7441V6.66717C2.35906 6.46922 2.37494 6.27536 2.40469 6.08614C2.22058 6.05229 2.05596 6.02102 1.91135 5.99179C1.66469 5.94256 1.47597 5.90104 1.34674 5.87129C1.28213 5.85642 1.23287 5.84459 1.19851 5.83639C1.18158 5.83228 1.15184 5.82513 1.14262 5.82257C0.731345 5.71692 0.483149 5.29744 0.58878 4.88617C0.694421 4.47489 1.1139 4.2267 1.52518 4.33233H1.52573C1.52676 4.33235 1.5288 4.33332 1.53184 4.33383C1.53799 4.33537 1.54829 4.33746 1.56214 4.34105C1.58983 4.34771 1.63291 4.35796 1.69084 4.37129C1.80623 4.39796 1.98213 4.43641 2.21443 4.48307C2.27187 4.49487 2.33237 4.50667 2.39647 4.51898C2.61186 3.00411 3.75134 1.75539 5.28364 1.42924L7.3852 0.982071V5.16051C7.71494 5.18563 8.05649 5.20925 8.41085 5.22977V0.923077C8.41085 0.413333 8.82418 0 9.33392 0H14.6673ZM19.9411 6.35181C18.076 6.61233 15.3739 6.87179 12.0011 6.87179C8.62827 6.87179 5.9257 6.61284 4.06109 6.35181C4.01493 6.34515 3.96929 6.339 3.92417 6.33233C3.90673 6.44104 3.89803 6.55283 3.89803 6.66667V17.7436C3.89803 18.9333 4.86213 19.8974 6.05187 19.8974H9.02623C9.26008 19.5862 9.63239 19.3846 10.0519 19.3846H13.9493C14.3688 19.3846 14.7411 19.5862 14.9749 19.8974H17.9493C19.139 19.8974 20.1032 18.9333 20.1032 17.7436H20.1042V6.66667C20.1042 6.55283 20.0949 6.44155 20.078 6.33233C20.0329 6.339 19.9872 6.34515 19.9411 6.35181ZM10.616 1.4359C10.3611 1.4359 10.1544 1.64256 10.1544 1.89744V2.14874C10.1544 3.06155 10.5601 3.92771 11.2616 4.51232L11.7052 4.88206C11.7909 4.95333 11.896 4.98923 12.0006 4.98923C12.1052 4.98923 12.2103 4.95334 12.296 4.88206L12.7396 4.51232C13.4411 3.92771 13.8467 3.06206 13.8467 2.14874V1.89744C13.8467 1.64257 13.6401 1.4359 13.3852 1.4359H10.616Z" fill="#111827"/>
+              </svg>
+            </div>
+            <div class="flyout-opsmate-info">
+              <h4 class="flyout-opsmate-title">Opsmate</h4>
+              <p class="flyout-opsmate-subtitle">Analysis run on Dec 15, 2025</p>
+            </div>
+          </div>
+          <button class="flyout-explore-btn">Explore</button>
+        </div>
+        <div class="flyout-card-body">
+          <div class="flyout-resolution" style="margin-bottom: 12px;">
+            <div class="flyout-resolution-label">Root Cause</div>
+            <p class="flyout-resolution-text">The auth service HTTP client was configured with aggressive timeout settings (500ms) that caused cascading failures during periods of elevated network latency. The retry mechanism lacked exponential backoff, leading to thundering herd issues when multiple services attempted simultaneous reconnections.</p>
+          </div>
+          <div class="flyout-resolution">
+            <div class="flyout-resolution-label">Mitigation</div>
+            <p class="flyout-resolution-text">Implemented retry logic with exponential backoff across all auth service HTTP calls. Added a circuit breaker pattern to prevent cascade failures during service degradation, along with configurable timeout policies. Error rates have dropped by 94% since deployment, and the system now gracefully handles transient network issues without impacting user sessions.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Escalations Card -->
+      <div class="flyout-card">
+        <div class="flyout-card-header">
+          <div class="flyout-card-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+            </svg>
+            Escalations
+          </div>
+          <button class="flyout-card-toggle">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="6 9 12 15 18 9"/>
+            </svg>
+          </button>
+        </div>
+        <div class="flyout-card-body">
+          <div class="flyout-escalation-row">
+            <div class="flyout-escalation-left">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+              </svg>
+              Active & Past escalations
+            </div>
+            <span class="flyout-escalation-count">0</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Summary Card -->
+      <div class="flyout-card">
+        <div class="flyout-card-header">
+          <div class="flyout-card-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="3" width="18" height="18" rx="2"/>
+              <path d="M9 9h6M9 13h6M9 17h4"/>
+            </svg>
+            Summary
+          </div>
+          <button class="flyout-card-toggle">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="6 9 12 15 18 9"/>
+            </svg>
+          </button>
+        </div>
+        <div class="flyout-card-body">
+          <div class="flyout-summary-field">
+            <div class="flyout-summary-label">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="3" width="18" height="18" rx="2"/>
+                <line x1="12" y1="8" x2="12" y2="12"/>
+                <circle cx="12" cy="16" r="1"/>
+              </svg>
+              Incident Impact
+            </div>
+            <div class="flyout-summary-value placeholder">No impact description yet</div>
+          </div>
+          <div class="flyout-summary-field">
+            <div class="flyout-summary-label">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="3"/>
+                <circle cx="12" cy="5" r="2"/>
+                <circle cx="19" cy="12" r="2"/>
+                <circle cx="12" cy="19" r="2"/>
+                <circle cx="5" cy="12" r="2"/>
+              </svg>
+              Impacted Areas
+            </div>
+            <span class="flyout-summary-badge">None linked</span>
+          </div>
+          <div class="flyout-summary-field">
+            <div class="flyout-summary-label">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+              </svg>
+              Risk Domains
+            </div>
+            <span class="flyout-summary-badge">Not selected</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Activity Card -->
+      <div class="flyout-card">
+        <div class="flyout-card-header">
+          <div class="flyout-card-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/>
+              <polyline points="12 6 12 12 16 14"/>
+            </svg>
+            Recent Activity
+          </div>
+          <button class="flyout-card-toggle">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="6 9 12 15 18 9"/>
+            </svg>
+          </button>
+        </div>
+        <div class="flyout-card-body flyout-timeline">
+          <div class="flyout-timeline-item">
+            <img src="https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=100&h=100&fit=crop&crop=face" alt="" class="flyout-timeline-avatar">
+            <div class="flyout-timeline-content">
+              <div class="flyout-timeline-header">
+                <span class="flyout-timeline-author">Jamie Gomez</span>
+                <span class="flyout-timeline-time">4.4 weeks ago</span>
+              </div>
+              <p class="flyout-timeline-text">Updated status to In Progress</p>
+            </div>
+          </div>
+          <div class="flyout-timeline-item">
+            <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face" alt="" class="flyout-timeline-avatar">
+            <div class="flyout-timeline-content">
+              <div class="flyout-timeline-header">
+                <span class="flyout-timeline-author">Michael Chen</span>
+                <span class="flyout-timeline-time">4.4 weeks ago</span>
+              </div>
+              <p class="flyout-timeline-text">SEV created and assigned to Jamie Gomez</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Open Full View Footer -->
+    <a class="flyout-open-full" onclick="openFullSev()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+        <polyline points="15 3 21 3 21 9"/>
+        <line x1="10" y1="14" x2="21" y2="3"/>
+      </svg>
+      Open full SEV view
+    </a>
+  </div>
+
+  <script>
+    // Navigation functions that redirect to main page
+    function showIncidents() {
+      window.location.href = 'index.html';
+    }
+
+    function openDataExploration() {
+      window.location.href = 'index.html#dataExploration';
+    }
+
+    function closeDataExploration() {
+      // No-op on this page
+    }
+
+    // Type filter functionality
+    function toggleTypeFilter(btn) {
+      btn.classList.toggle('active');
+      applyFilters();
+    }
+
+    function applyFilters() {
+      const activeFilters = [];
+      document.querySelectorAll('.type-filter-btn.active').forEach(btn => {
+        activeFilters.push(btn.dataset.filter);
+      });
+
+      const rows = document.querySelectorAll('.feed-table tbody tr');
+      let visibleCount = 0;
+
+      rows.forEach(row => {
+        const rowType = row.dataset.type;
+        if (activeFilters.length === 0 || activeFilters.includes(rowType)) {
+          row.style.display = '';
+          visibleCount++;
+        } else {
+          row.style.display = 'none';
+        }
+      });
+
+      // Update results count
+      document.getElementById('resultsCount').textContent = visibleCount + ' results';
+    }
+
+    // Flyout Panel functionality
+    let selectedRow = null;
+    let currentSevData = null;
+
+    // Sample SEV data for different rows
+    const sevDataMap = {
+      'S448319': {
+        id: 'S448319',
+        title: 'Taylor Swift - Life of a Showgirl - Only In Polish',
+        level: 2,
+        type: 'Live',
+        status: 'In Progress',
+        stack: 'Test',
+        owner: 'Jamie Gomez',
+        ownerAvatar: 'https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=100&h=100&fit=crop&crop=face',
+        comments: '2 new',
+        opsmateSummary: 'Opsmate automatically identified and resolved this issue by implementing retry logic with exponential backoff. Error rates have dropped by 94% since deployment.',
+        lastActivity: '4.4 weeks ago'
+      },
+      'S512847': {
+        id: 'S512847',
+        title: 'Super Bowl LVIII - Halftime Show - Audio Sync Failures',
+        level: 1,
+        type: 'Live',
+        status: 'Mitigating',
+        stack: 'Production',
+        owner: 'Michael Chen',
+        ownerAvatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face',
+        comments: '3 new',
+        opsmateSummary: 'Audio synchronization issues detected across multiple broadcast endpoints. Opsmate is analyzing latency patterns and recommending buffer adjustments.',
+        lastActivity: '2 hours ago'
+      },
+      'S623914': {
+        id: 'S623914',
+        title: 'Grammy Awards - Live Stream - Buffer Overflow Issues',
+        level: 2,
+        type: 'Live',
+        status: 'Investigating',
+        stack: 'Streaming',
+        owner: 'Nina Patel',
+        ownerAvatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop&crop=face',
+        comments: '3 new',
+        opsmateSummary: 'Buffer overflow detected on streaming edge nodes. Opsmate is correlating traffic patterns with server metrics to identify root cause.',
+        lastActivity: '1 hour ago'
+      }
+    };
+
+    function openFlyout(row) {
+      const flyout = document.getElementById('flyoutPanel');
+      const rowType = row.dataset.type;
+      
+      // Remove selection from previous row
+      if (selectedRow) {
+        selectedRow.classList.remove('selected');
+      }
+      
+      // Select new row
+      selectedRow = row;
+      row.classList.add('selected');
+      
+      // Extract data from the row
+      const titleText = (row.querySelector('.title-text') || row.querySelector('.title-link'))?.textContent || '';
+      const ownerLink = row.querySelector('.owner-link')?.textContent || '';
+      const statusText = row.querySelector('.status-text')?.textContent || 'Unknown';
+      const commentsMeta = row.querySelector('.meta-item');
+      
+      // Check if this is a SEV row and get the SEV ID
+      let sevData = null;
+      if (rowType === 'sevs') {
+        // Try to extract SEV ID from title
+        const sevMatch = titleText.match(/S(\d+)/);
+        if (sevMatch) {
+          const sevId = 'S' + sevMatch[1];
+          sevData = sevDataMap[sevId];
+        }
+      }
+
+      // Use SEV data if available, otherwise use row data
+      if (sevData) {
+        currentSevData = sevData;
+        
+        // Update SEV badge
+        const sevBadge = document.getElementById('flyoutSevBadge');
+        sevBadge.className = `flyout-sev-badge sev-${sevData.level}`;
+        sevBadge.textContent = `SEV ${sevData.level}`;
+        
+        // Update status badges
+        document.getElementById('flyoutLiveBadge').textContent = sevData.type;
+        document.getElementById('flyoutProgressBadge').textContent = sevData.status;
+        
+        // Update title
+        document.getElementById('flyoutTitle').textContent = `${sevData.id} ${sevData.title}`;
+        
+        // Update meta
+        document.getElementById('flyoutStack').textContent = sevData.stack;
+        document.getElementById('flyoutOwner').textContent = sevData.owner;
+        document.getElementById('flyoutOwnerAvatar').src = sevData.ownerAvatar;
+        document.getElementById('flyoutComments').textContent = sevData.comments;
+        
+        // Update Opsmate resolution
+        document.querySelector('.flyout-resolution-text').textContent = sevData.opsmateSummary;
+        
+        // Update timeline
+        document.querySelector('.flyout-timeline-author').textContent = sevData.owner;
+        document.querySelector('.flyout-timeline-time').textContent = sevData.lastActivity;
+        document.querySelector('.flyout-timeline-avatar').src = sevData.ownerAvatar;
+        
+      } else {
+        currentSevData = null;
+        
+        // Fallback for non-SEV items
+        const sevBadge = document.getElementById('flyoutSevBadge');
+        sevBadge.className = 'flyout-sev-badge sev-3';
+        sevBadge.textContent = 'ALERT';
+        
+        document.getElementById('flyoutLiveBadge').textContent = 'Active';
+        document.getElementById('flyoutProgressBadge').textContent = statusText;
+        document.getElementById('flyoutTitle').textContent = titleText;
+        document.getElementById('flyoutStack').textContent = 'General';
+        document.getElementById('flyoutOwner').textContent = ownerLink;
+        
+        // Get comments text
+      if (commentsMeta) {
+        const commentsText = commentsMeta.textContent.trim();
+          document.getElementById('flyoutComments').textContent = commentsText.includes('new') ? commentsText : commentsText;
+      } else {
+          document.getElementById('flyoutComments').textContent = '0 New';
+        }
+      }
+      
+      // Open flyout
+      flyout.classList.add('open');
+    }
+
+    function closeFlyout() {
+      const flyout = document.getElementById('flyoutPanel');
+      flyout.classList.remove('open');
+      
+      if (selectedRow) {
+        selectedRow.classList.remove('selected');
+        selectedRow = null;
+      }
+      currentSevData = null;
+    }
+
+    function openFullSev() {
+      // Navigate to the full SEV view
+      window.location.href = 'index.html';
+    }
+
+    // Opsmate Panel functions (slide from right, pushes content)
+    function openOpsmate() {
+      const panel = document.getElementById('opsmatePanel');
+      const mainContent = document.querySelector('.main-content');
+      const iframe = document.getElementById('opsmatePanelFrame');
+      
+      // Toggle panel
+      const isOpen = panel.classList.contains('open');
+      if (isOpen) {
+        panel.classList.remove('open');
+        if (mainContent) mainContent.classList.remove('panel-open');
+        // Clear iframe src after animation
+        setTimeout(() => {
+          iframe.src = '';
+        }, 300);
+      } else {
+        iframe.src = './opsmate/dist/index.html?chatOnly=true';
+        panel.classList.add('open');
+        if (mainContent) mainContent.classList.add('panel-open');
+      }
+    }
+
+    function closeOpsmatePanel() {
+      const panel = document.getElementById('opsmatePanel');
+      const mainContent = document.querySelector('.main-content');
+      const iframe = document.getElementById('opsmatePanelFrame');
+      panel.classList.remove('open');
+      if (mainContent) mainContent.classList.remove('panel-open');
+      // Clear iframe src after animation
+      setTimeout(() => {
+        iframe.src = '';
+      }, 300);
+    }
+
+    // Listen for close message from iframe
+    window.addEventListener('message', (event) => {
+      if (event.data === 'closeOpsmate') {
+        closeOpsmatePanel();
+      }
+    });
+
+    // Close panel on Escape key
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        const panel = document.getElementById('opsmatePanel');
+        if (panel && panel.classList.contains('open')) {
+          closeOpsmatePanel();
+        }
+      }
+    });
+
+    // Initialize LeftNav with Feed as active page
+    document.addEventListener('DOMContentLoaded', function() {
+      LeftNav.activePage = 'Feed';
+      LeftNav.render('mainNavContainer');
+      
+      // Add click handlers to all table rows
+      const tableRows = document.querySelectorAll('.feed-table tbody tr');
+      tableRows.forEach(row => {
+        row.addEventListener('click', function(e) {
+          // Don't trigger flyout if clicking on buttons
+          if (e.target.closest('button') || e.target.closest('a')) {
+            return;
+          }
+          openFlyout(this);
+        });
+      });
+    });
+  </script>
+
+  <!-- Opsmate Panel (Slide from Right) -->
+  <div class="opsmate-panel-overlay" id="opsmatePanelOverlay" onclick="closeOpsmatePanel()"></div>
+  <div class="opsmate-panel" id="opsmatePanel">
+    <iframe id="opsmatePanelFrame" src="" frameborder="0"></iframe>
+  </div>
+</body>
+</html>

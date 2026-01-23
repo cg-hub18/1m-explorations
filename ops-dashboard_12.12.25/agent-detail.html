@@ -31,7 +31,7 @@
     :root {
       --font-header: 'Optimistic', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
       --font-body: 'SF Pro', 'SF Pro Text', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      --sidebar-width: 240px;
+      --sidebar-width: 260px;
       --text-dark: #1c1e21;
       --text-muted: #65676b;
       --border-color: #e5e7eb;
@@ -45,6 +45,13 @@
       --chart-green: #31A24C;
       --chart-orange: #F5A623;
       --chart-purple: #8B5CF6;
+      /* New sidebar variables */
+      --sidebar-bg: #ffffff;
+      --text-primary: #111827;
+      --text-secondary: #4b5563;
+      --hover-bg: #f3f4f6;
+      --active-bg: rgba(59, 130, 246, 0.1);
+      --active-color: #3b82f6;
     }
 
     * {
@@ -73,41 +80,113 @@
       min-height: 100vh;
     }
 
-    /* Sidebar */
-    .sidebar {
+    /* NEW SIDEBAR STYLES */
+    .sidebar-new {
       width: var(--sidebar-width);
-      background: var(--bg-sidebar);
+      height: 100vh;
+      background: var(--sidebar-bg);
       border-right: 1px solid var(--border-color);
       display: flex;
       flex-direction: column;
+      padding: 16px;
       position: fixed;
-      height: 100vh;
+      left: 0;
+      top: 0;
       overflow-y: auto;
     }
 
-    .sidebar-header {
-      padding: 16px;
+    .sidebar-new-header {
+      margin-bottom: 20px;
+      padding-bottom: 16px;
       border-bottom: 1px solid var(--border-color);
     }
 
-    .logo {
+    .sidebar-new-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .sidebar-new-logo svg { flex-shrink: 0; }
+    .sidebar-new-title { font-size: 18px; font-weight: 600; color: var(--text-primary); }
+
+    .sidebar-new-create {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      padding: 10px 16px;
+      background: linear-gradient(135deg, #222AEC 0%, #3C7CF1 100%);
+      border: none;
+      border-radius: 8px;
+      color: white;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      margin-bottom: 12px;
+    }
+    .sidebar-new-create:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(34, 42, 236, 0.3); }
+    .sidebar-new-create svg { width: 16px; height: 16px; }
+
+    .sidebar-new-search {
       display: flex;
       align-items: center;
       gap: 8px;
+      padding: 8px 12px;
+      background: #f5f5f5;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      margin-bottom: 16px;
+    }
+    .sidebar-new-search svg { width: 16px; height: 16px; color: var(--text-muted); flex-shrink: 0; }
+    .sidebar-new-search input { flex: 1; border: none; background: transparent; font-size: 14px; color: var(--text-primary); outline: none; }
+    .sidebar-new-search input::placeholder { color: var(--text-muted); }
+
+    .sidebar-new-section { margin-bottom: 8px; }
+    .sidebar-new-section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      padding: 8px 12px;
+      background: transparent;
+      border: none;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      cursor: pointer;
+      border-radius: 6px;
+      transition: background 0.15s ease;
+    }
+    .sidebar-new-section-header:hover { background: var(--hover-bg); }
+    .sidebar-new-section-header svg { width: 16px; height: 16px; }
+
+    .sidebar-new-nav { display: flex; flex-direction: column; gap: 2px; }
+    .sidebar-new-nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 8px;
+      color: var(--text-secondary);
       text-decoration: none;
-      color: var(--text-dark);
+      font-size: 14px;
+      font-weight: 450;
+      transition: all 0.15s ease;
     }
+    .sidebar-new-nav-item:hover { background: var(--hover-bg); color: var(--text-primary); }
+    .sidebar-new-nav-item.active { background: var(--active-bg); color: var(--active-color); }
+    .sidebar-new-nav-item svg { width: 20px; height: 20px; flex-shrink: 0; }
+    .sidebar-new-nav-item .chevron { width: 16px; height: 16px; margin-left: auto; color: var(--text-muted); }
+    .sidebar-new-divider { height: 1px; background: var(--border-color); margin: 12px 0; }
+    .sidebar-new-nav.expandable .sidebar-new-nav-item span { flex: 1; }
 
-    .logo-icon {
-      width: 24px;
-      height: auto;
-    }
-
-    .logo-wordmark {
-      font-family: var(--font-header);
-      font-size: 22px;
-      font-weight: 700;
-    }
+    /* OLD SIDEBAR (hidden) */
+    .sidebar-old { display: none; }
 
     /* Create Button */
     .create-btn {
@@ -1280,211 +1359,83 @@
   </svg>
 
   <div class="app-container">
-    <!-- Sidebar -->
-    <aside class="sidebar">
-      <div class="sidebar-header">
-        <a href="index.html" class="logo">
-          <img src="images/1Micon.png" alt="1M" class="logo-icon">
-          <span class="logo-wordmark">OneMonitoring</span>
+    <!-- NEW SIDEBAR -->
+    <nav class="sidebar-new">
+      <div class="sidebar-new-header">
+        <a href="index.html" class="sidebar-new-logo">
+          <svg width="32" height="25" viewBox="0 0 73 57" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M72.186 51.1272C72.1736 53.2786 70.4189 55.0136 68.2676 55.0026C66.1153 54.991 64.3775 53.2364 64.3889 51.0842L72.186 51.1272ZM38.9722 49.4096C38.9722 51.5244 37.9538 53.3139 36.7714 54.4963C35.5892 55.6781 33.8019 56.6968 31.6881 56.6971H7.28743C2.85296 56.697 0 52.9988 0 49.4096V44.5216C0 42.6195 0.653047 40.7314 2.07503 39.3092C3.4973 37.8869 5.38518 37.2342 7.28743 37.2341H7.37348L7.66471 21.4513H7.53564C3.10105 21.4513 0.24821 17.7531 0.24821 14.1639V12.1319C0.24821 8.62572 2.46487 5.08602 5.74523 3.77216L5.74854 3.76885C5.76119 3.76364 5.7869 3.75369 5.82134 3.73907C5.89055 3.70968 6.00052 3.66121 6.14236 3.59676C6.42935 3.46632 6.8386 3.27125 7.29736 3.02422C8.27229 2.49921 9.24118 1.86467 9.8622 1.24373L10.1567 0.975668C11.6875 -0.273454 13.9454 -0.183336 15.3724 1.24373C16.8942 2.76571 16.8943 5.23209 15.3724 6.75399C13.9604 8.16601 12.2182 9.22714 10.9907 9.88805C10.3485 10.2338 9.78088 10.5051 9.36909 10.6922C9.16319 10.7858 8.99302 10.8581 8.86936 10.9107C8.80737 10.937 8.75506 10.9612 8.71712 10.9769C8.69904 10.9843 8.68299 10.9885 8.67079 10.9934C8.66494 10.9958 8.65866 10.9982 8.65424 11L8.64762 11.0033L8.64431 11.0066C8.6152 11.0259 8.4665 11.1236 8.30344 11.374C8.11148 11.6693 8.04199 11.9594 8.04199 12.1319V13.6575H8.21077C11.6797 13.6575 15.4717 16.3006 15.4717 20.8457C15.4717 20.8697 15.4722 20.8945 15.4717 20.9185L15.1573 37.8629L15.154 37.8596C15.129 40.1366 13.8817 41.9223 12.6785 42.9992C11.4834 44.0686 9.75188 44.9677 7.79709 45.018V48.9033H31.1784V45.0014C27.0626 44.7443 24.9344 41.3929 24.6753 38.4057L24.6489 37.7901V5.35409C24.6489 4.73218 24.7012 3.93382 24.96 3.14006C25.165 2.51143 25.8844 0.755852 27.9418 0.168159C30.0295 -0.427717 31.5792 0.719272 32.1051 1.17754C32.7364 1.72795 33.2087 2.39686 33.5546 2.96796L48.5399 27.2131L63.5251 2.96796C63.8709 2.39709 64.3404 1.72772 64.9714 1.17754C65.4965 0.719697 67.0486 -0.428646 69.138 0.168159C71.1952 0.755913 71.9115 2.51145 72.1165 3.14006C72.3754 3.93402 72.4309 4.73202 72.4309 5.35409V5.37394L72.186 51.1272L64.3889 51.0842L64.5775 16.0867L53.5504 33.9346L53.5471 33.9313C52.7411 35.256 51.1239 37.0518 48.5399 37.0521C45.9565 37.0521 44.3357 35.2592 43.5294 33.9346L32.4427 15.994V37.2672C34.0824 37.4189 35.6669 38.0755 36.9005 39.3092C38.3222 40.7314 38.9722 42.6196 38.9722 44.5216V49.4096Z" fill="url(#paint0_linear_sidebar_detail)"/>
+            <defs>
+              <linearGradient id="paint0_linear_sidebar_detail" x1="4.93846" y1="52.8314" x2="51.527" y2="-5.07724" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#222AEC"/>
+                <stop offset="1" stop-color="#3C7CF1"/>
+              </linearGradient>
+            </defs>
+          </svg>
+          <span class="sidebar-new-title">OneMonitoring</span>
         </a>
       </div>
-
-      <button class="create-btn">
-        <svg class="icon"><use href="#icon-plus"></use></svg>
+      <button class="sidebar-new-create">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
         Create
       </button>
-
-      <div class="search-container">
-        <div class="search-box">
-          <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="11" cy="11" r="8"></circle>
-            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-          </svg>
-          <input type="text" placeholder="Discover" id="searchInput">
-          <button class="search-clear-btn" id="searchClearBtn">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <line x1="18" y1="6" x2="6" y2="18"></line>
-              <line x1="6" y1="6" x2="18" y2="18"></line>
-            </svg>
-          </button>
-
-          <!-- Search Popover -->
-          <div class="search-popover" id="searchPopover">
-            <!-- Default Content -->
-            <div id="defaultPopoverContent">
-              <!-- Discover Links -->
-              <div class="popover-section">
-                <a href="agents.html" class="popover-link">
-                  <svg class="icon popover-icon"><use href="#icon-star-ai-outline"></use></svg>
-                  <span>Agents</span>
-                  <svg class="external-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-                </a>
-                <a href="#" class="popover-link">
-                  <svg class="popover-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
-                  <span>MCP Tools</span>
-                  <svg class="external-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-                </a>
-                <a href="#" class="popover-link">
-                  <svg class="popover-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
-                  <span>Mobile Apps</span>
-                  <svg class="external-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-                </a>
-                <a href="#" class="popover-link">
-                  <svg class="popover-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-                  <span>Comet Apps</span>
-                  <svg class="external-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-                </a>
-              </div>
-              <!-- Divider -->
-              <div class="popover-divider"></div>
-              <!-- Recent Section -->
-              <div class="popover-section">
-                <div class="popover-label">Recent</div>
-                <a href="#" class="popover-link">
-                  <svg class="icon popover-icon"><use href="#icon-star-ai-outline"></use></svg>
-                  <span>AI Assistant Agent</span>
-                </a>
-                <a href="#" class="popover-link">
-                  <svg class="popover-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
-                  <span>Data Processing Tool</span>
-                </a>
-                <a href="#" class="popover-link">
-                  <svg class="popover-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
-                  <span>iOS Mobile App</span>
-                </a>
-              </div>
-            </div>
-            <!-- Autocomplete Results -->
-            <div id="autocompleteResults" style="display: none;">
-              <div class="popover-label">Results</div>
-              <div id="autocompleteList"></div>
-            </div>
-          </div>
+      <div class="sidebar-new-search">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="16" y1="16" x2="21" y2="21"/></svg>
+        <input type="text" placeholder="Discover" />
+      </div>
+      <div class="sidebar-new-section">
+        <button class="sidebar-new-section-header">
+          <span>ROQ Metrics Oncall</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="sidebar-new-nav">
+          <a href="index.html" class="sidebar-new-nav-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            <span>Home</span>
+          </a>
+          <a href="agents.html" class="sidebar-new-nav-item active">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="5" cy="6" r="2"/><circle cx="19" cy="6" r="2"/><circle cx="12" cy="18" r="2"/><path d="M5 8v2a4 4 0 0 0 4 4h6a4 4 0 0 0 4-4V8"/><line x1="12" y1="14" x2="12" y2="16"/></svg>
+            <span>Agents</span>
+          </a>
+          <a href="#" class="sidebar-new-nav-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+            <span>Entities</span>
+          </a>
+          <a href="#" class="sidebar-new-nav-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+            <span>Metrics</span>
+          </a>
         </div>
       </div>
-
-      <nav class="nav-section">
-        <!-- ROQ Metrics Oncall Accordion -->
-        <div class="nav-accordion">
-          <button class="accordion-trigger primary expanded">
-            <span>ROQ Metrics Oncall</span>
-            <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
-          </button>
-          <div class="accordion-content open">
-            <a href="index.html" class="nav-item">
-              <span class="nav-icon">
-                <svg class="icon icon-outline"><use href="#icon-house-outline"></use></svg>
-                <svg class="icon icon-filled"><use href="#icon-house-filled"></use></svg>
-              </span>
-              <span>Home</span>
-            </a>
-            <a href="agents.html" class="nav-item active">
-              <span class="nav-icon">
-                <svg class="icon icon-outline"><use href="#icon-star-ai-outline"></use></svg>
-                <svg class="icon icon-filled"><use href="#icon-star-ai-filled"></use></svg>
-              </span>
-              <span>Agents</span>
-            </a>
-            <a href="#" class="nav-item">
-              <span class="nav-icon">
-                <svg class="icon icon-outline"><use href="#icon-circles-outline"></use></svg>
-                <svg class="icon icon-filled"><use href="#icon-circles-filled"></use></svg>
-              </span>
-              <span>Entities</span>
-            </a>
-            <a href="#" class="nav-item">
-              <span class="nav-icon">
-                <svg class="icon icon-outline"><use href="#icon-dots-lines-outline"></use></svg>
-                <svg class="icon icon-filled"><use href="#icon-dots-lines-filled"></use></svg>
-              </span>
-              <span>Metrics</span>
-            </a>
-          </div>
-        </div>
-
-        <div class="nav-divider"></div>
-
-        <!-- Detection Accordion -->
-        <div class="nav-accordion">
-          <button class="accordion-trigger">
-            <span class="nav-icon">
-              <svg class="icon icon-outline"><use href="#icon-target-outline"></use></svg>
-              <svg class="icon icon-filled"><use href="#icon-target-filled"></use></svg>
-            </span>
-            <span>Detection</span>
-            <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
-          </button>
-          <div class="accordion-content">
-            <a href="#" class="nav-item"><span>Alerts</span></a>
-            <a href="#" class="nav-item"><span>Anomalies</span></a>
-          </div>
-        </div>
-
-        <!-- Prevention Accordion -->
-        <div class="nav-accordion">
-          <button class="accordion-trigger">
-            <span class="nav-icon">
-              <svg class="icon icon-outline"><use href="#icon-shield-outline"></use></svg>
-              <svg class="icon icon-filled"><use href="#icon-shield-filled"></use></svg>
-            </span>
-            <span>Prevention</span>
-            <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
-          </button>
-          <div class="accordion-content">
-            <a href="#" class="nav-item"><span>Protections</span></a>
-            <a href="#" class="nav-item"><span>Rules</span></a>
-          </div>
-        </div>
-
-        <!-- SEV Criteria Accordion -->
-        <div class="nav-accordion">
-          <button class="accordion-trigger">
-            <span class="nav-icon">
-              <svg class="icon icon-outline"><use href="#icon-flame-outline"></use></svg>
-              <svg class="icon icon-filled"><use href="#icon-flame-filled"></use></svg>
-            </span>
-            <span>SEV Criteria</span>
-            <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
-          </button>
-          <div class="accordion-content">
-            <a href="#" class="nav-item"><span>Thresholds</span></a>
-            <a href="#" class="nav-item"><span>Escalations</span></a>
-          </div>
-        </div>
-
-        <!-- SLIs / SLOs Accordion -->
-        <div class="nav-accordion">
-          <button class="accordion-trigger">
-            <span class="nav-icon">
-              <svg class="icon icon-outline"><use href="#icon-chart-outline"></use></svg>
-              <svg class="icon icon-filled"><use href="#icon-chart-filled"></use></svg>
-            </span>
-            <span>SLIs / SLOs (SLICK)</span>
-            <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
-          </button>
-          <div class="accordion-content">
-            <a href="#" class="nav-item"><span>Indicators</span></a>
-            <a href="#" class="nav-item"><span>Objectives</span></a>
-          </div>
-        </div>
-
-        <!-- Data Exploration Accordion -->
-        <div class="nav-accordion">
-          <button class="accordion-trigger">
-            <span class="nav-icon">
-              <svg class="icon icon-outline"><use href="#icon-chart-outline"></use></svg>
-              <svg class="icon icon-filled"><use href="#icon-chart-filled"></use></svg>
-            </span>
-            <span>Data Exploration</span>
-            <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
-          </button>
-          <div class="accordion-content">
-            <a href="#" class="nav-item"><span>Queries</span></a>
-            <a href="#" class="nav-item"><span>Dashboards</span></a>
-          </div>
-        </div>
-      </nav>
-    </aside>
+      <div class="sidebar-new-divider"></div>
+      <div class="sidebar-new-nav expandable">
+        <a href="#" class="sidebar-new-nav-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v6m0 6v10"/><path d="M21 12h-6m-6 0H1"/></svg>
+          <span>Detection</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+        </a>
+        <a href="#" class="sidebar-new-nav-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          <span>Prevention</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+        </a>
+        <a href="#" class="sidebar-new-nav-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C8.5 6 4 9.5 4 14C4 18.4183 7.58172 22 12 22C16.4183 22 20 18.4183 20 14C20 9.5 15.5 6 12 2Z"/></svg>
+          <span>SEV Criteria</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+        </a>
+        <a href="#" class="sidebar-new-nav-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><polyline points="9 14 12 17 22 7"/></svg>
+          <span>SLIs / SLOs (SLICK)</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+        </a>
+        <a href="#" class="sidebar-new-nav-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
+          <span>Data Exploration</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+        </a>
+      </div>
+    </nav>
 
     <!-- Main Content -->
     <main class="content-area">

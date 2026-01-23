@@ -1,0 +1,1218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>T251794084: Configure error rate alerting for payment service</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg?v=2">
+  <link rel="stylesheet" href="styles.css?v=58">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5.6.0/dist/echarts.min.js"></script>
+  <style>
+    /* Protection Page Styles */
+    .protection-page {
+      padding: 24px 32px;
+      width: 100%;
+    }
+
+    .protection-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 24px;
+    }
+
+    .protection-header-left {
+      flex: 1;
+    }
+
+    .protection-title-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+
+    .protection-title {
+      font-size: 20px;
+      font-weight: 600;
+      color: #1a1a1a;
+      margin: 0;
+    }
+
+    .protection-badge {
+      padding: 4px 12px;
+      border-radius: 16px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .protection-badge.deployed {
+      background: #e6f4e9;
+      color: #0D8626;
+      border: 1px solid #7cbc86;
+    }
+
+    .protection-badge.closed {
+      background: #374151;
+      color: white;
+      border: 1px solid #4b5563;
+    }
+
+    .protection-owner {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: #6b7280;
+    }
+
+    .protection-avatar {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+
+    .protection-owner-name {
+      font-weight: 500;
+      color: #374151;
+    }
+
+    .protection-header-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .protection-icon-btn {
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: white;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      color: #374151;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .protection-icon-btn:hover {
+      background: #f9fafb;
+      border-color: #d1d5db;
+    }
+
+    .protection-deployed-btn {
+      padding: 8px 20px;
+      background: #0D8626;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: default;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* Tabs */
+    .protection-tabs {
+      display: flex;
+      gap: 4px;
+      margin-bottom: 24px;
+      border-bottom: 1px solid #e5e7eb;
+      padding-bottom: 0;
+    }
+
+    .protection-tab {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 10px 16px;
+      background: transparent;
+      border: none;
+      border-bottom: 2px solid transparent;
+      font-size: 14px;
+      font-weight: 500;
+      color: #6b7280;
+      cursor: pointer;
+      transition: all 0.15s;
+      margin-bottom: -1px;
+    }
+
+    .protection-tab:hover {
+      color: #374151;
+    }
+
+    .protection-tab.active {
+      color: #0D8626;
+      border-bottom-color: #0D8626;
+    }
+
+    /* Cards */
+    .protection-card {
+      background: white;
+      border: 1px solid #e5e7eb;
+      border-radius: 12px;
+      padding: 20px 24px;
+      margin-bottom: 16px;
+    }
+
+    .protection-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .protection-card-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: #1a1a1a;
+      margin: 0 0 16px 0;
+    }
+
+    .protection-card-header .protection-card-title {
+      margin: 0;
+    }
+
+    .protection-edit-btn {
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: transparent;
+      border: none;
+      border-radius: 6px;
+      color: #9ca3af;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .protection-edit-btn:hover {
+      background: #f3f4f6;
+      color: #374151;
+    }
+
+    /* Stats */
+    .protection-stats {
+      display: flex;
+      align-items: stretch;
+    }
+
+    .protection-stat {
+      flex: 1;
+      padding: 0 20px;
+    }
+
+    .protection-stat:first-child {
+      padding-left: 0;
+    }
+
+    .protection-stat:last-child {
+      padding-right: 0;
+    }
+
+    .protection-stat-divider {
+      width: 1px;
+      background: #e5e7eb;
+    }
+
+    .protection-stat-label {
+      font-size: 13px;
+      font-weight: 500;
+      color: #374151;
+      margin-bottom: 2px;
+    }
+
+    .protection-stat-sublabel {
+      font-size: 12px;
+      color: #9ca3af;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .ai-sparkle {
+      color: #0D8626;
+    }
+
+    .protection-stat-value {
+      font-size: 24px;
+      font-weight: 600;
+    }
+
+    .protection-stat-value.negative {
+      color: #ef4444;
+    }
+
+    .protection-stat-value.positive {
+      color: #0D8626;
+    }
+
+    .protection-stat-value.neutral {
+      color: #374151;
+    }
+
+    .arrow-down, .arrow-up {
+      font-size: 18px;
+    }
+
+    /* View Toggle */
+    .protection-view-toggle {
+      display: flex;
+      background: #f3f4f6;
+      border-radius: 8px;
+      padding: 4px;
+    }
+
+    .protection-view-btn {
+      padding: 6px 16px;
+      background: transparent;
+      border: none;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 500;
+      color: #6b7280;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .protection-view-btn.active {
+      background: #0D8626;
+      color: white;
+    }
+
+    .protection-view-btn:not(.active):hover {
+      color: #374151;
+    }
+
+    /* Chart */
+    .protection-chart {
+      height: 280px;
+      margin-bottom: 16px;
+    }
+
+    /* Legend */
+    .protection-chart-legend {
+      display: flex;
+      justify-content: center;
+      gap: 32px;
+      padding-top: 8px;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: #6b7280;
+    }
+
+    .legend-color {
+      width: 3px;
+      height: 16px;
+      border-radius: 2px;
+    }
+
+    .legend-color.green {
+      background: #0D8626;
+    }
+
+    .legend-color.blue {
+      background: #3b82f6;
+    }
+
+    .legend-color.orange {
+      background: #f59e0b;
+    }
+
+    .legend-color.red {
+      background: #ef4444;
+    }
+
+    .legend-color.gray {
+      background: #9ca3af;
+    }
+
+    /* Impact Section */
+    .impact-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+
+    .impact-item {
+      background: #f9fafb;
+      border-radius: 8px;
+      padding: 16px;
+      text-align: center;
+    }
+
+    .impact-item-value {
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .impact-item-value.positive {
+      color: #0D8626;
+    }
+
+    .impact-item-value.neutral {
+      color: #374151;
+    }
+
+    .impact-item-label {
+      font-size: 12px;
+      color: #6b7280;
+    }
+
+    /* Thresholds */
+    .protection-threshold-text {
+      font-size: 14px;
+      color: #374151;
+      line-height: 1.6;
+      margin: 0;
+    }
+
+    .protection-threshold-text strong {
+      color: #1a1a1a;
+    }
+
+    .protection-threshold-text .highlight {
+      color: #0D8626;
+    }
+
+    /* Task Settings */
+    .protection-settings-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 24px;
+    }
+
+    .protection-setting {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .protection-setting-label {
+      font-size: 12px;
+      color: #9ca3af;
+    }
+
+    .protection-setting-value {
+      font-size: 14px;
+      font-weight: 500;
+      color: #374151;
+    }
+
+    /* Alert Config Table */
+    .alert-config-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .alert-config-table th,
+    .alert-config-table td {
+      padding: 12px 16px;
+      text-align: left;
+      font-size: 13px;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    .alert-config-table th {
+      color: #6b7280;
+      font-weight: 500;
+      background: #f9fafb;
+    }
+
+    .alert-config-table td {
+      color: #374151;
+    }
+
+    .alert-config-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .severity-badge {
+      display: inline-flex;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .severity-badge.warning {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .severity-badge.critical {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    /* Success Banner */
+    .success-banner {
+      background: linear-gradient(135deg, #e6f4e9 0%, #c8e6cc 100%);
+      border: 1px solid #7cbc86;
+      border-radius: 12px;
+      padding: 20px 24px;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .success-banner-icon {
+      width: 48px;
+      height: 48px;
+      background: #0D8626;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      flex-shrink: 0;
+    }
+
+    .success-banner-content {
+      flex: 1;
+    }
+
+    .success-banner-title {
+      font-weight: 600;
+      font-size: 16px;
+      color: #0D8626;
+      margin-bottom: 4px;
+    }
+
+    .success-banner-text {
+      font-size: 14px;
+      color: #0A6B1E;
+      line-height: 1.5;
+    }
+
+    /* Incident Timeline */
+    .incident-timeline {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .incident-item {
+      display: flex;
+      gap: 16px;
+      padding: 16px;
+      background: #f9fafb;
+      border-radius: 8px;
+      align-items: flex-start;
+    }
+
+    .incident-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .incident-icon.detected {
+      background: #0D8626;
+      color: white;
+    }
+
+    .incident-icon.resolved {
+      background: #3b82f6;
+      color: white;
+    }
+
+    .incident-content {
+      flex: 1;
+    }
+
+    .incident-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 4px;
+    }
+
+    .incident-title {
+      font-weight: 600;
+      font-size: 14px;
+      color: #1a1a1a;
+    }
+
+    .incident-time {
+      font-size: 12px;
+      color: #9ca3af;
+    }
+
+    .incident-description {
+      font-size: 13px;
+      color: #6b7280;
+      line-height: 1.4;
+    }
+
+    .incident-meta {
+      display: flex;
+      gap: 16px;
+      margin-top: 8px;
+      font-size: 12px;
+    }
+
+    .incident-meta-item {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      color: #0D8626;
+    }
+  </style>
+</head>
+<body>
+  <!-- NEW SIDEBAR -->
+  <nav class="sidebar-new">
+    <!-- Logo -->
+    <div class="sidebar-new-header">
+      <a href="index.html" class="sidebar-new-logo">
+        <svg width="32" height="25" viewBox="0 0 73 57" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M72.186 51.1272C72.1736 53.2786 70.4189 55.0136 68.2676 55.0026C66.1153 54.991 64.3775 53.2364 64.3889 51.0842L72.186 51.1272ZM38.9722 49.4096C38.9722 51.5244 37.9538 53.3139 36.7714 54.4963C35.5892 55.6781 33.8019 56.6968 31.6881 56.6971H7.28743C2.85296 56.697 0 52.9988 0 49.4096V44.5216C0 42.6195 0.653047 40.7314 2.07503 39.3092C3.4973 37.8869 5.38518 37.2342 7.28743 37.2341H7.37348L7.66471 21.4513H7.53564C3.10105 21.4513 0.24821 17.7531 0.24821 14.1639V12.1319C0.24821 8.62572 2.46487 5.08602 5.74523 3.77216L5.74854 3.76885C5.76119 3.76364 5.7869 3.75369 5.82134 3.73907C5.89055 3.70968 6.00052 3.66121 6.14236 3.59676C6.42935 3.46632 6.8386 3.27125 7.29736 3.02422C8.27229 2.49921 9.24118 1.86467 9.8622 1.24373L10.1567 0.975668C11.6875 -0.273454 13.9454 -0.183336 15.3724 1.24373C16.8942 2.76571 16.8943 5.23209 15.3724 6.75399C13.9604 8.16601 12.2182 9.22714 10.9907 9.88805C10.3485 10.2338 9.78088 10.5051 9.36909 10.6922C9.16319 10.7858 8.99302 10.8581 8.86936 10.9107C8.80737 10.937 8.75506 10.9612 8.71712 10.9769C8.69904 10.9843 8.68299 10.9885 8.67079 10.9934C8.66494 10.9958 8.65866 10.9982 8.65424 11L8.64762 11.0033L8.64431 11.0066C8.6152 11.0259 8.4665 11.1236 8.30344 11.374C8.11148 11.6693 8.04199 11.9594 8.04199 12.1319V13.6575H8.21077C11.6797 13.6575 15.4717 16.3006 15.4717 20.8457C15.4717 20.8697 15.4722 20.8945 15.4717 20.9185L15.1573 37.8629L15.154 37.8596C15.129 40.1366 13.8817 41.9223 12.6785 42.9992C11.4834 44.0686 9.75188 44.9677 7.79709 45.018V48.9033H31.1784V45.0014C27.0626 44.7443 24.9344 41.3929 24.6753 38.4057L24.6489 37.7901V5.35409C24.6489 4.73218 24.7012 3.93382 24.96 3.14006C25.165 2.51143 25.8844 0.755852 27.9418 0.168159C30.0295 -0.427717 31.5792 0.719272 32.1051 1.17754C32.7364 1.72795 33.2087 2.39686 33.5546 2.96796L48.5399 27.2131L63.5251 2.96796C63.8709 2.39709 64.3404 1.72772 64.9714 1.17754C65.4965 0.719697 67.0486 -0.428646 69.138 0.168159C71.1952 0.755913 71.9115 2.51145 72.1165 3.14006C72.3754 3.93402 72.4309 4.73202 72.4309 5.35409V5.37394L72.186 51.1272L64.3889 51.0842L64.5775 16.0867L53.5504 33.9346L53.5471 33.9313C52.7411 35.256 51.1239 37.0518 48.5399 37.0521C45.9565 37.0521 44.3357 35.2592 43.5294 33.9346L32.4427 15.994V37.2672C34.0824 37.4189 35.6669 38.0755 36.9005 39.3092C38.3222 40.7314 38.9722 42.6196 38.9722 44.5216V49.4096Z" fill="url(#paint0_linear_sidebar)"/>
+          <defs>
+            <linearGradient id="paint0_linear_sidebar" x1="4.93846" y1="52.8314" x2="51.527" y2="-5.07724" gradientUnits="userSpaceOnUse">
+              <stop stop-color="#222AEC"/>
+              <stop offset="1" stop-color="#3C7CF1"/>
+            </linearGradient>
+          </defs>
+        </svg>
+        <span class="sidebar-new-title">OneMonitoring</span>
+      </a>
+    </div>
+
+    <!-- Create Button -->
+    <button class="sidebar-new-create">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="12" y1="5" x2="12" y2="19"></line>
+        <line x1="5" y1="12" x2="19" y2="12"></line>
+      </svg>
+      Create
+    </button>
+
+    <!-- Search -->
+    <div class="sidebar-new-search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="11" cy="11" r="7"/>
+        <line x1="16" y1="16" x2="21" y2="21"/>
+      </svg>
+      <input type="text" placeholder="Discover" />
+    </div>
+
+    <!-- Team Section -->
+    <div class="sidebar-new-section">
+      <button class="sidebar-new-section-header">
+        <span>ROQ Metrics Oncall</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="6 9 12 15 18 9"/>
+        </svg>
+      </button>
+      
+      <div class="sidebar-new-nav">
+        <a href="index.html" class="sidebar-new-nav-item">
+          <svg viewBox="0 0 24 24" fill="currentColor">
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+            <polyline points="9 22 9 12 15 12 15 22" fill="none" stroke="currentColor" stroke-width="2"/>
+          </svg>
+          <span>Home</span>
+        </a>
+        <a href="#" class="sidebar-new-nav-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="5" cy="6" r="2"/>
+            <circle cx="19" cy="6" r="2"/>
+            <circle cx="12" cy="18" r="2"/>
+            <path d="M5 8v2a4 4 0 0 0 4 4h6a4 4 0 0 0 4-4V8"/>
+            <line x1="12" y1="14" x2="12" y2="16"/>
+          </svg>
+          <span>Agents</span>
+        </a>
+        <a href="#" class="sidebar-new-nav-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/>
+            <circle cx="12" cy="12" r="6"/>
+            <circle cx="12" cy="12" r="2"/>
+          </svg>
+          <span>Entities</span>
+        </a>
+        <a href="#" class="sidebar-new-nav-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+          </svg>
+          <span>Metrics</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Divider -->
+    <div class="sidebar-new-divider"></div>
+
+    <!-- Expandable Sections -->
+    <div class="sidebar-new-nav expandable">
+      <a href="#" class="sidebar-new-nav-item active">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="3"/>
+          <path d="M12 1v6m0 6v10"/>
+          <path d="M21 12h-6m-6 0H1"/>
+        </svg>
+        <span>Detection</span>
+        <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="9 18 15 12 9 6"/>
+        </svg>
+      </a>
+      <a href="#" class="sidebar-new-nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          <line x1="12" y1="8" x2="12" y2="12"/>
+          <line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+        <span>Prevention</span>
+        <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="9 18 15 12 9 6"/>
+        </svg>
+      </a>
+      <a href="#" class="sidebar-new-nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 2C8.5 6 4 9.5 4 14C4 18.4183 7.58172 22 12 22C16.4183 22 20 18.4183 20 14C20 9.5 15.5 6 12 2Z"/>
+        </svg>
+        <span>SEV Criteria</span>
+        <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="9 18 15 12 9 6"/>
+        </svg>
+      </a>
+      <a href="#" class="sidebar-new-nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+          <polyline points="9 14 12 17 22 7"/>
+        </svg>
+        <span>SLIs / SLOs (SLICK)</span>
+        <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="9 18 15 12 9 6"/>
+        </svg>
+      </a>
+      <a href="#" class="sidebar-new-nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+          <line x1="3" y1="9" x2="21" y2="9"/>
+          <line x1="9" y1="21" x2="9" y2="9"/>
+        </svg>
+        <span>Data Exploration</span>
+        <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="9 18 15 12 9 6"/>
+        </svg>
+      </a>
+    </div>
+  </nav>
+
+  <main class="main-content">
+    <!-- Breadcrumb Navigation -->
+    <div class="sev-breadcrumb">
+      <a href="index.html" class="breadcrumb-link">Home</a>
+      <svg class="breadcrumb-separator" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+        <polyline points="9 18 15 12 9 6"/>
+      </svg>
+      <a href="#" class="breadcrumb-link">Detection</a>
+      <svg class="breadcrumb-separator" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+        <polyline points="9 18 15 12 9 6"/>
+      </svg>
+      <span class="breadcrumb-current">Payment Error Rate Alerting</span>
+      <button class="ask-opsmate-btn" onclick="openOpsmate()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path fill-rule="evenodd" clip-rule="evenodd" d="M10.0206 15.0256C10.3164 15.8619 11.1136 16.4613 12.0513 16.4615C12.9891 16.4613 13.7863 15.8619 14.0821 15.0256H15.1493C14.8242 16.4359 13.5606 17.4872 12.0514 17.4872C10.5427 17.4872 9.27906 16.4359 8.95341 15.0256H10.0206ZM12.0508 16.4615H12.0519C12.0517 16.4615 12.0515 16.4615 12.0513 16.4615C12.0512 16.4615 12.051 16.4615 12.0508 16.4615Z" fill="currentColor"/>
+          <path fill-rule="evenodd" clip-rule="evenodd" d="M8.12879 7.38461C9.61545 7.38462 10.8211 8.59026 10.8211 10.0769C10.8211 11.5636 9.61545 12.7692 8.12879 12.7692C6.64213 12.7692 5.43649 11.5636 5.43649 10.0769C5.43649 8.59026 6.64213 7.38461 8.12879 7.38461ZM8.12879 8.41026C7.20828 8.41026 6.46213 9.15641 6.46213 10.0769C6.46213 10.9974 7.20828 11.7436 8.12879 11.7436C9.0493 11.7436 9.79546 10.9974 9.79546 10.0769C9.79546 9.15641 9.0493 8.41026 8.12879 8.41026Z" fill="currentColor"/>
+          <path fill-rule="evenodd" clip-rule="evenodd" d="M15.8724 7.38461C17.359 7.38462 18.5647 8.59026 18.5647 10.0769C18.5647 11.5636 17.359 12.7692 15.8724 12.7692C14.3857 12.7692 13.1801 11.5636 13.1801 10.0769C13.1801 8.59026 14.3857 7.38461 15.8724 7.38461ZM15.8724 8.41026C14.9519 8.41026 14.2057 9.15641 14.2057 10.0769C14.2057 10.9974 14.9519 11.7436 15.8724 11.7436C16.7929 11.7436 17.5391 10.9974 17.5391 10.0769C17.5391 9.15641 16.7929 8.41026 15.8724 8.41026Z" fill="currentColor"/>
+          <path fill-rule="evenodd" clip-rule="evenodd" d="M14.6673 0C15.177 6.43207e-06 15.5903 0.413337 15.5903 0.923077V5.22922C15.9447 5.2087 16.2862 5.18513 16.616 5.16001V0.98152L18.7175 1.42874C20.2498 1.75489 21.3893 3.00361 21.6047 4.51848C21.6688 4.50617 21.7293 4.49385 21.7867 4.48257C22.019 4.43591 22.1944 4.39746 22.3103 4.37079C22.3683 4.35746 22.4114 4.34716 22.439 4.34049C22.4529 4.33742 22.4631 4.33487 22.4693 4.33333C22.4724 4.33282 22.4744 4.33178 22.4755 4.33178H22.476C22.8877 4.22614 23.3067 4.47435 23.4123 4.88562H23.4113C23.517 5.29741 23.2688 5.71642 22.8575 5.82206C22.8483 5.82463 22.8185 5.83178 22.8016 5.83589C22.7673 5.84409 22.718 5.85592 22.6534 5.87079C22.5247 5.90002 22.3354 5.94154 22.0888 5.99129C21.9442 6.02 21.7795 6.05179 21.5954 6.08564C21.6252 6.27487 21.6411 6.46923 21.6411 6.66667V17.7436C21.6411 19.7667 20.0139 21.4103 17.9965 21.4359H14.9744C14.7406 21.7472 14.3683 21.9487 13.9488 21.9487H10.0514C9.63189 21.9487 9.25958 21.7472 9.02573 21.4359H6.00364C3.98621 21.4108 2.35906 19.7672 2.35906 17.7441V6.66717C2.35906 6.46922 2.37494 6.27536 2.40469 6.08614C2.22058 6.05229 2.05596 6.02102 1.91135 5.99179C1.66469 5.94256 1.47597 5.90104 1.34674 5.87129C1.28213 5.85642 1.23287 5.84459 1.19851 5.83639C1.18158 5.83228 1.15184 5.82513 1.14262 5.82257C0.731345 5.71692 0.483149 5.29744 0.58878 4.88617C0.694421 4.47489 1.1139 4.2267 1.52518 4.33233H1.52573C1.52676 4.33235 1.5288 4.33332 1.53184 4.33383C1.53799 4.33537 1.54829 4.33746 1.56214 4.34105C1.58983 4.34771 1.63291 4.35796 1.69084 4.37129C1.80623 4.39796 1.98213 4.43641 2.21443 4.48307C2.27187 4.49487 2.33237 4.50667 2.39647 4.51898C2.61186 3.00411 3.75134 1.75539 5.28364 1.42924L7.3852 0.982071V5.16051C7.71494 5.18563 8.05649 5.20925 8.41085 5.22977V0.923077C8.41085 0.413333 8.82418 0 9.33392 0H14.6673ZM19.9411 6.35181C18.076 6.61233 15.3739 6.87179 12.0011 6.87179C8.62827 6.87179 5.9257 6.61284 4.06109 6.35181C4.01493 6.34515 3.96929 6.339 3.92417 6.33233C3.90673 6.44104 3.89803 6.55283 3.89803 6.66667V17.7436C3.89803 18.9333 4.86213 19.8974 6.05187 19.8974H9.02623C9.26008 19.5862 9.63239 19.3846 10.0519 19.3846H13.9493C14.3688 19.3846 14.7411 19.5862 14.9749 19.8974H17.9493C19.139 19.8974 20.1032 18.9333 20.1032 17.7436H20.1042V6.66667C20.1042 6.55283 20.0949 6.44155 20.078 6.33233C20.0329 6.339 19.9872 6.34515 19.9411 6.35181ZM10.616 1.4359C10.3611 1.4359 10.1544 1.64256 10.1544 1.89744V2.14874C10.1544 3.06155 10.5601 3.92771 11.2616 4.51232L11.7052 4.88206C11.7909 4.95333 11.896 4.98923 12.0006 4.98923C12.1052 4.98923 12.2103 4.95334 12.296 4.88206L12.7396 4.51232C13.4411 3.92771 13.8467 3.06206 13.8467 2.14874V1.89744C13.8467 1.64257 13.6401 1.4359 13.3852 1.4359H10.616Z" fill="currentColor"/>
+        </svg>
+        Ask Opsmate
+      </button>
+    </div>
+
+    <!-- Protection Page Content -->
+    <div class="protection-page">
+      <!-- Header Section -->
+      <div class="protection-header">
+        <div class="protection-header-left">
+          <div class="protection-title-row">
+            <h1 class="protection-title">Payment Service Error Rate Alerting</h1>
+            <span class="protection-badge deployed">Deployed</span>
+            <span class="protection-badge closed">Closed</span>
+          </div>
+          <div class="protection-owner">
+            <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face" alt="David Park" class="protection-avatar">
+            <span class="protection-owner-name">David Park</span>
+            <span class="protection-owner-meta">· Payments Team · Deployed Jan 15, 2026 · Configured by Opsmate</span>
+          </div>
+        </div>
+        <div class="protection-header-right">
+          <button class="protection-icon-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+            </svg>
+          </button>
+          <button class="protection-icon-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+            </svg>
+          </button>
+          <button class="protection-icon-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+              <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+            </svg>
+          </button>
+          <button class="protection-deployed-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+            Deployed
+          </button>
+          <button class="protection-icon-btn">
+            <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
+              <circle cx="12" cy="12" r="1.5"/>
+              <circle cx="19" cy="12" r="1.5"/>
+              <circle cx="5" cy="12" r="1.5"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Tab Navigation -->
+      <div class="protection-tabs">
+        <button class="protection-tab active">Summary</button>
+        <button class="protection-tab">Alert Config</button>
+        <button class="protection-tab">Activity Log</button>
+        <button class="protection-tab">
+          Settings
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+            <polyline points="6 9 12 15 18 9"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Success Banner -->
+      <div class="success-banner">
+        <div class="success-banner-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
+        </div>
+        <div class="success-banner-content">
+          <div class="success-banner-title">Successfully Deployed & Operational</div>
+          <div class="success-banner-text">Error rate alerting has been active for 6 days. 3 incidents detected and resolved before customer impact. Zero payment failures attributed to detection delays.</div>
+        </div>
+      </div>
+
+      <!-- Impact Summary Card -->
+      <div class="protection-card">
+        <h2 class="protection-card-title">Performance Since Deployment</h2>
+        <div class="impact-grid">
+          <div class="impact-item">
+            <div class="impact-item-value positive">3</div>
+            <div class="impact-item-label">Incidents detected</div>
+          </div>
+          <div class="impact-item">
+            <div class="impact-item-value positive">&lt;30s</div>
+            <div class="impact-item-label">Avg detection time</div>
+          </div>
+          <div class="impact-item">
+            <div class="impact-item-value positive">0</div>
+            <div class="impact-item-label">Customer-facing failures</div>
+          </div>
+          <div class="impact-item">
+            <div class="impact-item-value neutral">99.97%</div>
+            <div class="impact-item-label">Payment success rate</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Alert Configuration Card -->
+      <div class="protection-card">
+        <div class="protection-card-header">
+          <h2 class="protection-card-title">Alert Configuration</h2>
+          <button class="protection-edit-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+            </svg>
+          </button>
+        </div>
+        <table class="alert-config-table">
+          <thead>
+            <tr>
+              <th>Alert Name</th>
+              <th>Threshold</th>
+              <th>Severity</th>
+              <th>Window</th>
+              <th>Notification</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>payment_error_rate_warning</td>
+              <td>≥ 0.1%</td>
+              <td><span class="severity-badge warning">Warning</span></td>
+              <td>5 min</td>
+              <td>#payments-alerts</td>
+            </tr>
+            <tr>
+              <td>payment_error_rate_critical</td>
+              <td>≥ 0.5%</td>
+              <td><span class="severity-badge critical">Critical</span></td>
+              <td>2 min</td>
+              <td>PagerDuty + #payments-oncall</td>
+            </tr>
+            <tr>
+              <td>payment_latency_p99</td>
+              <td>≥ 3000ms</td>
+              <td><span class="severity-badge warning">Warning</span></td>
+              <td>5 min</td>
+              <td>#payments-alerts</td>
+            </tr>
+            <tr>
+              <td>payment_timeout_rate</td>
+              <td>≥ 0.05%</td>
+              <td><span class="severity-badge critical">Critical</span></td>
+              <td>3 min</td>
+              <td>PagerDuty + #payments-oncall</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Error Rate Chart Card -->
+      <div class="protection-card">
+        <div class="protection-card-header">
+          <h2 class="protection-card-title">Error Rate Monitoring (Last 7 Days)</h2>
+          <div class="protection-view-toggle">
+            <button class="protection-view-btn active">Chart view</button>
+            <button class="protection-view-btn">Raw data</button>
+          </div>
+        </div>
+
+        <!-- Chart Area -->
+        <div class="protection-chart" id="errorRateChart"></div>
+
+        <!-- Legend -->
+        <div class="protection-chart-legend">
+          <div class="legend-item">
+            <span class="legend-color green"></span>
+            Error Rate
+          </div>
+          <div class="legend-item">
+            <span class="legend-color orange"></span>
+            Warning Threshold (0.1%)
+          </div>
+          <div class="legend-item">
+            <span class="legend-color red"></span>
+            Critical Threshold (0.5%)
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Incidents Card -->
+      <div class="protection-card">
+        <h2 class="protection-card-title">Recent Incidents Detected</h2>
+        <div class="incident-timeline">
+          <div class="incident-item">
+            <div class="incident-icon detected">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+              </svg>
+            </div>
+            <div class="incident-content">
+              <div class="incident-header">
+                <span class="incident-title">Stripe API intermittent failures</span>
+                <span class="incident-time">Jan 19, 2026 · 14:32 UTC</span>
+              </div>
+              <div class="incident-description">Error rate spike to 0.23% detected. Alert fired within 18 seconds of first error. Traffic automatically rerouted to backup processor.</div>
+              <div class="incident-meta">
+                <span class="incident-meta-item">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><polyline points="20 6 9 17 4 12"/></svg>
+                  Auto-mitigated
+                </span>
+                <span class="incident-meta-item">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                  18s detection
+                </span>
+              </div>
+            </div>
+          </div>
+          <div class="incident-item">
+            <div class="incident-icon detected">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+              </svg>
+            </div>
+            <div class="incident-content">
+              <div class="incident-header">
+                <span class="incident-title">Database connection pool exhaustion</span>
+                <span class="incident-time">Jan 17, 2026 · 09:15 UTC</span>
+              </div>
+              <div class="incident-description">Error rate increased to 0.15% due to connection timeouts. Oncall paged immediately. Pool size increased and connections released.</div>
+              <div class="incident-meta">
+                <span class="incident-meta-item">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><polyline points="20 6 9 17 4 12"/></svg>
+                  Resolved in 4 min
+                </span>
+                <span class="incident-meta-item">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                  24s detection
+                </span>
+              </div>
+            </div>
+          </div>
+          <div class="incident-item">
+            <div class="incident-icon detected">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+              </svg>
+            </div>
+            <div class="incident-content">
+              <div class="incident-header">
+                <span class="incident-title">Invalid card token batch</span>
+                <span class="incident-time">Jan 16, 2026 · 22:48 UTC</span>
+              </div>
+              <div class="incident-description">Error rate briefly hit 0.11% due to expired card tokens. Warning alert triggered. Issue traced to token refresh job delay.</div>
+              <div class="incident-meta">
+                <span class="incident-meta-item">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><polyline points="20 6 9 17 4 12"/></svg>
+                  Self-resolved
+                </span>
+                <span class="incident-meta-item">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                  31s detection
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Task Settings Card -->
+      <div class="protection-card">
+        <div class="protection-card-header">
+          <h2 class="protection-card-title">Configuration Details</h2>
+          <button class="protection-edit-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+            </svg>
+          </button>
+        </div>
+        <div class="protection-settings-grid">
+          <div class="protection-setting">
+            <span class="protection-setting-label">Service</span>
+            <span class="protection-setting-value">payment-gateway</span>
+          </div>
+          <div class="protection-setting">
+            <span class="protection-setting-label">Metric source</span>
+            <span class="protection-setting-value">Prometheus + ODS</span>
+          </div>
+          <div class="protection-setting">
+            <span class="protection-setting-label">Owning team</span>
+            <span class="protection-setting-value">Payments Platform</span>
+          </div>
+          <div class="protection-setting">
+            <span class="protection-setting-label">Deployed</span>
+            <span class="protection-setting-value">Jan 15, 2026</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Opsmate Panel (Slide from Right) -->
+  <div class="opsmate-panel-overlay" id="opsmatePanelOverlay" onclick="closeOpsmatePanel()"></div>
+  <div class="opsmate-panel" id="opsmatePanel">
+    <iframe id="opsmatePanelFrame" src="" frameborder="0"></iframe>
+  </div>
+
+  <script>
+    // Opsmate Panel functions (slide from right, pushes content)
+    function openOpsmate() {
+      const panel = document.getElementById('opsmatePanel');
+      const mainContent = document.querySelector('.main-content');
+      const iframe = document.getElementById('opsmatePanelFrame');
+      
+      // Toggle panel
+      const isOpen = panel.classList.contains('open');
+      if (isOpen) {
+        panel.classList.remove('open');
+        if (mainContent) mainContent.classList.remove('panel-open');
+        // Clear iframe src after animation
+        setTimeout(() => {
+          iframe.src = '';
+        }, 300);
+      } else {
+        iframe.src = './opsmate/dist/index.html?chatOnly=true';
+        panel.classList.add('open');
+        if (mainContent) mainContent.classList.add('panel-open');
+      }
+    }
+
+    function closeOpsmatePanel() {
+      const panel = document.getElementById('opsmatePanel');
+      const mainContent = document.querySelector('.main-content');
+      const iframe = document.getElementById('opsmatePanelFrame');
+      panel.classList.remove('open');
+      if (mainContent) mainContent.classList.remove('panel-open');
+      // Clear iframe src after animation
+      setTimeout(() => {
+        iframe.src = '';
+      }, 300);
+    }
+
+    // Initialize chart
+    document.addEventListener('DOMContentLoaded', function() {
+      const chartDom = document.getElementById('errorRateChart');
+      if (chartDom) {
+        const myChart = echarts.init(chartDom);
+        
+        // Generate hourly time labels for 7 days
+        const times = [];
+        const errorRateData = [];
+        
+        for (let d = 0; d < 7; d++) {
+          for (let h = 0; h < 24; h++) {
+            const dayLabel = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'][d];
+            times.push(dayLabel + ' ' + h.toString().padStart(2, '0') + ':00');
+            
+            // Generate realistic error rate data (mostly very low)
+            let errorRate = 0.01 + Math.random() * 0.03;
+            
+            // Add some spikes corresponding to the incidents
+            if (d === 1 && h === 22) errorRate = 0.11; // Jan 16 incident
+            if (d === 2 && h === 9) errorRate = 0.15;  // Jan 17 incident
+            if (d === 4 && h === 14) errorRate = 0.23; // Jan 19 incident
+            
+            errorRateData.push(parseFloat(errorRate.toFixed(3)));
+          }
+        }
+
+        const option = {
+          grid: {
+            left: 60,
+            right: 20,
+            top: 20,
+            bottom: 40
+          },
+          tooltip: {
+            trigger: 'axis',
+            backgroundColor: 'rgba(255, 255, 255, 0.95)',
+            borderColor: '#e5e7eb',
+            borderWidth: 1,
+            textStyle: { color: '#374151', fontSize: 12 },
+            formatter: function(params) {
+              let result = '<div style="font-weight:600;margin-bottom:4px;">' + params[0].axisValue + '</div>';
+              params.forEach(function(item) {
+                if (item.seriesName === 'Error Rate') {
+                  result += '<div style="display:flex;align-items:center;gap:6px;margin:2px 0;"><span style="width:8px;height:8px;border-radius:50%;background:' + item.color + '"></span>' + item.seriesName + ': <strong>' + item.value + '%</strong></div>';
+                }
+              });
+              return result;
+            }
+          },
+          xAxis: {
+            type: 'category',
+            data: times,
+            axisLine: { lineStyle: { color: '#e5e7eb' } },
+            axisLabel: { 
+              color: '#9ca3af', 
+              fontSize: 11, 
+              interval: 23,
+              formatter: function(value) {
+                return value.split(' ')[0];
+              }
+            },
+            axisTick: { show: false }
+          },
+          yAxis: {
+            type: 'value',
+            name: 'Error Rate (%)',
+            nameTextStyle: { color: '#9ca3af', fontSize: 11 },
+            min: 0,
+            max: 0.6,
+            axisLine: { show: false },
+            axisLabel: { 
+              color: '#9ca3af', 
+              fontSize: 11,
+              formatter: function(value) {
+                return value + '%';
+              }
+            },
+            splitLine: { lineStyle: { color: '#f3f4f6' } }
+          },
+          series: [
+            {
+              name: 'Error Rate',
+              data: errorRateData,
+              type: 'line',
+              smooth: true,
+              symbol: 'none',
+              lineStyle: { color: '#0D8626', width: 2 },
+              areaStyle: { 
+                color: {
+                  type: 'linear',
+                  x: 0, y: 0, x2: 0, y2: 1,
+                  colorStops: [
+                    { offset: 0, color: 'rgba(34, 197, 94, 0.2)' },
+                    { offset: 1, color: 'rgba(34, 197, 94, 0)' }
+                  ]
+                }
+              }
+            },
+            {
+              name: 'Warning Threshold',
+              type: 'line',
+              markLine: {
+                silent: true,
+                symbol: 'none',
+                lineStyle: { type: 'dashed', color: '#f59e0b', width: 1 },
+                data: [{ yAxis: 0.1 }],
+                label: { show: true, formatter: 'Warning: 0.1%', position: 'end', color: '#f59e0b', fontSize: 10 }
+              }
+            },
+            {
+              name: 'Critical Threshold',
+              type: 'line',
+              markLine: {
+                silent: true,
+                symbol: 'none',
+                lineStyle: { type: 'dashed', color: '#ef4444', width: 1 },
+                data: [{ yAxis: 0.5 }],
+                label: { show: true, formatter: 'Critical: 0.5%', position: 'end', color: '#ef4444', fontSize: 10 }
+              }
+            }
+          ]
+        };
+
+        myChart.setOption(option);
+        
+        // Handle resize
+        window.addEventListener('resize', function() {
+          myChart.resize();
+        });
+      }
+    });
+  </script>
+</body>
+</html>
+
+

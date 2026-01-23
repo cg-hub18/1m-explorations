@@ -4822,7 +4822,7 @@ Cisco <span class="log-var">I2C</span> <span class="log-var">SMB</span> adapter 
   </div>
 
   <!-- Data Exploration Full Page -->
-  <div class="data-exploration-page" id="dataExplorationPage">
+  <div class="data-exploration-page open" id="dataExplorationPage">
     <!-- Left Sidebar Container - Rendered by LeftNav component -->
     <div id="deNavContainer"></div>
 
@@ -5705,6 +5705,19 @@ Acceptance Criteria:
         openDataExploration();
         // Clear the hash to avoid re-triggering on refresh
         history.replaceState(null, '', window.location.pathname);
+      }
+    });
+
+    // Initialize Data Exploration view on this page (already open via CSS class)
+    document.addEventListener('DOMContentLoaded', function() {
+      // Set nav state and initialize view immediately (no delay)
+      setActiveNavItem('Data Exploration');
+      document.body.style.overflow = 'hidden';
+      if (savedDocs.length === 0) {
+        createNewDoc();
+        showView('landing');
+      } else {
+        showView('docList');
       }
     });
   </script>
