@@ -250,10 +250,10 @@ const Copilot = forwardRef(function Copilot({ onOpenSources, onOpenSteps, onAddS
           content: "Hi! I'm Opsmate. I can help you explore your data, create visualizations, and find insights in your metrics.",
           followUp: 'What would you like to explore?',
           quickActions: [
-            { id: 'summarize-doc', label: 'Summarize this document', primary: true },
-            { id: 'suggest-queries', label: 'Suggest queries' },
-            { id: 'find-anomalies', label: 'Find anomalies' },
-            { id: 'create-chart', label: 'Help me create a chart' },
+            { id: 'build-query', label: 'Help me build a query' },
+            { id: 'query-examples', label: 'Show query examples' },
+            { id: 'query-syntax', label: 'Explain query syntax' },
+            { id: 'debug-query', label: 'Debug my query' },
           ],
         },
       ]
@@ -402,6 +402,36 @@ const Copilot = forwardRef(function Copilot({ onOpenSources, onOpenSteps, onAddS
       reference: referenced ? referenced.title : null,
     }
     setChatMessages(prev => [...prev, userChatMessage])
+
+    // Check if the user is asking about creating protection
+    const isProtectionRequest = userMessage.toLowerCase().match(/create.*protection|add.*protection|set.*protection|new.*protection|protection/)
+
+    if (isProtectionRequest) {
+      // Show thinking, then respond with protection card
+      setIsThinking(true)
+      await new Promise(resolve => setTimeout(resolve, 2500))
+      setIsThinking(false)
+
+      const protectionSteps = getRandomSteps(2, 4)
+      const protectionResponse = {
+        id: `msg-${Date.now()}`,
+        type: 'assistant',
+        header: { icon: 'opsmate', title: 'Opsmate', steps: protectionSteps },
+        content: "I've created a protection recommendation based on your request.",
+        embed: {
+          type: 'protection-recommendation',
+          title: 'Protection Recommendation Created',
+          subtitle: 'Click to configure and activate',
+          action: { 
+            label: 'Open protection settings', 
+            url: 'http://localhost:8888/opsmate-protection/?mode=protection' 
+          }
+        },
+      }
+      setChatMessages(prev => [...prev, protectionResponse])
+      setStepCount(prev => Math.min(prev + protectionSteps, MAX_STEPS))
+      return
+    }
 
     // Start thinking
     setIsThinking(true)
@@ -1512,6 +1542,42 @@ Monitors keanu service metrics related to SEV owner's area of responsibility.`,
                       </div>
                     </div>
                   </a>
+                )}
+
+                {/* Protection Recommendation Embed Card */}
+                {msg.embed?.type === 'protection-recommendation' && (
+                  <button
+                    onClick={() => {
+                      const url = msg.embed.action?.url || '#'
+                      // Send message to parent to open in overlay modal
+                      window.parent.postMessage({ type: 'openProtectionOverlay', url }, '*')
+                    }}
+                    className="block w-full text-left mb-4 p-4 rounded-xl bg-gray-100 border border-gray-200 hover:border-gray-300 hover:shadow-sm transition-all cursor-pointer group"
+                  >
+                    <div className="flex items-center gap-3">
+                      {/* Shield Icon */}
+                      <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-white border border-gray-200 flex items-center justify-center">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-600">
+                          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                        </svg>
+                      </div>
+                      {/* Content */}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          <h4 className="text-sm font-semibold text-gray-900">{msg.embed.title}</h4>
+                        </div>
+                        <p className="text-xs text-gray-600">
+                          {msg.embed.action?.label || msg.embed.subtitle}
+                        </p>
+                      </div>
+                      {/* Arrow */}
+                      <div className="flex-shrink-0 text-gray-400 group-hover:text-gray-600 transition-colors">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M9 18l6-6-6-6"/>
+                        </svg>
+                      </div>
+                    </div>
+                  </button>
                 )}
 
                 {/* Rich Content - Datasets */}

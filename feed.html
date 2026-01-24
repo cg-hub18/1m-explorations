@@ -1564,6 +1564,12 @@
               </svg>
             </button>
             <div class="more-options-dropdown" id="moreOptionsDropdown">
+              <!-- Responsive overflow buttons (shown when panel open) -->
+              <div class="responsive-overflow-btns">
+                <button class="overflow-filter-btn" data-filter="unacknowledged" onclick="toggleTypeFilter(this)">Unacknowledged</button>
+                <button class="overflow-filter-btn" data-filter="forme" onclick="toggleTypeFilter(this)">For me</button>
+              </div>
+              <div class="dropdown-divider responsive-divider"></div>
               <label class="dropdown-item">
                 <input type="checkbox" name="filter-this-oncall">
                 This Oncall
@@ -1637,13 +1643,13 @@
                   <div class="title-content">
                     <a href="sev-detail.html" class="title-link">S448319 Taylor Swift - Life of a Showgirl - Only In Polish</a>
                     <div class="title-meta">
+                      <span class="feed-badge feed-badge-comment">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                        # new
+                      </span>
                       <span class="feed-badge feed-badge-followed">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                         Followed
-                      </span>
-                      <span class="feed-badge feed-badge-comment">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-                        2 new comments
                       </span>
                     </div>
                   </div>
@@ -1727,7 +1733,7 @@
                     <div class="title-meta">
                       <span class="feed-badge feed-badge-comment">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-                        4 new comments
+                        # new
                       </span>
                       <span class="feed-badge feed-badge-followed">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
@@ -1819,7 +1825,7 @@
                     <div class="title-meta">
                       <span class="feed-badge feed-badge-comment">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-                        8 new comments
+                        # new
                       </span>
                       <span class="feed-badge feed-badge-followed">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
@@ -1909,13 +1915,13 @@
                   <div class="title-content">
                     <div class="title-text">API latency threshold exceeded</div>
                     <div class="title-meta">
+                      <span class="feed-badge feed-badge-comment">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                        # new
+                      </span>
                       <span class="feed-badge feed-badge-followed">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                         Followed
-                      </span>
-                      <span class="feed-badge feed-badge-comment">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-                        12 new comments
                       </span>
                     </div>
                   </div>
@@ -2087,7 +2093,7 @@
                     <div class="title-meta">
                       <span class="feed-badge feed-badge-comment">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-                        3 new comments
+                        # new
                       </span>
                       <span class="feed-badge feed-badge-followed">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
@@ -2263,7 +2269,7 @@
                     <div class="title-meta">
                       <span class="feed-badge feed-badge-comment">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-                        6 new comments
+                        # new
                       </span>
                       <span class="feed-badge feed-badge-followed">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
@@ -2351,7 +2357,7 @@
                     <div class="title-meta">
                       <span class="feed-badge feed-badge-comment">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-                        7 new comments
+                        # new
                       </span>
                     </div>
                   </div>
@@ -2433,13 +2439,13 @@
                   <div class="title-content">
                     <div class="title-text">SSL certificate expiring soon</div>
                     <div class="title-meta">
+                      <span class="feed-badge feed-badge-comment">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                        # new
+                      </span>
                       <span class="feed-badge feed-badge-followed">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                         Followed
-                      </span>
-                      <span class="feed-badge feed-badge-comment">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-                        5 new comments
                       </span>
                     </div>
                   </div>
@@ -2607,7 +2613,7 @@
                     <div class="title-meta">
                       <span class="feed-badge feed-badge-comment">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-                        2 new comments
+                        # new
                       </span>
                     </div>
                   </div>
@@ -2779,7 +2785,7 @@
                     <div class="title-meta">
                       <span class="feed-badge feed-badge-comment">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-                        3 new comments
+                        # new
                       </span>
                       <span class="feed-badge feed-badge-followed">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
@@ -2865,13 +2871,13 @@
                   <div class="title-content">
                     <div class="title-text">Update monitoring thresholds for Q2 traffic projections</div>
                     <div class="title-meta">
+                      <span class="feed-badge feed-badge-comment">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                        # new
+                      </span>
                       <span class="feed-badge feed-badge-followed">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                         Followed
-                      </span>
-                      <span class="feed-badge feed-badge-comment">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-                        9 new comments
                       </span>
                     </div>
                   </div>
@@ -2955,7 +2961,7 @@
                     <div class="title-meta">
                       <span class="feed-badge feed-badge-comment">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-                        5 new comments
+                        # new
                       </span>
                       <span class="feed-badge feed-badge-followed">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
@@ -3353,6 +3359,23 @@
     // Type filter functionality
     function toggleTypeFilter(btn) {
       btn.classList.toggle('active');
+      
+      // Sync active state between original filter buttons and overflow buttons
+      const filterType = btn.getAttribute('data-filter');
+      const isActive = btn.classList.contains('active');
+      
+      // Find and sync the corresponding overflow button
+      const overflowBtn = document.querySelector(`.overflow-filter-btn[data-filter="${filterType}"]`);
+      if (overflowBtn) {
+        overflowBtn.classList.toggle('active', isActive);
+      }
+      
+      // Find and sync the corresponding original button (if triggered from overflow)
+      const originalBtn = document.querySelector(`.type-filter-btn[data-filter="${filterType}"]`);
+      if (originalBtn && originalBtn !== btn) {
+        originalBtn.classList.toggle('active', isActive);
+      }
+      
       applyFilters();
     }
 

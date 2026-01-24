@@ -5,9 +5,29 @@ const LeftNav = {
   // Current active page - set this before calling render()
   activePage: 'Feed',
 
-  // Track accordion states (persists across renders)
-  accordionStates: {
-    'Entities': true  // default expanded
+  // Track accordion states (persists across renders and page loads)
+  accordionStates: null,
+
+  // Load accordion states from localStorage or use defaults
+  loadAccordionStates() {
+    if (this.accordionStates === null) {
+      try {
+        const saved = localStorage.getItem('leftNavAccordionStates');
+        this.accordionStates = saved ? JSON.parse(saved) : { 'Entities': false };
+      } catch (e) {
+        this.accordionStates = { 'Entities': true };
+      }
+    }
+    return this.accordionStates;
+  },
+
+  // Save accordion states to localStorage
+  saveAccordionStates() {
+    try {
+      localStorage.setItem('leftNavAccordionStates', JSON.stringify(this.accordionStates));
+    } catch (e) {
+      // localStorage may be unavailable
+    }
   },
 
   // Navigation items configuration
@@ -75,20 +95,26 @@ const LeftNav = {
     }
 
     if (item.expandable) {
-      // Use persisted accordion state
-      const isExpanded = this.accordionStates[item.name] !== undefined 
-        ? this.accordionStates[item.name] 
-        : true; // default to expanded
+      // Use persisted accordion state from localStorage
+      const states = this.loadAccordionStates();
+      const isExpanded = states[item.name] !== undefined 
+        ? states[item.name] 
+        : false; // default to collapsed
       const expandedClass = isExpanded ? ' expanded' : '';
       const subnavOpenClass = isExpanded ? ' open' : '';
       
-      // If item has href, make it a link that navigates
+      // If item has href, create split click areas (link + chevron toggle)
       if (item.href) {
         let html = `
-          <a href="${item.href}" class="sk-simple-nav-item${activeClass}">
-            <svg class="sk-nav-icon"><use href="#${item.icon}"></use></svg>
-            <span>${item.name}</span>
-          </a>
+          <div class="sk-simple-nav-item-wrapper">
+            <a href="${item.href}" class="sk-simple-nav-item sk-nav-link-part${activeClass}">
+              <svg class="sk-nav-icon"><use href="#${item.icon}"></use></svg>
+              <span>${item.name}</span>
+            </a>
+            <button class="sk-nav-chevron-btn${expandedClass}" data-accordion-name="${item.name}">
+              <svg class="sk-chevron" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+            </button>
+          </div>
           <div class="sk-simple-nav-subnav${subnavOpenClass}">`;
         
         if (item.subnav) {
@@ -215,25 +241,52 @@ const LeftNav = {
 
   // Initialize event listeners for the rendered nav
   initEventListeners(container, idPrefix) {
-    // Expandable nav items (accordions)
+    // Helper to toggle accordion and save state
+    const toggleAccordion = (accordionName, currentExpanded) => {
+      const newState = !currentExpanded;
+      
+      // Update persisted state and save to localStorage
+      this.loadAccordionStates();
+      this.accordionStates[accordionName] = newState;
+      this.saveAccordionStates();
+      
+      // Sync all accordions with this name across all navs (both types)
+      document.querySelectorAll(`[data-accordion-name="${accordionName}"]`).forEach(element => {
+        element.classList.toggle('expanded', newState);
+        // Find the subnav - it's either next sibling or parent's next sibling
+        let subnav = element.nextElementSibling;
+        if (!subnav || !subnav.classList.contains('sk-simple-nav-subnav')) {
+          // For chevron buttons inside wrapper, look for subnav after the wrapper
+          const wrapper = element.closest('.sk-simple-nav-item-wrapper');
+          if (wrapper) {
+            subnav = wrapper.nextElementSibling;
+          }
+        }
+        if (subnav && subnav.classList.contains('sk-simple-nav-subnav')) {
+          subnav.classList.toggle('open', newState);
+        }
+      });
+    };
+
+    // Expandable nav items (full button accordions - no href)
     const expandables = container.querySelectorAll('.sk-simple-nav-item.sk-expandable');
     expandables.forEach(btn => {
       btn.addEventListener('click', () => {
         const accordionName = btn.getAttribute('data-accordion-name');
         const isExpanded = btn.classList.contains('expanded');
-        const newState = !isExpanded;
-        
-        // Update persisted state
-        this.accordionStates[accordionName] = newState;
-        
-        // Sync all accordions with this name across all navs
-        document.querySelectorAll(`.sk-simple-nav-item.sk-expandable[data-accordion-name="${accordionName}"]`).forEach(accordion => {
-          accordion.classList.toggle('expanded', newState);
-          const subnav = accordion.nextElementSibling;
-          if (subnav && subnav.classList.contains('sk-simple-nav-subnav')) {
-            subnav.classList.toggle('open', newState);
-          }
-        });
+        toggleAccordion(accordionName, isExpanded);
+      });
+    });
+
+    // Chevron buttons (for items with href - split click areas)
+    const chevronBtns = container.querySelectorAll('.sk-nav-chevron-btn');
+    chevronBtns.forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const accordionName = btn.getAttribute('data-accordion-name');
+        const isExpanded = btn.classList.contains('expanded');
+        toggleAccordion(accordionName, isExpanded);
       });
     });
 

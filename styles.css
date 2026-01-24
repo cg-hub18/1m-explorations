@@ -760,6 +760,45 @@
   padding-left: 40px !important;
 }
 
+/* Split click area wrapper (for expandable items with href) */
+.sk-simple-nav-item-wrapper {
+  display: flex;
+  align-items: center;
+  margin: 2px 0;
+}
+
+.sk-simple-nav-item-wrapper .sk-nav-link-part {
+  flex: 1;
+  margin: 0;
+  border-radius: 6px 0 0 6px;
+}
+
+.sk-nav-chevron-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 36px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  border-radius: 0 6px 6px 0;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.sk-nav-chevron-btn:hover {
+  background: var(--color-btn-gray);
+}
+
+.sk-nav-chevron-btn .sk-chevron {
+  margin-left: 0;
+}
+
+.sk-nav-chevron-btn.expanded .sk-chevron {
+  transform: rotate(180deg);
+}
+
 .sk-simple-nav-divider {
   height: 1px;
   background: var(--border-color);
@@ -4951,6 +4990,58 @@ body {
   }
 }
 
+/* Responsive Filter Overflow - Hidden by default */
+.responsive-overflow-btns {
+  display: none;
+  padding: 8px 12px;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.responsive-divider {
+  display: none;
+  height: 1px;
+  background: #E5E7EB;
+  margin: 0;
+}
+
+.overflow-filter-btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 12px;
+  font-size: 13px;
+  font-weight: 500;
+  background: #F3F4F6;
+  color: #4B5563;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.overflow-filter-btn:hover {
+  background: #E5E7EB;
+}
+
+.overflow-filter-btn.active {
+  background: #EBF5FF;
+  color: #1D4ED8;
+  border-color: #BFDBFE;
+}
+
+/* Show overflow buttons & hide original filters when panel is open */
+.main-content.panel-open .responsive-overflow-btns {
+  display: flex;
+}
+
+.main-content.panel-open .responsive-divider {
+  display: block;
+}
+
+.main-content.panel-open .type-filter-btn {
+  display: none;
+}
+
 /* Opsmate Overlay */
 .opsmate-overlay {
   position: fixed;
@@ -5591,7 +5682,7 @@ body {
 .task-panel-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.3);
+  background: transparent;
   z-index: 999;
   opacity: 0;
   visibility: hidden;

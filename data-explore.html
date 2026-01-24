@@ -3058,11 +3058,19 @@ Cisco <span class="log-var">I2C</span> <span class="log-var">SMB</span> adapter 
         }, 300);
       }
 
-      // Listen for close message from iframe
+      // Listen for messages from iframe
       window.addEventListener('message', (event) => {
         if (event.data === 'closeOpsmate') {
           closeOpsmateOverlay();
           closeOpsmatePanel();
+        }
+        // Handle protection overlay request
+        if (event.data?.type === 'openProtectionOverlay') {
+          const overlay = document.getElementById('opsmateOverlay');
+          const iframe = document.getElementById('opsmateFrame');
+          iframe.src = event.data.url || './opsmate-protection/?mode=protection';
+          overlay.classList.add('open');
+          document.body.style.overflow = 'hidden';
         }
       });
 
