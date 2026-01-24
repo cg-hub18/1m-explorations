@@ -1564,12 +1564,14 @@
               </svg>
             </button>
             <div class="more-options-dropdown" id="moreOptionsDropdown">
-              <!-- Responsive overflow buttons (shown when panel open) -->
-              <div class="responsive-overflow-btns">
-                <button class="overflow-filter-btn" data-filter="unacknowledged" onclick="toggleTypeFilter(this)">Unacknowledged</button>
-                <button class="overflow-filter-btn" data-filter="forme" onclick="toggleTypeFilter(this)">For me</button>
-              </div>
-              <div class="dropdown-divider responsive-divider"></div>
+              <label class="dropdown-item">
+                <input type="checkbox" name="filter-unacknowledged">
+                Unacknowledged
+              </label>
+              <label class="dropdown-item">
+                <input type="checkbox" name="filter-forme">
+                For me
+              </label>
               <label class="dropdown-item">
                 <input type="checkbox" name="filter-this-oncall">
                 This Oncall
@@ -3200,11 +3202,11 @@
         <div class="flyout-card-body">
           <div class="flyout-resolution" style="margin-bottom: 12px;">
             <div class="flyout-resolution-label">Root Cause</div>
-            <p class="flyout-resolution-text">The auth service HTTP client was configured with aggressive timeout settings (500ms) that caused cascading failures during periods of elevated network latency. The retry mechanism lacked exponential backoff, leading to thundering herd issues when multiple services attempted simultaneous reconnections.</p>
+            <p class="flyout-resolution-text" id="flyoutRootCause">The auth service HTTP client was configured with aggressive timeout settings (500ms) that caused cascading failures during periods of elevated network latency. The retry mechanism lacked exponential backoff, leading to thundering herd issues when multiple services attempted simultaneous reconnections.</p>
           </div>
           <div class="flyout-resolution">
             <div class="flyout-resolution-label">Mitigation</div>
-            <p class="flyout-resolution-text">Implemented retry logic with exponential backoff across all auth service HTTP calls. Added a circuit breaker pattern to prevent cascade failures during service degradation, along with configurable timeout policies. Error rates have dropped by 94% since deployment, and the system now gracefully handles transient network issues without impacting user sessions.</p>
+            <p class="flyout-resolution-text" id="flyoutMitigation">Implemented retry logic with exponential backoff across all auth service HTTP calls. Added a circuit breaker pattern to prevent cascade failures during service degradation, along with configurable timeout policies. Error rates have dropped by 94% since deployment, and the system now gracefully handles transient network issues without impacting user sessions.</p>
           </div>
         </div>
       </div>
@@ -3645,7 +3647,8 @@
         owner: 'Jamie Gomez',
         ownerAvatar: 'https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=100&h=100&fit=crop&crop=face',
         comments: '2 new',
-        opsmateSummary: 'Opsmate automatically identified and resolved this issue by implementing retry logic with exponential backoff. Error rates have dropped by 94% since deployment.',
+        rootCause: 'The auth service HTTP client was configured with aggressive timeout settings (500ms) that caused cascading failures during periods of elevated network latency. The retry mechanism lacked exponential backoff, leading to thundering herd issues.',
+        mitigation: 'Implemented retry logic with exponential backoff across all auth service HTTP calls. Added a circuit breaker pattern to prevent cascade failures during service degradation. Error rates have dropped by 94% since deployment.',
         lastActivity: '4.4 weeks ago'
       },
       'S512847': {
@@ -3658,7 +3661,8 @@
         owner: 'Michael Chen',
         ownerAvatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face',
         comments: '3 new',
-        opsmateSummary: 'Audio synchronization issues detected across multiple broadcast endpoints. Opsmate is analyzing latency patterns and recommending buffer adjustments.',
+        rootCause: 'Audio synchronization drift caused by clock skew between broadcast encoders and CDN edge nodes. The NTP sync interval was set to 24 hours, allowing significant drift during high-traffic events.',
+        mitigation: 'Reduced NTP sync interval to 5 minutes and implemented adaptive buffer sizing based on measured latency. Added real-time audio fingerprinting to detect and correct sync issues automatically.',
         lastActivity: '2 hours ago'
       },
       'S623914': {
@@ -3671,14 +3675,91 @@
         owner: 'Nina Patel',
         ownerAvatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop&crop=face',
         comments: '3 new',
-        opsmateSummary: 'Buffer overflow detected on streaming edge nodes. Opsmate is correlating traffic patterns with server metrics to identify root cause.',
+        rootCause: 'Buffer overflow on streaming edge nodes caused by unexpected spike in 4K stream requests. Memory allocation pool exhausted when concurrent viewers exceeded 2.3M threshold.',
+        mitigation: 'Currently scaling edge node capacity and implementing dynamic buffer allocation. Redirecting overflow traffic to backup CDN while primary nodes are upgraded.',
         lastActivity: '1 hour ago'
+      },
+      'S732845': {
+        id: 'S732845',
+        title: 'March Madness - Regional Finals - Scorecard Not Updating',
+        level: 3,
+        type: 'Live',
+        status: 'Acknowledged',
+        stack: 'Data',
+        owner: 'Alex Rivera',
+        ownerAvatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop&crop=face',
+        comments: '1 new',
+        rootCause: 'WebSocket connection drops between score ingestion service and frontend clients. Firewall rules updated during maintenance window inadvertently blocked persistent connections.',
+        mitigation: 'Reverted firewall changes and implemented connection health monitoring. Added automatic reconnection with exponential backoff on the client side.',
+        lastActivity: '30 minutes ago'
+      }
+    };
+
+    // Content data for all feed items (keyed by title substring)
+    const feedContentMap = {
+      'High memory usage on cache cluster': {
+        rootCause: 'Redis cache nodes experiencing memory pressure due to increased session storage from new user authentication flow. Memory fragmentation at 47% with eviction rate spiking during peak hours.',
+        mitigation: 'Scaled cache cluster from 3 to 5 nodes and enabled active defragmentation. Implemented TTL optimization for session keys reducing memory footprint by 32%.'
+      },
+      'API latency threshold exceeded': {
+        rootCause: 'Database connection pool exhaustion causing request queuing. The pool size of 50 connections was insufficient for the 3x traffic increase following marketing campaign launch.',
+        mitigation: 'Increased connection pool to 150 and added connection timeout monitoring. Implemented request prioritization to ensure critical paths maintain sub-100ms latency.'
+      },
+      'Mobile Release protection setup': {
+        rootCause: 'Missing canary deployment configuration for mobile API endpoints. Release pipeline lacks gradual rollout stages causing full exposure to potential issues.',
+        mitigation: 'Configure 5-10-25-50-100% rollout stages with automated rollback triggers. Add mobile-specific health checks for crash rate and ANR monitoring.'
+      },
+      'Performance degradation in checkout flow': {
+        rootCause: 'N+1 query pattern introduced in recent inventory check refactor. Each cart item triggers separate database call instead of batch query, adding 200ms per item.',
+        mitigation: 'Refactored to use batch query with DataLoader pattern. Checkout latency reduced from 2.3s to 400ms for average cart size. Deployed with feature flag for gradual rollout.'
+      },
+      'Disk space warning on analytics cluster': {
+        rootCause: 'Log retention policy not applied to new analytics tables created in Q4. Uncompressed event logs growing at 50GB/day without automatic cleanup.',
+        mitigation: 'Applied 30-day retention policy and enabled zstd compression. Cleared 2.1TB of historical data and set up automated disk usage alerts at 70% threshold.'
+      },
+      'Update monitoring dashboard thresholds': {
+        rootCause: 'Current alert thresholds based on pre-scale traffic patterns. False positive rate at 23% causing alert fatigue and missed critical incidents.',
+        mitigation: 'Analyze 90-day baseline metrics and implement dynamic thresholds using statistical models. Reduce noise by 80% while maintaining incident detection sensitivity.'
+      },
+      'SSL certificate expiring soon': {
+        rootCause: 'Certificate auto-renewal failed due to DNS validation timeout. ACME client unable to reach validation endpoint through corporate proxy configuration.',
+        mitigation: 'Updated proxy settings for ACME client and triggered manual renewal. Certificate valid for 90 days. Added monitoring for cert expiry at 30, 14, and 7 day thresholds.'
+      },
+      'Database connection pool tuning': {
+        rootCause: 'Connection pool settings optimized for read-heavy workload causing write contention. Write transactions waiting up to 500ms for available connections during batch jobs.',
+        mitigation: 'Implement separate connection pools for read and write operations. Configure write pool with 30 dedicated connections and priority queuing for transactional operations.'
+      },
+      'Missing detector for rb_app_responsiveness': {
+        rootCause: 'Critical user-facing metric lacks anomaly detection coverage. Manual monitoring insufficient for detecting gradual degradation patterns.',
+        mitigation: 'Deploy ML-based anomaly detector with 15-minute detection window. Configure alerts for >2 standard deviation changes with automatic escalation to on-call.'
+      },
+      'CDN edge node health check failures': {
+        rootCause: 'Health check endpoint returning 503 due to upstream origin timeout. Edge nodes marking themselves unhealthy despite serving cached content correctly.',
+        mitigation: 'Separated health check from origin dependency. Implemented local health validation and added grace period before marking node unhealthy. Recovery time improved from 5min to 30s.'
+      },
+      'Update monitoring thresholds for Q2': {
+        rootCause: 'Traffic projections show 40% increase for Q2 product launches. Current capacity thresholds will trigger premature alerts during normal peak load.',
+        mitigation: 'Adjust warning thresholds from 70% to 80% and critical from 85% to 90%. Add predictive scaling triggers based on traffic forecasting model.'
+      },
+      'Login success rate dropped': {
+        rootCause: 'Auth service deploy introduced stricter token validation rejecting tokens with clock skew >30 seconds. Mobile clients with incorrect device time failing authentication.',
+        mitigation: 'Increased clock skew tolerance to 5 minutes and added client-side time sync check. Success rate recovered to 99.7% within 2 hours of config update.'
+      },
+      'Database replication lag exceeding threshold': {
+        rootCause: 'Large batch update job running without rate limiting caused 45-second replication lag. Read replicas serving stale data during peak traffic window.',
+        mitigation: 'Implemented batch job throttling with 1000 rows/second limit. Added replication lag circuit breaker to pause writes when lag exceeds 10 seconds.'
       }
     };
 
     function openFlyout(row) {
       const flyout = document.getElementById('flyoutPanel');
       const rowType = row.dataset.type;
+      
+      // If clicking the same row, close the flyout (toggle behavior)
+      if (selectedRow === row) {
+        closeFlyout();
+        return;
+      }
       
       // Remove selection from previous row
       if (selectedRow) {
@@ -3729,7 +3810,8 @@
         document.getElementById('flyoutComments').textContent = sevData.comments;
         
         // Update Opsmate resolution
-        document.querySelector('.flyout-resolution-text').textContent = sevData.opsmateSummary;
+        document.getElementById('flyoutRootCause').textContent = sevData.rootCause;
+        document.getElementById('flyoutMitigation').textContent = sevData.mitigation;
         
         // Update timeline
         document.querySelector('.flyout-timeline-author').textContent = sevData.owner;
@@ -3751,11 +3833,29 @@
         document.getElementById('flyoutOwner').textContent = ownerLink;
         
         // Get comments text
-      if (commentsMeta) {
-        const commentsText = commentsMeta.textContent.trim();
+        if (commentsMeta) {
+          const commentsText = commentsMeta.textContent.trim();
           document.getElementById('flyoutComments').textContent = commentsText.includes('new') ? commentsText : commentsText;
-      } else {
+        } else {
           document.getElementById('flyoutComments').textContent = '0 New';
+        }
+        
+        // Look up content from feedContentMap based on title
+        let contentData = null;
+        for (const key in feedContentMap) {
+          if (titleText.includes(key) || key.includes(titleText.substring(0, 20))) {
+            contentData = feedContentMap[key];
+            break;
+          }
+        }
+        
+        if (contentData) {
+          document.getElementById('flyoutRootCause').textContent = contentData.rootCause;
+          document.getElementById('flyoutMitigation').textContent = contentData.mitigation;
+        } else {
+          // Default fallback
+          document.getElementById('flyoutRootCause').textContent = 'Analysis pending. Opsmate is gathering data from monitoring systems and recent deployments to identify the root cause.';
+          document.getElementById('flyoutMitigation').textContent = 'Mitigation steps will be recommended once root cause analysis is complete. Check back for updates.';
         }
       }
       

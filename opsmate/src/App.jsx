@@ -516,7 +516,7 @@ function App() {
       // Create a branch immediately without the loading delay
       const newBranch = {
         id: `branch-protection-${Date.now()}`,
-        name: 'Opsmate Protection',
+        name: 'Missing SLI detector for rb_app_responsiveness',
         createdAt: new Date().toLocaleString('en-US', { 
           month: 'short', 
           day: 'numeric', 

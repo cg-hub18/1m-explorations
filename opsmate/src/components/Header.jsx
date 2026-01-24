@@ -93,16 +93,8 @@ export default function Header({ investigationId, title, activeCanvasTab, onCanv
             )}
             <span className="text-blue-600 font-medium">OM48164</span>
             <span>•</span>
-            <span>Regression:</span>
-            <a 
-              href={`https://www.internalfb.com/sevmanager/view/${investigationId?.replace('S', '') || '448319'}`}
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-amber-50 text-amber-700 hover:bg-amber-100 rounded text-xs font-medium transition-colors"
-            >
-              <Flame className="w-3 h-3" />
-              {investigationId || 'S448319'}
-            </a>
+            <span>Detection:</span>
+            <span className="text-gray-700 font-medium">rb_app_responsiveness</span>
           </div>
         </div>
       </div>

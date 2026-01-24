@@ -484,7 +484,6 @@
             <a href="#live-tracker" class="panel-tab" onclick="scrollToSection('live-tracker', event)">Live Tracker</a>
             <a href="#sevs" class="panel-tab" onclick="scrollToSection('sevs', event)">Related SEVs</a>
             <a href="#related-tasks" class="panel-tab" onclick="scrollToSection('related-tasks', event)">Related Tasks</a>
-            <a href="#review" class="panel-tab" onclick="scrollToSection('review', event)">Review</a>
           </nav>
         </div>
 
@@ -546,7 +545,7 @@
               </div>
             </div>
             <div class="opsmate-actions">
-              <button type="button" class="pill-btn blue" id="opsmate-explore-btn" onclick="event.stopPropagation(); openOpsmateOverlay();" style="display: none;">Explore</button>
+              <button type="button" class="pill-btn blue" id="opsmate-explore-btn" onclick="event.stopPropagation(); openOpsmateOverlay();">Explore</button>
               <button class="card-toggle" onclick="toggleOpsmate(this)">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <polyline points="18 15 12 9 6 15"/>
@@ -890,7 +889,7 @@
                     <rect x="3" y="3" width="18" height="18" rx="3"/>
                     <path d="M7 12l3 3 7-7" stroke-linecap="round" stroke-linejoin="round"/>
                   </svg>
-                  <span class="followup-count">0</span>
+                  <span class="followup-count" id="other-task-count">0</span>
                   <span class="followup-label">Other SEV followup tasks</span>
                 </div>
                 <div class="followup-actions">
@@ -964,7 +963,7 @@
                       <rect x="3" y="3" width="18" height="18" rx="3"/>
                       <path d="M7 12l3 3 7-7" stroke-linecap="round" stroke-linejoin="round"/>
                     </svg>
-                    <span class="followup-count has-items">1</span>
+                    <span class="followup-count" id="rootcause-task-count">0</span>
                     <span class="followup-label">Root Cause SEV followup tasks</span>
                   </div>
                   <div class="followup-actions">
@@ -1056,7 +1055,7 @@
                     <rect x="3" y="3" width="18" height="18" rx="3"/>
                     <path d="M7 12l3 3 7-7" stroke-linecap="round" stroke-linejoin="round"/>
                   </svg>
-                  <span class="followup-count">0</span>
+                  <span class="followup-count" id="detection-task-count">0</span>
                   <span class="followup-label">Detection SEV followup tasks</span>
                 </div>
                 <div class="followup-actions">
@@ -1152,7 +1151,7 @@
                     <rect x="3" y="3" width="18" height="18" rx="3"/>
                     <path d="M7 12l3 3 7-7" stroke-linecap="round" stroke-linejoin="round"/>
                   </svg>
-                  <span class="followup-count">0</span>
+                  <span class="followup-count" id="escalation-task-count">0</span>
                   <span class="followup-label">Escalation SEV followup tasks</span>
                 </div>
                 <div class="followup-actions">
@@ -1205,7 +1204,7 @@
                     <rect x="3" y="3" width="18" height="18" rx="3"/>
                     <path d="M7 12l3 3 7-7" stroke-linecap="round" stroke-linejoin="round"/>
                   </svg>
-                  <span class="followup-count">0</span>
+                  <span class="followup-count" id="mitigation-task-count">0</span>
                   <span class="followup-label">Mitigation SEV followup tasks</span>
                 </div>
                 <div class="followup-actions">
@@ -1259,7 +1258,7 @@
                     <rect x="3" y="3" width="18" height="18" rx="3"/>
                     <path d="M7 12l3 3 7-7" stroke-linecap="round" stroke-linejoin="round"/>
                   </svg>
-                  <span class="followup-count">0</span>
+                  <span class="followup-count" id="prevention-task-count">0</span>
                   <span class="followup-label">Prevention SEV followup tasks</span>
                 </div>
                 <div class="followup-actions">
@@ -1593,31 +1592,161 @@
         <!-- Related Tasks Card -->
         <div class="content-card" id="related-tasks">
           <div class="card-header">
-            <h3 class="card-title">Related Tasks</h3>
-            <button class="card-toggle collapsed" onclick="toggleCard(this)">
+            <div class="card-title-row">
+              <h3 class="card-title">Related Tasks</h3>
+              <div class="card-badges">
+                <span class="card-badge">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="3"/>
+                    <path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72l1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+                  </svg>
+                  0
+                </span>
+                <span class="card-badge">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="3" width="18" height="18" rx="2"/>
+                    <path d="M9 12l2 2 4-4"/>
+                  </svg>
+                  0|0
+                </span>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" stroke-width="2">
+                  <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+                  <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+                </svg>
+              </div>
+            </div>
+            <button class="card-toggle" onclick="toggleCard(this)">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <polyline points="6 9 12 15 18 9"/>
               </svg>
             </button>
           </div>
           <div class="card-body">
-            <div class="skeleton-row">
-              <div class="skeleton skeleton-avatar"></div>
-              <div class="skeleton skeleton-line-long"></div>
+            <!-- Action Buttons -->
+            <div class="related-tasks-actions">
+              <button class="related-task-btn">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+                  <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+                </svg>
+                Link detection task
+              </button>
+              <button class="related-task-btn">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+                  <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+                </svg>
+                Link followup task
+              </button>
+              <button class="related-task-btn primary">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="12" y1="5" x2="12" y2="19"/>
+                  <line x1="5" y1="12" x2="19" y2="12"/>
+                </svg>
+                Create SEV followup task
+              </button>
             </div>
-            <div class="skeleton-row">
-              <div class="skeleton skeleton-avatar"></div>
-              <div class="skeleton skeleton-line-long"></div>
+
+            <!-- Task Graph Link -->
+            <a href="#" class="task-graph-link">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+              </svg>
+              Open Task Graph for SEV Tasks
+            </a>
+
+            <!-- Expandable Task Sections -->
+            <div class="task-section">
+              <div class="task-section-header" onclick="toggleTaskSection(this)">
+                <div class="task-section-left">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6B7280" stroke-width="2">
+                    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+                  </svg>
+                  <span class="task-section-count">0</span>
+                  <span class="task-section-title">Detection Tasks</span>
+                  <span class="task-section-desc">List of tasks that detected the SEV</span>
+                </div>
+                <svg class="task-section-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" stroke-width="2">
+                  <polyline points="6 9 12 15 18 9"/>
+                </svg>
+              </div>
+              <div class="task-section-body"></div>
             </div>
-            <div class="skeleton-row">
-              <div class="skeleton skeleton-avatar"></div>
-              <div class="skeleton skeleton-line-medium"></div>
+
+            <div class="task-section">
+              <div class="task-section-header" onclick="toggleTaskSection(this)">
+                <div class="task-section-left">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6B7280" stroke-width="2">
+                    <rect x="3" y="3" width="18" height="18" rx="2"/>
+                    <path d="M9 12l2 2 4-4"/>
+                  </svg>
+                  <span class="task-section-count">0</span>
+                  <span class="task-section-title">SEV Followup Tasks</span>
+                </div>
+                <svg class="task-section-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" stroke-width="2">
+                  <polyline points="6 9 12 15 18 9"/>
+                </svg>
+              </div>
+              <div class="task-section-body"></div>
+            </div>
+
+            <div class="task-section">
+              <div class="task-section-header" onclick="toggleTaskSection(this)">
+                <div class="task-section-left">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6B7280" stroke-width="2">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                  </svg>
+                  <span class="task-section-count">0</span>
+                  <span class="task-section-title">Risk Incidents</span>
+                </div>
+                <svg class="task-section-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" stroke-width="2">
+                  <polyline points="6 9 12 15 18 9"/>
+                </svg>
+              </div>
+              <div class="task-section-body"></div>
+            </div>
+
+            <div class="task-section">
+              <div class="task-section-header" onclick="toggleTaskSection(this)">
+                <div class="task-section-left">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6B7280" stroke-width="2">
+                    <rect x="3" y="3" width="18" height="18" rx="2"/>
+                    <path d="M9 12l2 2 4-4"/>
+                  </svg>
+                  <span class="task-section-count">0</span>
+                  <span class="task-section-title">Mentioned Tasks</span>
+                  <span class="task-section-desc">List of tasks mentioned in the SEV comments</span>
+                </div>
+                <svg class="task-section-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" stroke-width="2">
+                  <polyline points="6 9 12 15 18 9"/>
+                </svg>
+              </div>
+              <div class="task-section-body"></div>
+            </div>
+
+            <div class="task-section">
+              <div class="task-section-header" onclick="toggleTaskSection(this)">
+                <div class="task-section-left">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6B7280" stroke-width="2">
+                    <circle cx="12" cy="12" r="3"/>
+                    <path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72l1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+                  </svg>
+                  <span class="task-section-count">0</span>
+                  <span class="task-section-title">Mentioned Diffs</span>
+                  <span class="task-section-desc">List of diffs mentioned in the SEV comments</span>
+                </div>
+                <svg class="task-section-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" stroke-width="2">
+                  <polyline points="6 9 12 15 18 9"/>
+                </svg>
+              </div>
+              <div class="task-section-body"></div>
             </div>
           </div>
         </div>
 
-        <!-- Review Card -->
-        <div class="content-card" id="review">
+        <!-- Review Card (hidden) -->
+        <div class="content-card" id="review" style="display: none;">
           <div class="card-header">
             <h3 class="card-title">Review</h3>
             <button class="card-toggle collapsed" onclick="toggleCard(this)">
@@ -1684,7 +1813,7 @@
                     </div>
                   </div>
                   <div class="opsmate-actions">
-                    <button type="button" class="pill-btn blue" onclick="event.stopPropagation(); openOpsmateOverlay();" style="display: none;">Explore</button>
+                    <button type="button" class="pill-btn blue" onclick="event.stopPropagation(); openOpsmateOverlay();">Explore</button>
                     <button class="card-toggle" onclick="toggleInvestigationOpsmate(this)">
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <polyline points="18 15 12 9 6 15"/>
@@ -2838,6 +2967,20 @@ Cisco <span class="log-var">I2C</span> <span class="log-var">SMB</span> adapter 
           }
         }
         
+        // Update followup task counts based on mitigated status
+        const rootCauseCount = document.getElementById('rootcause-task-count');
+        if (rootCauseCount) {
+          if (isMitigated) {
+            // Show actual task counts when mitigated
+            rootCauseCount.textContent = '1';
+            rootCauseCount.classList.add('has-items');
+          } else {
+            // Reset all counts to 0 when not mitigated
+            rootCauseCount.textContent = '0';
+            rootCauseCount.classList.remove('has-items');
+          }
+        }
+        
         // Show saved confirmation
         const saveBtn = document.querySelector('.edit-save-btn');
         const originalText = saveBtn.textContent;
@@ -2977,6 +3120,12 @@ Cisco <span class="log-var">I2C</span> <span class="log-var">SMB</span> adapter 
           cardBody.style.display = 'none';
           button.classList.add('collapsed');
         }
+      }
+
+      // Toggle task section expand/collapse
+      function toggleTaskSection(header) {
+        const section = header.closest('.task-section');
+        section.classList.toggle('expanded');
       }
 
       // Toggle Opsmate card collapse

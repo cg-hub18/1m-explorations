@@ -47,7 +47,7 @@ const LeftNav = {
     },
     { name: 'Metrics', icon: 'icon-dots-lines-outline', href: '/metrics/' },
     { type: 'divider' },
-    { name: 'Data Exploration', icon: 'icon-chart-outline', href: '/data-explore.html', action: null, deAction: null },
+    { name: 'Data Exploration', icon: 'icon-chart-outline', href: '/data-explore.html', action: null, deAction: 'goToDataExplorationHome' },
     { type: 'divider' },
     { name: 'Protections', icon: 'icon-shield-outline', action: null, deAction: null },
     { name: 'SEV Criteria', icon: 'icon-flame-outline', action: null, deAction: null }
@@ -124,7 +124,8 @@ const LeftNav = {
             if (subAction) {
               subOnclick = ` onclick="${subAction}(); return false;"`;
             }
-            html += `<a href="#" class="sk-simple-nav-item sk-subnav-item"${subOnclick}>${subitem.name}</a>`;
+            const subHref = subitem.href || '#';
+            html += `<a href="${subHref}" class="sk-simple-nav-item sk-subnav-item"${subOnclick}>${subitem.name}</a>`;
           });
         }
         
@@ -147,7 +148,8 @@ const LeftNav = {
           if (subAction) {
             subOnclick = ` onclick="${subAction}(); return false;"`;
           }
-          html += `<a href="#" class="sk-simple-nav-item sk-subnav-item"${subOnclick}>${subitem.name}</a>`;
+          const subHref = subitem.href || '#';
+          html += `<a href="${subHref}" class="sk-simple-nav-item sk-subnav-item"${subOnclick}>${subitem.name}</a>`;
         });
       }
       

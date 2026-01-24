@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Agents - OneMonitoring</title>
+  <link rel="icon" type="image/svg+xml" href="../favicon.svg?v=2">
+  <link rel="stylesheet" href="../styles.css?v=58">
+  <script src="../components/left-nav.js"></script>
+  <style>
+    body{margin:0;padding:0;min-height:100vh;background:#F1F4F7;display:flex}
+    .main-content{margin-left:240px;flex:1;min-height:100vh;background:#F1F4F7}
+    .agents-page-header{background:#fff;padding:16px 24px;border-bottom:1px solid #CCD3DB}
+    .agents-page-header-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+    .agents-page-header-left{display:flex;align-items:baseline;gap:12px}
+    .agents-page-header-left h1{font-size:20px;font-weight:600;color:#0A1317;margin:0}
+    .results-count{font-size:14px;color:#748695}
+    .filter-pills{display:flex;gap:8px}
+    .filter-pill{padding:6px 14px;background:transparent;border:none;border-radius:6px;font-size:14px;font-weight:500;color:#748695;cursor:pointer}
+    .filter-pill.active{background:#E3F0FF;color:#0064E0}
+    .agents-table-container{padding:16px 24px}
+    .agents-table{width:100%;border-collapse:collapse;background:#fff;border-radius:8px;border:1px solid #CCD3DB}
+    .agents-table th{text-align:left;padding:12px 16px;font-size:12px;font-weight:600;color:#748695;text-transform:uppercase;border-bottom:1px solid #CCD3DB;background:#FAFBFC}
+    .agents-table td{padding:12px 16px;border-bottom:1px solid #CCD3DB;font-size:14px}
+    .agents-table tr:last-child td{border-bottom:none}
+    .agents-table tbody tr:hover{background:#F8F9FA}
+    .agent-name-cell{display:flex;align-items:center;gap:12px}
+    .agent-type-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;background:#F0F2F5;color:#65676B}
+    .agent-type-icon svg{width:18px;height:18px}
+    .agent-name-info h4{font-size:14px;font-weight:500;color:#0A1317;margin:0 0 2px 0}
+    .agent-name-info span{font-size:12px;color:#748695}
+    .type-badge{padding:4px 10px;border-radius:4px;font-size:13px;background:#F0F2F5;color:#0A1317}
+    .owner-cell{display:flex;align-items:center;gap:8px}
+    .owner-avatar{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#fff}
+    .wau-value{font-weight:500;color:#0A1317}
+    .health-badge{padding:4px 12px;border-radius:12px;font-size:13px;font-weight:500}
+    .health-badge.healthy{background:#E6F4EA;color:#137333}
+    .action-btns{display:flex;gap:4px;opacity:0}
+    tr:hover .action-btns{opacity:1}
+    .action-icon-btn{width:28px;height:28px;border:none;background:transparent;border-radius:4px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#748695}
+    .ask-opsmate-btn{position:fixed;bottom:24px;right:24px;display:flex;align-items:center;gap:8px;padding:8px 16px;background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:500;cursor:pointer;z-index:1000}
+  </style>
+</head>
+<body>
+  <svg xmlns="http://www.w3.org/2000/svg" style="display:none">
+    <symbol id="icon-house-outline" viewBox="0 0 24 24"><path fill="currentColor" d="M14.39 3.87a3.5 3.5 0 0 0-4.79 0L4.26 8.88C3.46 9.63 3 10.7 3 11.8v6.5c0 1.18.82 2.21 1.96 2.45.91.19 1.86.35 2.81.47a1.5 1.5 0 0 0 1.55-.49c.43-.38.68-.93.68-1.51V16c0-.55.45-1 1-1h2c.55 0 1 .45 1 1v3.23c0 .58.25 1.12.68 1.51a1.5 1.5 0 0 0 1.56.48c.95-.12 1.9-.28 2.81-.47 1.13-.24 1.96-1.27 1.96-2.45v-6.5c0-1.1-.46-2.17-1.26-2.92l-5.34-5.01z"/></symbol>
+    <symbol id="icon-circles-outline" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2C6.49 2 2 6.49 2 12s4.49 10 10 10 10-4.49 10-10S17.51 2 12 2m0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8"/></symbol>
+    <symbol id="icon-dots-lines-outline" viewBox="0 0 24 24"><path fill="currentColor" d="M5 15a3 3 0 1 1 0 6 3 3 0 0 1 0-6zm11-2a3 3 0 1 1 0 6 3 3 0 0 1 0-6zM8 5a3 3 0 1 1 0 6 3 3 0 0 1 0-6zm11-2a3 3 0 1 1 0 6 3 3 0 0 1 0-6z"/></symbol>
+    <symbol id="icon-shield-outline" viewBox="0 0 24 24"><path fill="currentColor" d="M3.74 5.11a17.18 17.18 0 0 1 16.51 0c.46.25.74.73.74 1.26v3.88a12 12 0 0 1-6.23 10.52l-1.81.99a2 2 0 0 1-1.92 0l-1.81-.99A12 12 0 0 1 3 10.24V6.37c0-.52.29-1 .74-1.26z"/></symbol>
+    <symbol id="icon-flame-outline" viewBox="0 0 24 24"><path fill="currentColor" d="M10.71 21.92c.4.06.8.08 1.2.08 2.2 0 4.3-.85 5.79-2.38 2.13-2.18 3.23-6.73 1.31-10.28-.2-.36-.6-.57-1.01-.52a.99.99 0 0 0-.84.76c-.35 1.48-1.02 2.63-1.76 3-.06.03-.13.06-.19.08.48-2.64.68-7.81-4.22-10.53a1 1 0 0 0-1.04.04c-.31.2-.48.56-.45.94.17 1.71-1.09 3.29-2.42 4.96-1.96 2.46-4.41 5.53-2.27 9.83 1.17 2.19 3.32 3.65 5.89 4.02z"/></symbol>
+    <symbol id="icon-chart-outline" viewBox="0 0 24 24"><path fill="currentColor" d="M20.25 4.96C20.01 3.83 18.98 3 17.81 3H6.2C5.03 3 4 3.82 3.76 4.96c-1 4.67-1 9.41 0 14.09.24 1.13 1.27 1.96 2.44 1.96h11.61c1.17 0 2.2-.82 2.44-1.96 1-4.67 1-9.41 0-14.09z"/></symbol>
+    <symbol id="icon-dot-double-arcs-outline" viewBox="0 0 24 24"><path fill="currentColor" d="M12 10a2 2 0 1 1 0 4 2 2 0 0 1 0-4"/></symbol>
+    <symbol id="icon-feed-rss-outline" viewBox="0 0 24 24"><path fill="currentColor" d="M6.18 15.64a2.18 2.18 0 1 1 0 4.36 2.18 2.18 0 0 1 0-4.36M4 4.44A15.56 15.56 0 0 1 19.56 20h-2.83A12.73 12.73 0 0 0 4 7.27V4.44"/></symbol>
+  </svg>
+  <div id="mainNavContainer"></div>
+  <main class="main-content">
+    <div class="agents-page-header">
+      <div class="agents-page-header-top">
+        <div class="agents-page-header-left"><h1>Agents</h1><span class="results-count" id="resultsCount">12 results</span></div>
+      </div>
+      <div class="filter-pills">
+        <button class="filter-pill active">All types</button>
+        <button class="filter-pill">Foundational</button>
+        <button class="filter-pill">Sub-Agent</button>
+      </div>
+    </div>
+    <div class="agents-table-container">
+      <table class="agents-table">
+        <thead><tr><th>NAME / DESCRIPTION</th><th>TYPE</th><th>OWNER</th><th>WAU</th><th>HEALTH</th><th></th></tr></thead>
+        <tbody id="agentsTableBody"></tbody>
+      </table>
+    </div>
+  </main>
+  <button class="ask-opsmate-btn" onclick="openOpsmate()">Ask Opsmate</button>
+  <div class="opsmate-panel" id="opsmatePanel"><iframe id="opsmatePanelFrame" src="" style="width:100%;height:100%;border:none"></iframe></div>
+  <script>
+    var agents=[
+      {name:'AnalystOS',desc:'Analytics',type:'Foundational',owner:'Sarah Chen',wau:'510M',health:'healthy'},
+      {name:'Opsmate',desc:'Operations',type:'Foundational',owner:'Mike Johnson',wau:'434M',health:'healthy'},
+      {name:'Calendar Agent',desc:'Productivity',type:'Foundational',owner:'Alex Rivera',wau:'633M',health:'healthy'},
+      {name:'Commerce Agent',desc:'Commerce',type:'Foundational',owner:'Emily Zhang',wau:'823M',health:'healthy'},
+      {name:'Content Agent',desc:'Integrity',type:'Foundational',owner:'Chris Park',wau:'245M',health:'healthy'},
+      {name:'DevMate Agent',desc:'Engineering',type:'Foundational',owner:'Jordan Lee',wau:'44M',health:'healthy'},
+      {name:'DevOps Agent',desc:'SRE/Production',type:'Foundational',owner:'Sam Taylor',wau:'1.04B',health:'healthy'},
+      {name:'Finance Agent',desc:'Finance',type:'Foundational',owner:'Morgan Davis',wau:'184M',health:'healthy'},
+      {name:'Growth Agent',desc:'Growth',type:'Foundational',owner:'Casey White',wau:'2.03B',health:'healthy'},
+      {name:'Support Agent',desc:'Support',type:'Foundational',owner:'Riley Brown',wau:'434M',health:'healthy'},
+      {name:'Knowledge Agent',desc:'Knowledge',type:'Foundational',owner:'Quinn Garcia',wau:'200M',health:'healthy'},
+      {name:'Policy Agent',desc:'Policy',type:'Foundational',owner:'Avery Martinez',wau:'200M',health:'healthy'}
+    ];
+    var colors=['#1877F2','#42B72A','#F02849','#9C27B0','#FF9800','#00BCD4','#795548','#607D8B'];
+    function col(n){var h=0;for(var i=0;i<n.length;i++)h=n.charCodeAt(i)+((h<<5)-h);return colors[Math.abs(h)%colors.length]}
+    function ini(n){return n.split(' ').map(function(x){return x[0]}).join('').toUpperCase()}
+    function row(a){return '<tr><td><div class="agent-name-cell"><div class="agent-type-icon"><svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div><div class="agent-name-info"><h4>'+a.name+'</h4><span>'+a.desc+'</span></div></div></td><td><span class="type-badge">'+a.type+'</span></td><td><div class="owner-cell"><div class="owner-avatar" style="background:'+col(a.owner)+'">'+ini(a.owner)+'</div><p>'+a.owner+'</p></div></td><td><span class="wau-value">'+a.wau+'</span></td><td><span class="health-badge healthy">Healthy</span></td><td><div class="action-btns"><button class="action-icon-btn"><svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg></button></div></td></tr>'}
+    function render(){document.getElementById('agentsTableBody').innerHTML=agents.map(row).join('')}
+    function openOpsmate(){var p=document.getElementById('opsmatePanel');p.classList.toggle('open');document.getElementById('opsmatePanelFrame').src=p.classList.contains('open')?'../opsmate-app/index.html?chatOnly=true':''}
+    document.addEventListener('DOMContentLoaded',function(){LeftNav.activePage='Agents';LeftNav.render('mainNavContainer');render()})
+  </script>
+</body>
+</html>

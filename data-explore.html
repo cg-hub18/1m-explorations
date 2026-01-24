@@ -3844,6 +3844,9 @@ Cisco <span class="log-var">I2C</span> <span class="log-var">SMB</span> adapter 
       }
       
       function openDocFromList(docId) {
+        // Close Opsmate panel if open
+        closeOpsmatePanel();
+        
         const idx = savedDocs.findIndex(d => d.id === docId);
         if (idx < 0) return;
         
@@ -4311,6 +4314,9 @@ Cisco <span class="log-var">I2C</span> <span class="log-var">SMB</span> adapter 
       }
       
       function goToDataExplorationHome() {
+        // Close Opsmate panel if open
+        closeOpsmatePanel();
+        
         // Go to doc list if docs exist, otherwise go to landing
         if (savedDocs.length > 0) {
           showView('docList');
@@ -4404,6 +4410,9 @@ Cisco <span class="log-var">I2C</span> <span class="log-var">SMB</span> adapter 
       }
       
       function backToDocList() {
+        // Close Opsmate panel if open
+        closeOpsmatePanel();
+        
         // Save current doc if it has queries
         if (currentDoc && docQueries.length > 0) {
           saveCurrentDoc();

@@ -1153,9 +1153,6 @@ const Copilot = forwardRef(function Copilot({ onOpenSources, onOpenSteps, onAddS
             },
           ],
         },
-        quickActions: [
-          { id: 'add-datasets-to-canvas', label: 'Add to Canvas' },
-        ],
       }
 
       setChatMessages(prev => [...prev, datasetsMessage])
